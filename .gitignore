@@ -1,0 +1,13 @@
+# Back-end関連
+back/config/
+back/log/
+back/tmp/
+back/entrypoint.sh
+
+# Front-end関連
+front/.next/
+front/node_modules/
+
+# 環境設定ファイルやIDE関連
+.env
+.ruby-lsp/
