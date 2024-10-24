@@ -1,8 +1,10 @@
 # Back-end関連
-back/config/
 back/log/
 back/tmp/
 back/entrypoint.sh
+back/storage/
+back/vender/
+
 
 # Front-end関連
 front/.next/
