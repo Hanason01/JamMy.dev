@@ -5,7 +5,11 @@ class PostsController < ApplicationController
   def index
     @posts = Post.all
 
-    render json: @posts
+    if @posts.empty?
+      render json: { message: "No posts available" }
+    else
+      render json: @posts
+    end
   end
 
   # GET /posts/1
