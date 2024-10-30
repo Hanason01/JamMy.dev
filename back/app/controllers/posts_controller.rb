@@ -3,13 +3,13 @@ class PostsController < ApplicationController
 
   # GET /posts
   def index
-    @posts = Post.all
+    # @posts = Post.all
 
-    if @posts.empty?
+    # if @posts.empty?
       render json: { message: "No posts available" }
-    else
-      render json: @posts
-    end
+    # else
+      # render json: @posts
+    # end
   end
 
   # GET /posts/1
