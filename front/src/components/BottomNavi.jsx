@@ -4,9 +4,10 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import RestoreIcon from '@mui/icons-material/Restore';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
+import HomeIcon from '@mui/icons-material/Home';
+import AddIcon from '@mui/icons-material/Add';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import PersonIcon from '@mui/icons-material/Person';
 
 export function BottomNavi() {
   const [value, setValue] = useState(0);
@@ -21,28 +22,28 @@ export function BottomNavi() {
         backgroundColor: 'primary.main',
       }}
     >
-      <BottomNavigationAction icon={<RestoreIcon />}
+      <BottomNavigationAction icon={<HomeIcon />}
         sx={{
           color: 'primary.contrastText',
           '&.Mui-selected': {
             color: 'secondary.main',
           },
         }} />
-      <BottomNavigationAction icon={<FavoriteIcon />}
+      <BottomNavigationAction icon={<AddIcon />}
         sx={{
           color: 'primary.contrastText',
           '&.Mui-selected': {
             color: 'secondary.main',
           },
         }}/>
-      <BottomNavigationAction icon={<LocationOnIcon />}
+      <BottomNavigationAction icon={<NotificationsIcon />}
         sx={{
           color: 'primary.contrastText',
           '&.Mui-selected': {
             color: 'secondary.main',
           },
         }}/>
-      <BottomNavigationAction icon={<LocationOnIcon />}
+      <BottomNavigationAction icon={<PersonIcon />}
         sx={{
           color: 'primary.contrastText',
           '&.Mui-selected': {
