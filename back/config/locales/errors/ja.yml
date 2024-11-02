@@ -1,0 +1,4 @@
+ja:
+  errors:
+    messages:
+      taken: "は既に存在しています"
