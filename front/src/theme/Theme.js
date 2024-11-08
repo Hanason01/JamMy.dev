@@ -15,8 +15,12 @@ const theme = createTheme({
       contrastText: '#FAFAFA'
     },
     text: {
-      primary: '#494848'
+      primary: '#494848',
+      secondary: '#757575',
+      disabled: '#BDBDBD',
+      hint: '#9E9E9E'
     },
+    divider:'#BDBDBD',
     background: {
       default: '#FAFAFA'
     },
