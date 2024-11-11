@@ -15,10 +15,15 @@ export const useSignInValidation = () => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    defaultValues: {
+      remember_me: false,
+    },
+    mode: "onChange"
   });
 
-  return { register, handleSubmit, errors };
+  return { register, handleSubmit, setError, errors };
 };
