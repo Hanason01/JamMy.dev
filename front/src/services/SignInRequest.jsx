@@ -14,6 +14,10 @@ export const signInRequest = async (data) => {
       if (error.response.data.errors.password) {
         formattedErrors.password = error.response.data.errors.password[0];
       }
+    }
+
+    if (error.response?.status === 401 && error.response.data.errors) {
+        formattedErrors.general = "メールアドレスもしくはパスワードが正しくありません";
     } else {
       formattedErrors.general = "エラーが発生しました。再度お試しください。";
     }

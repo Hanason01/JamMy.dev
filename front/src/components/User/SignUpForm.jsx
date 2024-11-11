@@ -27,16 +27,15 @@ export function SignUpForm() {
       const response = await signUpRequest(filteredData);
       router.push("/post");
     } catch (error) {
-      console.log(error);
-    if (error.errors?.email) {
-        setError("email", { type: "manual", message: error.errors.email[0] });
-      } else if (error.errors?.password) {
-        setError("password", { type: "manual", message: error.errors.password[0] });
-      } else if (error.errors?.username) {
-        setError("username", { type: "manual", message: error.errors.username[0] });
+    if (error.email) {
+        setError("email", { type: "manual", message: error.email });
+      } else if (error.password) {
+        setError("password", { type: "manual", message: error.password });
+      } else if (error.username) {
+        setError("username", { type: "manual", message: error.username });
       } else {
         // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
-        setFormError("エラーが発生しました。再度お試しください。");
+        setFormError(error.general);
       }
     }
   };
