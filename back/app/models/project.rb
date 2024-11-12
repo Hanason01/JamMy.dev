@@ -1,7 +1,7 @@
 class Project < ApplicationRecord
   belongs_to :user
 
-  enum status: { draft: 0, oepn: 1, closed: 2}
+  enum status: { draft: 0, open: 1, closed: 2}
   enum visibility: { is_public: 0, is_private: 1 }
 
   validates :title, presence: true, length: { maximum: 50 }
