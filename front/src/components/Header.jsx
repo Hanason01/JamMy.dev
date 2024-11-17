@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { LogoutRequest } from '../services/LogoutRequest';
 import AppBar from '@mui/material/AppBar';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -31,8 +32,21 @@ export function Header() {
     setAnchorEl(null);
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout(); // ログアウトサービスを呼び出し
+      setAuth(false); // 認証状態を更新
+      setAnchorEl(null); // メニューを閉じる
+      router.push("/login"); // ログインページにリダイレクト
+    } catch (error) {
+      console.error("ログアウト処理に失敗しました");
+    }
+  };
+
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{
+      flexGrow: 1,
+      height: '64px' }}>
       <FormGroup>
         <FormControlLabel
           control={
@@ -45,7 +59,7 @@ export function Header() {
           label={auth ? 'Logout' : 'Login'}
         />
       </FormGroup>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar>
           <IconButton
             size="large"
@@ -88,6 +102,7 @@ export function Header() {
               >
                 <MenuItem onClick={handleClose}>Profile</MenuItem>
                 <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </div>
           )}
