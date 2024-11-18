@@ -1,28 +1,17 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export function useAudioPlayer(audioUrl) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const audioContextRef = useRef(null);
   const audioElementRef = useRef(null);
-  const sourceNodeRef = useRef(null);
 
   useEffect(() => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    }
-
     if (!audioElementRef.current) {
       audioElementRef.current = new Audio(audioUrl);
     }
 
     const audio = audioElementRef.current;
-
-    if (!sourceNodeRef.current) {
-      sourceNodeRef.current = audioContextRef.current.createMediaElementSource(audio);
-      sourceNodeRef.current.connect(audioContextRef.current.destination);
-    }
 
     // メタデータがロードされたら再生時間を設定
     const handleMetadata = () => setDuration(Math.floor(audio.duration));
@@ -40,9 +29,6 @@ export function useAudioPlayer(audioUrl) {
   }, [audioUrl]);
 
   const play = () => {
-    if (audioContextRef.current.state === "suspended") {
-      audioContextRef.current.resume();
-    }
     audioElementRef.current.play();
     setIsPlaying(true);
   };
