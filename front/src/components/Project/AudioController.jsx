@@ -1,22 +1,18 @@
 "use client";
 
 import { useAudioPlayer } from "../../hooks/useAudioPlayer";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Box, Avatar, IconButton, Typography, Slider } from "@mui/material";
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import CloseIcon from '@mui/icons-material/Close';
 
-export function AudioController({onClose, audioUrl, autoPlay, project, user }){
+export function AudioController({onClose, audioUrl, project, user }){
   const { isPlaying, currentTime, duration, play, pause, seek } = useAudioPlayer(audioUrl);
-  const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
 
   useEffect(() => {
-    if (autoPlay && !hasAutoPlayed) {
-      play();
-      setHasAutoPlayed(true); // 一度再生したらフラグを更新
-    }
-  }, [autoPlay, hasAutoPlayed, play]);
+      play(); //初回レンダリング時のみ自動再生
+  }, []);
 
   return(
     <Box
@@ -69,8 +65,8 @@ export function AudioController({onClose, audioUrl, autoPlay, project, user }){
         />
       <Box sx={{ display: "flex", justifyContent: "space-between"}}>
         <Typography color= "textSecondary" sx={{ width: "35px", textAlign: "right",}}>{Math.floor(currentTime)}秒</Typography>
-                <Box display= "flex" justifyContent= "center">
-        <IconButton sx={{ p: 0 }} onClick={isPlaying ? pause : play} >{isPlaying ? (
+        <Box display= "flex" justifyContent= "center">
+          <IconButton sx={{ p: 0 }} onClick={isPlaying ? pause : play} >{isPlaying ? (
             <PauseCircleIcon
               sx={{ width: 60, height: 60, color: "primary.main" }}
             />

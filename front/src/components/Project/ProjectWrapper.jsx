@@ -96,7 +96,6 @@ export function ProjectWrapper(){
         <AudioController
           onClose={handleCloseClick}
           audioUrl={audioUrl}
-          autoPlay={true}
           project={currentProject}
           user={currentUser}
         />
