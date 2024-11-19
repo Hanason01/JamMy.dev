@@ -7,10 +7,7 @@ export function useAudioPlayer(audioUrl) {
   const audioElementRef = useRef(null);
 
   useEffect(() => {
-    if (!audioElementRef.current) {
-      audioElementRef.current = new Audio(audioUrl);
-    }
-
+    audioElementRef.current = new Audio(audioUrl);
     const audio = audioElementRef.current;
 
     // メタデータがロードされたら再生時間を設定
@@ -26,7 +23,7 @@ export function useAudioPlayer(audioUrl) {
       audio.removeEventListener("loadedmetadata", handleMetadata);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
     };
-  }, [audioUrl]);
+  }, []);
 
   const play = () => {
     audioElementRef.current.play();
