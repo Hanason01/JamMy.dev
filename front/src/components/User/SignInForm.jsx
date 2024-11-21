@@ -22,7 +22,7 @@ export function SignInForm() {
   const sendDataToAPI = async (data) => {
     try {
       const response = await signInRequest(data);
-      router.push("/post");
+      router.push("/project");
     } catch (error) {
       if (error.email) {
         setError("email", { type: "manual", message: error.email });

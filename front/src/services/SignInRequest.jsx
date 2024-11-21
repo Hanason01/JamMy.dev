@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const signInRequest = async (data) => {
   try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/sign_in`, data);
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/sign_in`, data, { withCredentials: true });
     return response.data;
   } catch (error) {
     const formattedErrors = {};
