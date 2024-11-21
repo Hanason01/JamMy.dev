@@ -25,7 +25,7 @@ export function SignUpForm() {
     const { confirmPassword, ...filteredData } = data;
     try {
       const response = await signUpRequest(filteredData);
-      router.push("/post");
+      router.push("/project");
     } catch (error) {
     if (error.email) {
         setError("email", { type: "manual", message: error.email });

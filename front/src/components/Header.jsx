@@ -1,24 +1,18 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { LogoutRequest } from '../services/LogoutRequest';
-import AppBar from '@mui/material/AppBar';
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+import { AppBar, Box, Toolbar, Typography, Switch, FormControlLabel, FormGroup, Menu, MenuItem } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormGroup from '@mui/material/FormGroup';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
+
 
 export function Header() {
   const [auth, setAuth] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
+  const router = useRouter();
 
   const handleChange = (event) => {
     setAuth(event.target.checked);
@@ -34,11 +28,12 @@ export function Header() {
 
   const handleLogout = async () => {
     try {
-      await logout(); // ログアウトサービスを呼び出し
+      await LogoutRequest(); // ログアウトサービスを呼び出し
       setAuth(false); // 認証状態を更新
       setAnchorEl(null); // メニューを閉じる
-      router.push("/login"); // ログインページにリダイレクト
+      router.push("/"); // ログインページにリダイレクト
     } catch (error) {
+      window.alert("ログアウトに失敗しました")
       console.error("ログアウト処理に失敗しました");
     }
   };
@@ -100,9 +95,8 @@ export function Header() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                <MenuItem onClick={handleClose}>マイページ</MenuItem>
+                <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
               </Menu>
             </div>
           )}

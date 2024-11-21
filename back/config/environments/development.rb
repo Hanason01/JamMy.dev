@@ -1,5 +1,6 @@
 require "active_support/core_ext/integer/time"
 
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -63,4 +64,14 @@ Rails.application.configure do
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
   config.hosts << "api"
+  config.hosts << "localhost"
+  config.hosts << "127.0.0.1"
+  config.ssl_options = {
+  hsts: false # Strict-Transport-Security ヘッダーを無効化
+}
+
+  config.force_ssl = true
+  config.logger = ActiveSupport::Logger.new(STDOUT)
+  config.log_level = :debug
+
 end

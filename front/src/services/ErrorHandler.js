@@ -1,0 +1,12 @@
+export function handleStatusErrors(status){
+  switch (status) {
+    case 404:
+      throw new Error("リソースが見つかりませんでした。");
+    case 500:
+      throw new Error("サーバーエラーが発生しました。");
+    case 401:
+      throw new Error("認証に失敗しました。");
+    default:
+      throw new Error("エラーが発生しました。");
+  }
+};
