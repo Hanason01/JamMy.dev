@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { AuthModal } from '../../components/User/AuthModal';
 
 //動的レンダリングに設定
@@ -18,11 +18,15 @@ export default function StaticAuthPage() {
     router.push('/');
   };
 
-  return openAuthModal ?(
-    <AuthModal
-      open={openAuthModal}
-      handleClose={handleClose}
-      redirectTo={redirectTo}
-    />
-  ) : null;
+  return(
+    <Suspense fallback={<div>Loading...</div>}>
+      {openAuthModal ? (
+        <AuthModal
+          open={openAuthModal}
+          handleClose={handleClose}
+          redirectTo={redirectTo}
+        />
+      ) : null}
+    </Suspense>
+  );
 }
