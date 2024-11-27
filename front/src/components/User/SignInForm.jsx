@@ -8,9 +8,9 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { PasswordField } from "./PasswordField";
 
 import { useSignInValidation } from "../../hooks/useSignInValidation";
-import { signInRequest } from "../../services/SignInRequest";
+import { useSignInRequest } from "../../hooks/services/user/useSignInRequest";
 
-export function SignInForm() {
+export function SignInForm({redirectTo}) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState("");
@@ -19,10 +19,11 @@ export function SignInForm() {
 
   const { register, handleSubmit, setError, errors } = useSignInValidation();
 
+  const { signIn } = useSignInRequest();
   const sendDataToAPI = async (data) => {
     try {
-      const response = await signInRequest(data);
-      router.push("/project");
+      await signIn(data);
+      router.push(redirectTo || "/project");
     } catch (error) {
       if (error.email) {
         setError("email", { type: "manual", message: error.email });

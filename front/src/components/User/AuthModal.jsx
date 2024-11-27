@@ -2,22 +2,29 @@
 
 import { useState } from "react";
 import { Box, Modal, Tabs, Tab } from "@mui/material";
-
+import { useAuthContext } from "../../context/useAuthContext";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import LockIcon from "@mui/icons-material/Lock";
 import { SignUpForm } from "./SignUpForm";
 import { SignInForm } from "./SignInForm";
 
-export function AuthModal({open, handleClose}){
-    const [tabIndex, setTabIndex] = useState(0);
+export function AuthModal({open, handleClose, redirectTo}){
+  const { showAuthModal, closeAuthModal } = useAuthContext();
+  const [tabIndex, setTabIndex] = useState(0);
 
-    const handleTabChange = (event, newValue) =>{
-      setTabIndex(newValue);
-    }
+  const handleTabChange = (event, newValue) =>{
+    setTabIndex(newValue);
+  }
+
+  //トップページベースかAuthContextベース
+  const isModalOpen = open || showAuthModal;
+
   return(
     <Modal
-      open={open}
-      onClose={handleClose}>
+      open={isModalOpen}
+      onClose={() => {
+        closeAuthModal();
+        if (open) handleClose()}}>
         <Box
           sx={{
             display: "flex",
@@ -51,8 +58,8 @@ export function AuthModal({open, handleClose}){
             <Tab icon={<LockIcon/>} iconPosition="start" label="ログイン" />
             <Tab icon={<PersonAddIcon/>} iconPosition="start" label="新規登録" />
           </Tabs>
-            {tabIndex === 0 && <SignInForm />}
-            {tabIndex === 1 && <SignUpForm />}
+            {tabIndex === 0 && <SignInForm redirectTo={redirectTo} />}
+            {tabIndex === 1 && <SignUpForm redirectTo={redirectTo} />}
         </Box>
     </Modal>
   );

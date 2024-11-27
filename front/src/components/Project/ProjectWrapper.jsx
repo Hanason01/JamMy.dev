@@ -4,17 +4,18 @@ import { useState, useEffect } from "react";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
 import { ProjectCard } from "./ProjectCard";
 import { AudioController } from "../../components/Project/AudioController";
-import { projectIndexRequest } from "../../services/ProjectIndexRequest";
+import { projectIndexRequest } from "../../hooks/services/ProjectIndexRequest";
 
-export function ProjectWrapper(){
+export function ProjectWrapper({setCurrentProject, setCurrentUser}){
   const [isAudioControllerVisible, setAudioControllerVisible] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
   const [projects, setProjects] = useState([]);
   const [included, setIncluded] = useState([]);
-  const [currentProject, setCurrentProject] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [projectForController, setProjectForController] = useState(null);
+  const [userForController, setUserForController] = useState(null);
 
   // included 配列を使ってユーザー情報をマッピング
   const userMap = included.reduce((map, item) => {
@@ -41,14 +42,14 @@ export function ProjectWrapper(){
 
   const handlePlayClick = (project) => {
     const user = userMap[project.relationships.user.data.id];
-    setCurrentProject(project); // 現在再生中のプロジェクトをセット
-    setCurrentUser(user); // 現在再生中のユーザーをセット
+    setProjectForController(project); // 現在再生中のプロジェクトをセット
+    setUserForController(user); // 現在再生中のユーザーをセット
     setAudioUrl(project.attributes.audioUrl); // オーディオURLをセット
     setAudioControllerVisible(true); // コントローラーを表示
   };
   const handleCloseClick = () => {
-    setCurrentProject(null);
-    setCurrentUser(null);
+    setProjectForController(null);
+    setUserForController(null);
     setAudioControllerVisible(false);
     setAudioUrl(null);
   };
@@ -88,6 +89,8 @@ export function ProjectWrapper(){
             onPlayClick={handlePlayClick}
             project={project}
             user={user}
+            setCurrentProject={setCurrentProject}
+            setCurrentUser={setCurrentUser}
             />
           );
         })
@@ -96,8 +99,8 @@ export function ProjectWrapper(){
         <AudioController
           onClose={handleCloseClick}
           audioUrl={audioUrl}
-          project={currentProject}
-          user={currentUser}
+          project={projectForController}
+          user={userForController}
         />
       )}
     </Box>
