@@ -8,8 +8,9 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import PeopleIcon from '@mui/icons-material/People';
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
+import { useCollaborationRequest } from "../../hooks/services/collaboration/useCollaborationNewRequest";
 
-export function ProjectCard({project, user, onPlayClick}){
+export function ProjectCard({project, user, onPlayClick, setCurrentProject, setCurrentUser}){
   const [expanded, setExpanded] = useState(false);
   const toggleExpanded = () => setExpanded(!expanded);
 
@@ -21,6 +22,20 @@ export function ProjectCard({project, user, onPlayClick}){
   //プロジェクトの作成時間取得
   const createdAt = new Date(project.attributes.created_at);
   const formattedDate = formatDistanceToNow(createdAt, { addSuffix: true, locale: ja })
+
+  //リクエストフックの設置
+  const { collaborationNewRequest } = useCollaborationRequest();
+
+  //応募リクエスト
+  const handleCollaborationRequest = async () => {
+    try {
+      await collaborationNewRequest(project);
+      setCurrentProject(project);
+      setCurrentUser(user);
+    } catch (error) {
+      console.error("応募リクエストに失敗しました:", error);
+    }
+  };
 
   return(
     <Paper
@@ -71,7 +86,7 @@ export function ProjectCard({project, user, onPlayClick}){
             </IconButton>
           </Box>
         )}
-        <Button variant="secondary">応募する（実装途中）</Button>
+        <Button variant="secondary" onClick={() => handleCollaborationRequest()}>応募する</Button>
         <Box
           sx={{
             display: 'flex',

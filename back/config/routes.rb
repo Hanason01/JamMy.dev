@@ -5,7 +5,10 @@ Rails.application.routes.draw do
   }
   namespace :api do
     namespace :v1 do
-      resources :projects, only: %i[ index ]
+      get 'collaborations/show'
+      resources :projects, only: %i[ index ] do
+        resources :collaborations, only: %i[ new create]
+      end
     end
   end
 end

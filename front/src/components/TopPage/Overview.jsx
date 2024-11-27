@@ -1,19 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Typography, Button, Box } from "@mui/material";
-import { AuthModal } from "../User/AuthModal";
+import { useAuthContext } from "../../context/useAuthContext";
 
 export function Overview(){
-  const [openAuthModal, setOpenAuthModal] = useState(false);
-
-  const handleOpenAuthModal = () => {
-    setOpenAuthModal(true);
-  };
-
-  const handleCloseAuthModal = () => {
-    setOpenAuthModal(false);
-  };
+  const { openAuthModal } = useAuthContext();
 
   return (
     <Box
@@ -37,11 +28,10 @@ export function Overview(){
           <Button variant="secondary">
             投稿を見る
           </Button>
-          <Button variant="secondary" onClick={handleOpenAuthModal}>
+          <Button variant="secondary" onClick={openAuthModal}>
             ログインする
           </Button>
         </Box>
-        <AuthModal open={openAuthModal} handleClose={handleCloseAuthModal} />
       </Box>
   );
 }
