@@ -1,7 +1,8 @@
 import { ThemeProviderWrapper } from '../components/ThemeProviderWrapper';
 import { AuthProvider } from '../context/useAuthContext';
 import { AuthModal } from '../components/User/AuthModal';
-import { Suspense } from'react';
+import { ProjectProvider } from '../context/useProjectContext';
+
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
@@ -18,12 +19,12 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
-          <ThemeProviderWrapper>
-            <Suspense fallback={<div>Loading...</div>}>
+          <ProjectProvider>
+            <ThemeProviderWrapper>
               {children}
-            </Suspense>
             <AuthModal />
-          </ThemeProviderWrapper>
+            </ThemeProviderWrapper>
+          </ProjectProvider>
         </AuthProvider>
       </body>
     </html>

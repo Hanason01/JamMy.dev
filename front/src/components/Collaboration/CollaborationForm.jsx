@@ -1,18 +1,28 @@
-import { useEffect } from 'react';
+"use client";
 
-export function CollaborationForm({ currentProject, currentUser }) {
-  // セッションストレージにデータを保存(リロード対策)
+import { useState, useEffect } from 'react';
+import { useProjectContext } from "../../context/useProjectContext";
+
+export function CollaborationForm() {
+  const { currentProject, currentUser } = useProjectContext();
+  const [storedProject, setStoredProject] = useState(null);
+  const [storedUser, setStoredUser] = useState(null);
+
+  //以下ブラウザ依存コードにつきuseEffectで管理
   useEffect(() => {
-    if (currentProject && currentUser) {
+  // セッションストレージにデータを保存(リロード対策)
+  if (currentProject && currentUser) {
       sessionStorage.setItem('currentProject', JSON.stringify(currentProject));
       sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
     }
+  // セッションストレージからデータを取得
+  const projectFromStorage = JSON.parse(sessionStorage.getItem('currentProject'));
+  const userFromStorage = JSON.parse(sessionStorage.getItem('currentUser'));
+  setStoredProject(projectFromStorage || null);
+  setStoredUser(userFromStorage || null);
   }, []);
 
-  // セッションストレージからデータを取得
-  const storedProject = JSON.parse(sessionStorage.getItem('currentProject'));
-  const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
-
+  //状態変数またはセッションよりデータを取得
   const project = currentProject || storedProject;
   const user = currentUser || storedUser;
 
