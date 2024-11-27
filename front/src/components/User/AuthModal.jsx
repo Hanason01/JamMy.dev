@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Box, Modal, Tabs, Tab } from "@mui/material";
 import { useAuthContext } from "../../context/useAuthContext";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -8,13 +9,17 @@ import LockIcon from "@mui/icons-material/Lock";
 import { SignUpForm } from "./SignUpForm";
 import { SignInForm } from "./SignInForm";
 
-export function AuthModal({open, handleClose, redirectTo}){
+export function AuthModal({open, handleClose }){
   const { showAuthModal, closeAuthModal } = useAuthContext();
   const [tabIndex, setTabIndex] = useState(0);
 
   const handleTabChange = (event, newValue) =>{
     setTabIndex(newValue);
   }
+
+  //redirectToからの取り出し
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") //直前のリクエストURL
 
   //トップページベースかAuthContextベース
   const isModalOpen = open || showAuthModal;
