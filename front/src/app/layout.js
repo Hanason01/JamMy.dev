@@ -18,7 +18,9 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           <ThemeProviderWrapper>
-            {children}
+            <Suspense fallback={<div>Loading...</div>}>
+              {children}
+            </Suspense>
             <AuthModal />
           </ThemeProviderWrapper>
         </AuthProvider>
