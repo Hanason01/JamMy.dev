@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { handleStatusErrors } from "./ErrorHandler";
+import { handleStatusErrors } from "../ErrorHandler";
 
 export const projectIndexRequest = async (data) => {
   try {

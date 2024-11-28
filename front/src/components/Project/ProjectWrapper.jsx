@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
 import { ProjectCard } from "./ProjectCard";
 import { AudioController } from "../../components/Project/AudioController";
-import { projectIndexRequest } from "../../hooks/services/ProjectIndexRequest";
+import { projectIndexRequest } from "../../hooks/services/project/ProjectIndexRequest";
 
 export function ProjectWrapper(){
   const [isAudioControllerVisible, setAudioControllerVisible] = useState(false);
