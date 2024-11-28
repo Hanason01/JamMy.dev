@@ -1,10 +1,8 @@
 "use client";
-// export const dynamic = "force-dynamic";
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { AuthModal } from './AuthModal';
-// import { Suspense } from'react';
 
 export function AuthPageWrapper() {
   const router = useRouter();
@@ -18,7 +16,6 @@ export function AuthPageWrapper() {
   };
 
   return (
-    // <Suspense fallback={<div>Loading...</div>}>
       openAuthModal ? (
         <AuthModal
           open={openAuthModal}
@@ -26,6 +23,5 @@ export function AuthPageWrapper() {
           redirectTo={redirectTo}
         />
       ) : null
-    // </Suspense>
   );
 }
