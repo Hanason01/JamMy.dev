@@ -7,7 +7,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins "localhost:8000", "127.0.0.1:8000"
+    origins "localhost:8000", "127.0.0.1:8000", "jam-my-dev.vercel.app"
 
     resource "*",
       headers: :any,
