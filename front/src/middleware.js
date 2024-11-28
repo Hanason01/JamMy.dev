@@ -13,7 +13,7 @@ export function middleware(req) {
   return NextResponse.next();
   }
   const token = req.cookies.get('auth_cookie');
-
+  console.log("middlewareがクッキーにアクセスした結果", token);
   if (!token) {
     const authPage = new URL('/auth', req.url);
     authPage.searchParams.set('redirectTo', url.pathname); // 元のURLを保持
