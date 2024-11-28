@@ -70,6 +70,6 @@ DeviseTokenAuth.setup do |config|
     httponly: true,
     same_site: :none,
     expires: 1.day.from_now,
-    domain: "localhost"
+    domain: ENV.fetch("COOKIE_DOMAIN", "localhost")
   }
 end
