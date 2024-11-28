@@ -1,13 +1,14 @@
 import { Header } from '../../components/Header'
 import { BottomNavi } from '../../components/BottomNavi'
-import { ProjectRouterState } from '../../components/ProjectRouterState';
+import { ProjectWrapper } from '../../components/Project/ProjectWrapper';
+import { Suspense } from'react';
 
 export default function ProjectIndex(){
   return (
-    <div>
+    <Suspense fallback={<div>Loading...</div>}>
       < Header />
-      <ProjectRouterState />
+      <ProjectWrapper />
       < BottomNavi />
-    </div>
+    </Suspense>
   );
 }

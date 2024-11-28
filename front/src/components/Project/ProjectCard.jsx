@@ -9,10 +9,13 @@ import PeopleIcon from '@mui/icons-material/People';
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useCollaborationRequest } from "../../hooks/services/collaboration/useCollaborationNewRequest";
+import { useProjectContext } from "../../context/useProjectContext";
 
-export function ProjectCard({project, user, onPlayClick, setCurrentProject, setCurrentUser}){
+export function ProjectCard({project, user, onPlayClick}){
   const [expanded, setExpanded] = useState(false);
   const toggleExpanded = () => setExpanded(!expanded);
+  //コラボレーション、応募管理ページへの遷移に利用
+  const { setCurrentProject, setCurrentUser } = useProjectContext();
 
   //プロジェクト概要の短縮
   const previewLength = 100;

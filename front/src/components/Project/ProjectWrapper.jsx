@@ -6,7 +6,7 @@ import { ProjectCard } from "./ProjectCard";
 import { AudioController } from "../../components/Project/AudioController";
 import { projectIndexRequest } from "../../hooks/services/ProjectIndexRequest";
 
-export function ProjectWrapper({setCurrentProject, setCurrentUser}){
+export function ProjectWrapper(){
   const [isAudioControllerVisible, setAudioControllerVisible] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
   const [projects, setProjects] = useState([]);
@@ -14,6 +14,7 @@ export function ProjectWrapper({setCurrentProject, setCurrentUser}){
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  //オーディオコントローラーに使用
   const [projectForController, setProjectForController] = useState(null);
   const [userForController, setUserForController] = useState(null);
 
@@ -89,8 +90,6 @@ export function ProjectWrapper({setCurrentProject, setCurrentUser}){
             onPlayClick={handlePlayClick}
             project={project}
             user={user}
-            setCurrentProject={setCurrentProject}
-            setCurrentUser={setCurrentUser}
             />
           );
         })

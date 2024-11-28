@@ -10,7 +10,7 @@ export const useCollaborationRequest = () => {
     try {
       const response = await get(`/api/v1/projects/${project.id}/collaborations/new`, { withCredentials: true });
       // 応募フォームページに遷移
-      router.push("/project/collaborationForm");
+      router.push(`/projects/${project.id}/collaboration`);
     } catch (error) {
       if (error.response) {
         handleStatusErrors(error.response.status); // ステータスエラーハンドル

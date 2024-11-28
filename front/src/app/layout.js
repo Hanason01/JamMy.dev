@@ -1,6 +1,8 @@
 import { ThemeProviderWrapper } from '../components/ThemeProviderWrapper';
 import { AuthProvider } from '../context/useAuthContext';
 import { AuthModal } from '../components/User/AuthModal';
+import { ProjectProvider } from '../context/useProjectContext';
+
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
@@ -17,10 +19,12 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
-          <ThemeProviderWrapper>
-            {children}
+          <ProjectProvider>
+            <ThemeProviderWrapper>
+              {children}
             <AuthModal />
-          </ThemeProviderWrapper>
+            </ThemeProviderWrapper>
+          </ProjectProvider>
         </AuthProvider>
       </body>
     </html>

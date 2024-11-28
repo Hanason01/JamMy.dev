@@ -8,16 +8,41 @@
 
 require 'faker'
 
-user = User.first || User.create(email: "samples@example.com", password: "password")
+# ユーザーの作成
+users_data = [
+  {
+    email: "allferstyle@yahoo.co.jp",
+    password: "syusei225",
+    username: "username",
+    nickname: "ぷちゃ"
+  },
+  {
+    email: "example@yahoo.co.jp",
+    password: "syusei225",
+    username: "exampleuser",
+    nickname: "ポンチェ"
+  }
+]
 
-10.times do
-  Project.create!(
-    user: user,
-    title: Faker::App.name,
-    description: Faker::Lorem.paragraph,
-    duration: rand(1..30),
-    tempo: rand(40..240),
-    status: Project.statuses.keys.sample,
-    visibility: Project.visibilities.keys.sample,
-  )
+users = users_data.map do |user_data|
+  User.find_or_create_by!(email: user_data[:email]) do |user|
+    user.password = user_data[:password]
+    user.username = user_data[:username]
+    user.nickname = user_data[:nickname]
+  end
+end
+
+# 各ユーザーに5つの投稿を作成
+users.each do |user|
+  5.times do
+    Project.create!(
+      user: user,
+      title: Faker::App.name,
+      description: Faker::Lorem.paragraph,
+      duration: rand(1..30),
+      tempo: rand(40..240),
+      status: Project.statuses.keys.sample,
+      visibility: Project.visibilities.keys.sample,
+    )
+  end
 end
