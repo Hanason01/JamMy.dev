@@ -8,7 +8,7 @@ export const useCollaborationRequest = () => {
 
   const collaborationNewRequest = async (project) => {
     try {
-      const response = await get(`/api/v1/projects/${project.id}/collaborations/new`, { withCredentials: true });
+      const response = await get(`/api/v1/projects/${project.id}/collaborations/new`);
       // 応募フォームページに遷移
       router.push(`/projects/${project.id}/collaboration`);
     } catch (error) {
