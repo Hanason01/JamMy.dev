@@ -43,7 +43,7 @@ Rails.application.configure do
 
   # Include generic and useful information about system operation, but avoid logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII).
-  config.log_level = :info
+  config.log_level = :debug
 
   # Prepend all log lines with the following tags.
   config.log_tags = [ :request_id ]
@@ -84,6 +84,10 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  config.hosts << "jammy-dev.onrender.com"
-  config.hosts << "jam-my-dev.vercel.app"
+  config.force_ssl = true
+
+  # ドメイン指定許可
+  config.hosts << "jam-my.com"         # フロントエンドのドメイン
+  config.hosts << "www.jam-my.com"     # フロントエンドのサブドメイン
+  config.hosts << "api.jam-my.com"     # バックエンドのサブドメイン
 end
