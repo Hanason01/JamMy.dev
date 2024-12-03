@@ -7,7 +7,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import GoogleIcon from "@mui/icons-material/Google";
 import { PasswordField } from "./PasswordField";
 
-import { useSignUpValidation } from "../../hooks/useSignUpValidation";
+import { useSignUpValidation } from "../../hooks/validation/useSignUpValidation";
 import { useSignUpRequest } from "../../hooks/services/user/useSignUpRequest";
 
 export function SignUpForm({redirectTo}) {

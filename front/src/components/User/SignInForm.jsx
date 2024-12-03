@@ -7,7 +7,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import GoogleIcon from "@mui/icons-material/Google";
 import { PasswordField } from "./PasswordField";
 
-import { useSignInValidation } from "../../hooks/useSignInValidation";
+import { useSignInValidation } from "../../hooks/validation/useSignInValidation";
 import { useSignInRequest } from "../../hooks/services/user/useSignInRequest";
 
 export function SignInForm({redirectTo}) {
