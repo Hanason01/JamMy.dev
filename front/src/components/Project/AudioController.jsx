@@ -1,6 +1,6 @@
 "use client";
 
-import { useAudioPlayer } from "../../hooks/useAudioPlayer";
+import { useProjectIndexAudioPlayer } from "../../hooks/audio/useProjectIndexAudioPlayer";
 import { useEffect } from "react";
 import { Box, Avatar, IconButton, Typography, Slider } from "@mui/material";
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
@@ -8,7 +8,7 @@ import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import CloseIcon from '@mui/icons-material/Close';
 
 export function AudioController({onClose, audioUrl, project, user }){
-  const { isPlaying, currentTime, duration, play, pause, seek } = useAudioPlayer(audioUrl);
+  const { isPlaying, currentTime, duration, play, pause, seek } = useProjectIndexAudioPlayer(audioUrl);
 
   useEffect(() => {
       play(); //初回レンダリング時のみ自動再生
@@ -58,11 +58,11 @@ export function AudioController({onClose, audioUrl, project, user }){
         { project.attributes.title }
         </Typography>
       </Box>
-        <Slider
-          value={currentTime}
-          min={0} max={duration}
-          onChange={(e,value) => seek(value)}
-        />
+      <Slider
+        value={currentTime}
+        min={0} max={duration}
+        onChange={(e,value) => seek(value)}
+      />
       <Box sx={{ display: "flex", justifyContent: "space-between"}}>
         <Typography color= "textSecondary" sx={{ width: "35px", textAlign: "right",}}>{Math.floor(currentTime)}秒</Typography>
         <Box display= "flex" justifyContent= "center">

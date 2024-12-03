@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
 
    // ログアウト処理
   const handleLogout = () => {
-    console.log("handleLogoutが呼び出された");
    // ローカルストレージをクリア
     localStorage.removeItem('authenticatedUser');
     setIsAuthenticated(false);
