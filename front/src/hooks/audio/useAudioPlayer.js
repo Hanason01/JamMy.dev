@@ -98,8 +98,13 @@ export function useAudioPlayer(audioBuffer, audioContext, gainNode) {
     return () => {
       clearInterval(intervalIdRef.current);
       if (sourceNodeRef.current) {
+        sourceNodeRef.current.stop(); // 再生を停止
         sourceNodeRef.current.disconnect();
+        sourceNodeRef.current = null;
       }
+      console.log("useAudioPlayer: クリーンアップ完了。context",audioContext);
+      console.log("useAudioPlayer: クリーンアップ完了。gainnode",gainNode);
+      console.log("useAudioPlayer: クリーンアップ完了。sourcenode",sourceNodeRef.current);
     };
   }, []);
 

@@ -7,7 +7,7 @@ export function AnalyzerVisualization({ analyzerData }) {
 
   //analyzerData（マイク入力ソース）の変化により以下が呼び出し
   useEffect(() => {
-    console.log("AnalyzerVisualization Rendered", { analyzerData }); // デバッグ: データの更新時
+    // console.log("AnalyzerVisualization Rendered", { analyzerData }); // デバッグ: データの更新時
     if (!canvasRef.current || !analyzerData.length) {
       console.log("キャンバスが存在しない、または analyzerData が空です");
       return;
@@ -19,23 +19,23 @@ export function AnalyzerVisualization({ analyzerData }) {
     const width = canvas.width; //DOM/canvasの幅取得
     const height = canvas.height; //DOM/canvasの高さ取得
 
-    console.log("キャンバスの描画を開始", { width, height }); // デバッグ: キャンバスサイズ
+    // console.log("キャンバスの描画を開始", { width, height }); // デバッグ: キャンバスサイズ
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height); // Canvas全体をクリア
-      console.log("キャンバスをクリアしました");
+      // console.log("キャンバスをクリアしました");
 
       ctx.fillStyle = theme.palette.background.default;;
       ctx.fillRect(0, 0, width, height);
 
       const barWidth = width / analyzerData.length; //バー幅の計算
-      console.log("バーの幅を計算", { barWidth, dataLength: analyzerData.length });
+      // console.log("バーの幅を計算", { barWidth, dataLength: analyzerData.length });
 
       analyzerData.forEach((value, index) => {
         const barHeight = (value / 255) * height; // データをスケール変換
         const x = index * barWidth;
 
-        console.log(`バー描画: index=${index}, value=${value}, barHeight=${barHeight}`);
+        // console.log(`バー描画: index=${index}, value=${value}, barHeight=${barHeight}`);
 
         ctx.fillStyle = theme.palette.secondary.main;
         ctx.fillRect(x, height - barHeight, barWidth, barHeight);

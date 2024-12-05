@@ -1,33 +1,58 @@
 "use client";
 
-import { useState } from "react";
-import { Box, Typography, TextField, InputAdornment, Slider, MenuItem, Switch, FormGroup, FormControlLabel, Divider } from "@mui/material";
+import { useState, useRef, useEffect } from "react";
+import { Box, Typography, TextField, InputAdornment, Slider, Button, MenuItem, Switch, FormGroup, FormControlLabel, Divider } from "@mui/material";
 import { RecordingCore } from "../core_logic/RecordingCore";
 import { PostProjectProcessing } from "./PostProjectProcessing";
 
-export function PostProjectStep1({ onNext }){
-  const [sliderValue, setSliderValue] = useState(120);
-  const [countIn, setCountIn] = useState(2);
+export function PostProjectStep1({onNext, setAudioBufferForPost}){
+  const [recordingDuration, setRecordingDuration] = useState(30); //秒数
+  const [speedSliderValue, setSpeedSliderValue] = useState(120); //速度
+  const [countIn, setCountIn] = useState(0); //カウントイン
+  const [metronomeOn, setMetronomeOn] = useState(false); //メトロノームON/OFF
+  const clickSoundBufferRef = useRef(null); //クリック音の保存場所（初期化ロジックはhooks/useAudioPlayer/initメソッド内）
+  const [hasRecorded, setHasRecorded] = useState(false);
+
   //RecordingCore→PostProjectProcessingへの受け渡し
   const [audioBufferForProcessing, setAudioBufferForProcessing] = useState(null);
 
+  console.log("hasRecordedの状態",hasRecorded);
+  console.log("audioBufferForProcessingの状態", audioBufferForProcessing);
+
   const preCounts = [0,1,2,3,4,5,6,7]
 
-  const handleSliderChange = (event, newValue) => {
-    setSliderValue(newValue);
-  };
+  //秒数セット
+  const handleRecordingDurationChange = (event) => setRecordingDuration(event.target.value);
+  //速度セット
+  const handleSpeedSliderChange = (event, newValue) => setSpeedSliderValue(newValue);
+  //カウントインセット
+  const handleCountInChange = (event) => setCountIn(event.target.value);
+  //メトロノームセット
+  const handleMetronomeToggle = (event) => setMetronomeOn(event.target.checked);
 
-  const handleCountInChange = (event) => {
-    setCountIn(event.target.value);
-  };
-
+  //録音データの受け取りと受け渡し
   const handleRecordingComplete = (audioBuffer) =>{
     console.log("録音が完了しました:", audioBuffer);
-    setAudioBufferForProcessing(audioBuffer);
+    setAudioBufferForProcessing(audioBuffer); //Step1のプレビュー用
+    setAudioBufferForPost(audioBuffer); //Step2のプレビュー用（Stepper）
+    setHasRecorded(true); //編集コンポーネントへ表示切替
   };
 
+  //デバック用
+  useEffect(() =>{
+    console.log(`[${new Date().toISOString()}] PostProjectStep1がマウントされました`);
+    return () => {
+      console.log(`PostProjectStep1がアンマウントされました[${new Date().toISOString()}]`);
+    };
+  }, []);
+
   return(
-    <Box sx={{ maxWidth: "600px"}}>
+    <Box sx={{
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      maxWidth: "600px"
+      }}>
       <Box sx={{justifyContent: "flex-start",
         "& .MuiTypography-root": {
             fontSize: "1rem", // 全体のフォントサイズ
@@ -42,7 +67,8 @@ export function PostProjectStep1({ onNext }){
           label="秒数"
           variant="standard"
           type="number"
-          placeholder="1~60"
+          value={recordingDuration}
+          onChange={handleRecordingDurationChange}
           slotProps={{
             input: {
               endAdornment: <InputAdornment position="end">秒</InputAdornment>
@@ -55,17 +81,17 @@ export function PostProjectStep1({ onNext }){
         />
         <Box sx={{display: "flex", alignItems: "center", my:1, width: "50%"}}>
           <Slider
-            value={sliderValue}
-            onChange={handleSliderChange}
+            value={speedSliderValue}
+            onChange={handleSpeedSliderChange}
             min={1}
             max={200}
             sx={{mr:2}}
             />
           <Typography sx={{width: "40px"}}>
-            {sliderValue}
+            {speedSliderValue}
           </Typography>
         </Box>
-        <TextField
+        {/* <TextField
           fullWidth
           variant="standard"
           type="number"
@@ -80,9 +106,9 @@ export function PostProjectStep1({ onNext }){
               {count}
             </MenuItem>
           ))}
-          </TextField>
+          </TextField> */}
           <FormGroup sx={{my:1,width: "50%"}}>
-            <FormControlLabel required control={<Switch/>} label="メトロノーム"
+            <FormControlLabel required control={<Switch checked={metronomeOn} onChange={handleMetronomeToggle}/> }label="メトロノーム"
             sx={{
               "& .MuiFormControlLabel-label": {
                 fontSize: "1rem", // 小さめのフォントサイズ
@@ -93,11 +119,41 @@ export function PostProjectStep1({ onNext }){
       </Box>
 
       <Divider />
-      {audioBufferForProcessing ? (
-        <PostProjectProcessing audioBufferForProcessing={audioBufferForProcessing} />
-      ) : (
-        <RecordingCore onRecordingComplete={handleRecordingComplete} />
-      )}
+      <Box sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 2,
+        }}>
+        {hasRecorded ? (
+          <PostProjectProcessing
+          audioBufferForProcessing={audioBufferForProcessing} setHasRecorded={setHasRecorded}
+          setAudioBufferForProcessing={setAudioBufferForProcessing}
+          />
+        ) : (
+          <RecordingCore
+          onRecordingComplete={handleRecordingComplete}
+          clickSoundBuffer={clickSoundBufferRef.current}
+          settings={{
+            tempo: speedSliderValue,
+            countIn: countIn,
+            duration: recordingDuration,
+            metronomeOn: metronomeOn,
+          }}
+          />
+        )}
+        {hasRecorded && (
+          <Box>
+            <Button
+            onClick={onNext}
+            variant="primary"
+            >
+              投稿する
+            </Button>
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 };

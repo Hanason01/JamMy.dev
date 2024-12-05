@@ -4,14 +4,16 @@ import { useEffect } from "react";
 import { Box, IconButton, Typography, Slider } from "@mui/material";
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
+import CloseIcon from '@mui/icons-material/Close';
 import { useAudioPlayer } from "../../../hooks/audio/useAudioPlayer";
 
-export function AudioPlayer({audioBuffer, audioContext, gainNode}){
+export function AudioPlayer({audioBuffer, audioContext, gainNode, setHasRecorded, setAudioBufferForProcessing}){
   const { isPlaying, init, play, pause, seek, currentTime, duration } = useAudioPlayer(audioBuffer, audioContext, gainNode);
   // console.log("AudioPlayer.jsxが発動（親から渡されてきた値３つ）", audioBuffer, audioContext, gainNode);
 
   //初期化処理
   useEffect(() => {
+    console.log(`[${new Date().toISOString()}] AudioPlayerがマウントされました`);
     if (audioBuffer && audioContext){
       console.log("AudioPlayer.jsxでinit()発動");
       init();
@@ -19,10 +21,32 @@ export function AudioPlayer({audioBuffer, audioContext, gainNode}){
     } else{
       console.log("audioBufferとaudioContextが両方存在しない為、AudioPlayer.jsxのuseEffectが失敗しました");
     }
+    return () => {
+      console.log(`AudioPlayerがアンマウントされました[${new Date().toISOString()}]`);
+    };
   }, []);
 
+  //閉じるボタン処理
+  const handleCloseClick = () => {
+    console.log("AudioPlayerを閉じました");
+    setHasRecorded(false);
+    setAudioBufferForProcessing(false);
+  }
+
   return(
-    <Box>
+    <Box sx={{position: "relative", padding: 2}}>
+      <IconButton
+        onClick={handleCloseClick}
+        sx={{
+          position: "absolute",
+          top: "0px",
+          right: "8px",
+          color: "gray",
+        }}
+        aria-label="Close"
+      >
+        <CloseIcon />
+      </IconButton>
       <Slider
         value={currentTime}
         min={0} max={duration}
