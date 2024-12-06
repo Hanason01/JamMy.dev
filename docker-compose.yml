@@ -1,0 +1,41 @@
+version: "3"
+services:
+  db:
+    image: postgres:15.5
+    environment:
+      POSTGRES_DB: app_development
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  back:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    volumes:
+      - ./back:/app
+      - ./back/localhost.key:/app/localhost.key
+      - ./back/localhost.crt:/app/localhost.crt
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    tty: true
+    stdin_open: true
+    environment:
+      - RAILS_ENV=development
+  front:
+    build:
+      context: ./front/
+      dockerfile: Dockerfile
+    volumes:
+      - ./front:/app
+      - ./front/localhost.key:/app/localhost.key
+      - ./front/localhost.crt:/app/localhost.crt
+    # command: node server.js
+    ports:
+      - "8000:4000"
+volumes:
+  postgres_data:
