@@ -66,3 +66,11 @@ back/tmp/storage/*
 
 # Ignore master key for decrypting credentials and more.
 back/config/master.key
+
+# バックアップファイルや一時ファイルを無視
+*~
+*.swp
+*.tmp
+*.bak
+*#
+.DS_Store

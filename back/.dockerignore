@@ -1,0 +1,20 @@
+# Git 関連
+.git
+.gitignore
+
+# Ruby on Rails の不要ファイル
+log/
+tmp/
+vendor/bundle/
+*.swp
+
+# Bundler のキャッシュ（不要）
+.bundle/
+
+# PostgreSQL や SQLite のデータファイル
+*.sqlite3
+db/*.sqlite3
+db/*.sqlite3-journal
+
+# 環境ファイル（セキュリティリスク回避のため）
+# .env*

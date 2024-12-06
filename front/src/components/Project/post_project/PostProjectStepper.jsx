@@ -11,6 +11,7 @@ const steps = ["録音", "投稿"];
 export function PostProjectStepper(){
   const [activeStep, setActiveStep] = useState(0);
   const [audioBufferForPost, setAudioBufferForPost] = useState(null);
+  const [settingsForPost, setSettingsForPost] = useState(null);
 
   //ステップ進行制御
   const handleNext = () => {
@@ -42,8 +43,18 @@ export function PostProjectStepper(){
       </Stepper>
 
       <Box>
-        {activeStep === 0 && <PostProjectStep1 onNext={handleNext} setAudioBufferForPost={setAudioBufferForPost} />}
-        {activeStep === 1 && <PostProjectStep2 onBack={handleBack} audioBufferForPost={audioBufferForPost} setAudioBufferForPost={setAudioBufferForPost} />}
+        {activeStep === 0 &&
+        <PostProjectStep1
+        onNext={handleNext}
+        setAudioBufferForPost={setAudioBufferForPost}
+        setSettingsForPost={setSettingsForPost}
+        activeStep={activeStep}/>}
+        {activeStep === 1 &&
+        <PostProjectStep2
+        onBack={handleBack}
+        audioBufferForPost={audioBufferForPost}
+        settingsForPost={settingsForPost}
+        activeStep={activeStep} />}
       </Box>
     </Box>
   );

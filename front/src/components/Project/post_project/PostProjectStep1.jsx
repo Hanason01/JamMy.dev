@@ -5,7 +5,7 @@ import { Box, Typography, TextField, InputAdornment, Slider, Button, MenuItem, S
 import { RecordingCore } from "../core_logic/RecordingCore";
 import { PostProjectProcessing } from "./PostProjectProcessing";
 
-export function PostProjectStep1({onNext, setAudioBufferForPost}){
+export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForPost, activeStep}){
   const [recordingDuration, setRecordingDuration] = useState(30); //秒数
   const [speedSliderValue, setSpeedSliderValue] = useState(120); //速度
   const [countIn, setCountIn] = useState(0); //カウントイン
@@ -26,7 +26,7 @@ export function PostProjectStep1({onNext, setAudioBufferForPost}){
   //速度セット
   const handleSpeedSliderChange = (event, newValue) => setSpeedSliderValue(newValue);
   //カウントインセット
-  const handleCountInChange = (event) => setCountIn(event.target.value);
+  // const handleCountInChange = (event) => setCountIn(event.target.value);
   //メトロノームセット
   const handleMetronomeToggle = (event) => setMetronomeOn(event.target.checked);
 
@@ -35,6 +35,12 @@ export function PostProjectStep1({onNext, setAudioBufferForPost}){
     console.log("録音が完了しました:", audioBuffer);
     setAudioBufferForProcessing(audioBuffer); //Step1のプレビュー用
     setAudioBufferForPost(audioBuffer); //Step2のプレビュー用（Stepper）
+    const settings = {
+      tempo: speedSliderValue,
+      duration: recordingDuration,
+    }
+    console.log("Step1が親へ渡すsettings", settings);
+    setSettingsForPost(settings); //Step2用の録音設定
     setHasRecorded(true); //編集コンポーネントへ表示切替
   };
 
@@ -130,6 +136,7 @@ export function PostProjectStep1({onNext, setAudioBufferForPost}){
           <PostProjectProcessing
           audioBufferForProcessing={audioBufferForProcessing} setHasRecorded={setHasRecorded}
           setAudioBufferForProcessing={setAudioBufferForProcessing}
+          activeStep={activeStep}
           />
         ) : (
           <RecordingCore

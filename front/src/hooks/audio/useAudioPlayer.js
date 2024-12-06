@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 
 export function useAudioPlayer(audioBuffer, audioContext, gainNode) {
-  const [isPlaying, setIsPlaying] = useState(false); //再生状態
+  const isPlayingRef = useRef(false); //再生状態
   const [currentTime, setCurrentTime] = useState(0); //スライダー位置
   const [duration, setDuration] = useState(0); //データの総秒数
   const sourceNodeRef = useRef(null); //WebAudioAPIのcurrentTime
@@ -13,15 +13,23 @@ export function useAudioPlayer(audioBuffer, audioContext, gainNode) {
     if (audioContext && audioBuffer) {
       const source = audioContext.createBufferSource();
       source.buffer = audioBuffer;
-      //親で作成されたGainNodeへの接続
-      source.connect(gainNode);
+
+      //親で作成されたGainNodeへの接続（Step1限定）
+      if (gainNode){
+        source.connect(gainNode);
+      } else { //Step2の場合
+        source.connect(audioContext.destination);
+      }
+
       //AudioBufferSourceNodeのendイベントハンドラ（初期化）
       source.onended = () => {
-        if (isPlaying) {
-        setIsPlaying(false);
-        setCurrentTime(0);
-        clearInterval(intervalIdRef.current);
+        if (isPlayingRef.current) {
+        isPlayingRef.current = false; //再生状態リセット
+        clearInterval(intervalIdRef.current); //スライダー更新停止
+        setCurrentTime(0); //再生位置リセット
+
         }
+        console.log("再生が終了しました");
       };
       return source;
     }
@@ -59,12 +67,12 @@ export function useAudioPlayer(audioBuffer, audioContext, gainNode) {
         audioContext.resume(); // AudioContextをランタイム状態にする
         source.start(0, currentTime); // 現在の再生位置から再生（第一引数は再生までの延滞時間）
         startTimeRef.current = audioContext.currentTime - currentTime; //contextのcurrentTimeと開始位置
-        setIsPlaying(true);
+        isPlayingRef.current = true;
 
          // 1秒ごとに再生位置を更新
         intervalIdRef.current = setInterval(() => {
           updateCurrentTime();
-        }, 1000); //setIntervalはこのタイマーの識別IDを返却
+        }, 100); //setIntervalはこのタイマーの識別IDを返却
         console.log("再生を開始しました");
       }
     }
@@ -77,7 +85,7 @@ export function useAudioPlayer(audioBuffer, audioContext, gainNode) {
       setCurrentTime(audioContext.currentTime - startTimeRef.current); // 再生位置を保存
       sourceNodeRef.current.disconnect(); // ノードを切断
       sourceNodeRef.current = null;
-      setIsPlaying(false);
+      isPlayingRef.current = false;
       clearInterval(intervalIdRef.current);
       console.log("再生を停止しました");
     }
@@ -88,7 +96,7 @@ export function useAudioPlayer(audioBuffer, audioContext, gainNode) {
       pause(); // 現在の再生を停止
       setCurrentTime(time); // 再生位置を更新
       console.log(`再生位置を ${time} 秒に設定しました`);
-      if (isPlaying) {
+      if (isPlayingRef.current) {
         play(); // 再生中であれば新しい位置から再開
       }
     }
@@ -109,7 +117,7 @@ export function useAudioPlayer(audioBuffer, audioContext, gainNode) {
   }, []);
 
   return {
-    isPlaying,
+    isPlaying: isPlayingRef.current,
     currentTime,
     duration,
     init,

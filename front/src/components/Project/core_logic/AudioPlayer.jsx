@@ -7,7 +7,8 @@ import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAudioPlayer } from "../../../hooks/audio/useAudioPlayer";
 
-export function AudioPlayer({audioBuffer, audioContext, gainNode, setHasRecorded, setAudioBufferForProcessing}){
+//Step2や応募画面等プレビューのみの用途の場合は、propsはaudioBufferとaudioContextのみ受け取る前提
+export function AudioPlayer({audioBuffer, audioContext, gainNode, setHasRecorded, setAudioBufferForProcessing, activeStep}){
   const { isPlaying, init, play, pause, seek, currentTime, duration } = useAudioPlayer(audioBuffer, audioContext, gainNode);
   // console.log("AudioPlayer.jsxが発動（親から渡されてきた値３つ）", audioBuffer, audioContext, gainNode);
 
@@ -16,6 +17,7 @@ export function AudioPlayer({audioBuffer, audioContext, gainNode, setHasRecorded
     console.log(`[${new Date().toISOString()}] AudioPlayerがマウントされました`);
     if (audioBuffer && audioContext){
       console.log("AudioPlayer.jsxでinit()発動");
+      console.log("この時点のaudioBufferとcontext", audioBuffer, audioContext);
       init();
 
     } else{
@@ -34,19 +36,22 @@ export function AudioPlayer({audioBuffer, audioContext, gainNode, setHasRecorded
   }
 
   return(
-    <Box sx={{position: "relative", padding: 2}}>
-      <IconButton
-        onClick={handleCloseClick}
-        sx={{
-          position: "absolute",
-          top: "0px",
-          right: "8px",
-          color: "gray",
-        }}
-        aria-label="Close"
-      >
-        <CloseIcon />
-      </IconButton>
+    <Box sx={{position: "relative", width: "100%", padding: 2}}>
+      { activeStep === 0 && (
+        <IconButton
+          onClick={handleCloseClick}
+          sx={{
+            position: "absolute",
+            top: "0px",
+            right: "8px",
+            color: "gray",
+          }}
+          aria-label="Close"
+        >
+          <CloseIcon />
+        </IconButton>
+      )}
+
       <Slider
         value={currentTime}
         min={0} max={duration}
