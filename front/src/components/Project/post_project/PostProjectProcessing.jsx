@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AudioPlayer } from "../core_logic/AudioPlayer";
 import { AudioProcessor } from "../core_logic/AudioProcessor";
 
-export function PostProjectProcessing({audioBufferForProcessing, setHasRecorded, setAudioBufferForProcessing}){
+export function PostProjectProcessing({audioBufferForProcessing, setHasRecorded, setAudioBufferForProcessing, activeStep}){
   const audioContextRef = useRef(null);
   const gainNodeRef = useRef(null);
   const [isInitialized, setIsInitialized] = useState(false); //初期化フラグ
@@ -60,6 +60,7 @@ export function PostProjectProcessing({audioBufferForProcessing, setHasRecorded,
         gainNode={gainNodeRef.current}
         setHasRecorded={setHasRecorded}
         setAudioBufferForProcessing={setAudioBufferForProcessing}
+        activeStep={activeStep}
         />
         <AudioProcessor
         audioContext={audioContextRef.current}
