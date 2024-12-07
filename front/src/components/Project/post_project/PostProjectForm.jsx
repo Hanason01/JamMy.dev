@@ -36,15 +36,15 @@ export function PostProjectForm({audioBuffer, settings}) {
       console.log("フォームに入れるdata情報",data);
       console.log("フォームに入れるaudioFile",audioFile);
       const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("description", data.description);
-      formData.append("tempo", settings.tempo);
-      formData.append("duration", settings.duration);
-      formData.append("audio", audioFile);
+      formData.append("project[title]", data.title);
+      formData.append("project[description]", data.description);
+      formData.append("project[tempo]", settings.tempo);
+      formData.append("project[duration]", settings.duration);
+      formData.append("project[audio_file]", audioFile);
       console.log("リクエスト送信前のformData", formData);
 
       await postProject(formData);
-      router.push(redirectTo || "/projects");
+      router.push("/projects");
     } catch (error) {
       if (error.title) {
         setError("title", { type: "manual", message: error.title });

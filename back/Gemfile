@@ -20,7 +20,7 @@ gem 'devise_token_auth'
 
 gem 'faker'
 
-gem "aws-sdk-s3", require: false
+gem "aws-sdk-s3"
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"

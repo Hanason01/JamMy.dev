@@ -83,7 +83,7 @@ export const audioEncoder = async (audioBuffer, format = "FLAC") => {
     const encodedFile = ffmpeg.FS("readFile", outputFileName);
     console.log("エンコード結果取得完了:", encodedFile);
     const blob = new Blob([encodedFile.buffer], { type: `audio/${format.toLowerCase()}` });
-    const file = new File([blob], `output.${format.toLowerCase()}`, { type: `audio/${format.toLowerCase()}` });
+    const file = new File([blob], `audio.${format.toLowerCase()}`, { type: `audio/${format.toLowerCase()}` });
     console.log("エンコード済みファイル:", file);
 
     // File オブジェクトを作成して返す

@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_11_11_110322) do
+ActiveRecord::Schema[7.0].define(version: 2024_12_07_093414) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "audio_files", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "fileable_type", null: false
+    t.bigint "fileable_id", null: false
+    t.string "file_path", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fileable_type", "fileable_id"], name: "index_audio_files_on_fileable_type_and_fileable_id"
+    t.index ["user_id"], name: "index_audio_files_on_user_id"
+  end
 
   create_table "projects", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -53,5 +64,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_11_110322) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "audio_files", "users"
   add_foreign_key "projects", "users"
 end

@@ -1,7 +1,8 @@
 class Project < ApplicationRecord
   belongs_to :user
+  has_many :audio_files, as: :fileable, dependent: :destroy
 
-  enum status: { draft: 0, open: 1, closed: 2}
+  enum status: { open: 0, draft: 1, closed: 2}
   enum visibility: { is_public: 0, is_private: 1 }
 
   validates :title, presence: true, length: { maximum: 50 }
