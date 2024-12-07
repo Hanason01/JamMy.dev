@@ -3,8 +3,8 @@
 .gitignore
 
 # Ruby on Rails の不要ファイル
-# log/
-tmp/
+log/
+# tmp/
 vendor/bundle/
 *.swp
 
