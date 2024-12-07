@@ -66,7 +66,7 @@ back/tmp/storage/*
 
 # Ignore master key for decrypting credentials and more.
 back/config/master.key
-!config/credentials/
+!config/credentials/production.yml.enc
 !config/credentials.yml.enc
 
 # バックアップファイルや一時ファイルを無視
