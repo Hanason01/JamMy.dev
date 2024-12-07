@@ -1,9 +1,9 @@
-# # Git 関連
-# .git
-# .gitignore
+# Git 関連
+.git
+.gitignore
 
 # Ruby on Rails の不要ファイル
-log/
+# log/
 tmp/
 vendor/bundle/
 *.swp
