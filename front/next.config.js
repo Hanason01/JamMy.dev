@@ -14,10 +14,6 @@ const nextConfig = {
   experimental: {
     nextScriptWorkers: false, // Vercel.liveを無効化
   },
-  webpack(config) {
-    console.log('Next.js Webpack configuration loaded'); // 確認用のログ
-    return config;
-  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
