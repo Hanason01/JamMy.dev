@@ -18,5 +18,3 @@ db/*.sqlite3-journal
 
 # 環境ファイル（セキュリティリスク回避のため）
 # .env*
-
-# Include credentials for production
