@@ -1,5 +1,5 @@
 FROM ruby:3.3.5
-RUN apt-get update -qq && apt-get install -y nodejs postgresql-client openssl
+RUN apt-get update -qq && apt-get install -y nodejs postgresql-client openssl vim
 
 ENV TZ=Asia/Tokyo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
