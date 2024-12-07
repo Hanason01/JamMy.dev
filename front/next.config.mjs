@@ -11,6 +11,9 @@ const nextConfig = {
       },
     ];
   },
+  experimental: {
+    nextScriptWorkers: false, // Vercel.liveを無効化
+  },
 };
 
 export default nextConfig;
