@@ -1,5 +1,4 @@
 /** @type {import('next').NextConfig} */
-const dev = process.env.NODE_ENV !== "production";
 const nextConfig = {
   async headers() {
     return [
@@ -12,7 +11,6 @@ const nextConfig = {
       },
     ];
   },
-  assetPrefix: dev ? "" : "https://localhost:8000",
 };
 
 export default nextConfig;
