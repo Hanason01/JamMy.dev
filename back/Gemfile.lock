@@ -66,6 +66,22 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
+    aws-eventstream (1.3.0)
+    aws-partitions (1.1018.0)
+    aws-sdk-core (3.214.0)
+      aws-eventstream (~> 1, >= 1.3.0)
+      aws-partitions (~> 1, >= 1.992.0)
+      aws-sigv4 (~> 1.9)
+      jmespath (~> 1, >= 1.6.1)
+    aws-sdk-kms (1.96.0)
+      aws-sdk-core (~> 3, >= 3.210.0)
+      aws-sigv4 (~> 1.5)
+    aws-sdk-s3 (1.176.0)
+      aws-sdk-core (~> 3, >= 3.210.0)
+      aws-sdk-kms (~> 1)
+      aws-sigv4 (~> 1.5)
+    aws-sigv4 (1.10.1)
+      aws-eventstream (~> 1, >= 1.0.2)
     bcrypt (3.1.20)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
@@ -102,6 +118,7 @@ GEM
     irb (1.14.1)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
+    jmespath (1.6.2)
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     loofah (2.23.1)
@@ -129,15 +146,7 @@ GEM
     nio4r (2.7.4)
     nokogiri (1.16.8-aarch64-linux)
       racc (~> 1.4)
-    nokogiri (1.16.8-arm-linux)
-      racc (~> 1.4)
     nokogiri (1.16.8-arm64-darwin)
-      racc (~> 1.4)
-    nokogiri (1.16.8-x86-linux)
-      racc (~> 1.4)
-    nokogiri (1.16.8-x86_64-darwin)
-      racc (~> 1.4)
-    nokogiri (1.16.8-x86_64-linux)
       racc (~> 1.4)
     orm_adapter (0.5.0)
     pg (1.5.9)
@@ -207,13 +216,10 @@ GEM
 
 PLATFORMS
   aarch64-linux
-  arm-linux
   arm64-darwin
-  x86-linux
-  x86_64-darwin
-  x86_64-linux
 
 DEPENDENCIES
+  aws-sdk-s3
   bootsnap
   debug
   devise_token_auth
@@ -231,4 +237,4 @@ RUBY VERSION
    ruby 3.3.5p100
 
 BUNDLED WITH
-   2.5.23
+   2.5.16
