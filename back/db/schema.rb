@@ -15,14 +15,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_07_093414) do
   enable_extension "plpgsql"
 
   create_table "audio_files", force: :cascade do |t|
-    t.bigint "user_id", null: false
     t.string "fileable_type", null: false
     t.bigint "fileable_id", null: false
     t.string "file_path", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["fileable_type", "fileable_id"], name: "index_audio_files_on_fileable_type_and_fileable_id"
-    t.index ["user_id"], name: "index_audio_files_on_user_id"
+    t.index ["fileable_type", "fileable_id"], name: "index_audio_files_on_fileable_type_and_fileable_id", unique: true
+    t.check_constraint "fileable_type::text = ANY (ARRAY['Project'::character varying, 'Collaboration'::character varying]::text[])", name: "check_fileable_type"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -64,6 +63,5 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_07_093414) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
-  add_foreign_key "audio_files", "users"
   add_foreign_key "projects", "users"
 end
