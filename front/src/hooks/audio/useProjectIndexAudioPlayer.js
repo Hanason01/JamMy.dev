@@ -1,12 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 
-export function useProjectIndexAudioPlayer(audioUrl) {
+export function useProjectIndexAudioPlayer(audioData) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioElementRef = useRef(null);
 
   useEffect(() => {
+    // Blob を作成して URL を生成
+    const audioBlob = new Blob([audioData], { type: "audio/mpeg" });
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    // Audio オブジェクトを初期化
     audioElementRef.current = new Audio(audioUrl);
     const audio = audioElementRef.current;
 
@@ -18,12 +23,21 @@ export function useProjectIndexAudioPlayer(audioUrl) {
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     audio.addEventListener("timeupdate", handleTimeUpdate);
 
+    // 再生終了時の処理
+    const handleEnded = () => {
+      setCurrentTime(0); // スライダーをリセット
+      setIsPlaying(false); // 再生状態をリセット
+    };
+    audio.addEventListener("ended", handleEnded);
+
     // クリーンアップ
     return () => {
       audio.removeEventListener("loadedmetadata", handleMetadata);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
+       // オブジェクトURLを解放
+      URL.revokeObjectURL(audioUrl);
     };
-  }, []);
+  }, [audioData]); //選択されたaudioDataが変わる度に再初期化
 
   const play = () => {
     audioElementRef.current.play();
