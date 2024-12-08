@@ -53,14 +53,14 @@ export function Header() {
 
   //アバター情報の選定
   const avatarSrc =
-    isAuthenticated && authenticatedUser?.image
-      ? authenticatedUser.image
-      : localUser?.image;
+    isAuthenticated && authenticatedUser?.data?.attributes?.image
+      ? authenticatedUser.data.attributes.image
+      : localUser?.data?.attributes?.image;
 
   const avatarAlt =
-    isAuthenticated && authenticatedUser?.nickname
-      ? authenticatedUser.nickname
-      : localUser?.nickname || 'User';
+    isAuthenticated && authenticatedUser?.data?.attributes?.nickname
+      ? authenticatedUser.data.attributes?.nickname
+      : localUser?.data?.attributes?.nickname || 'User';
 
   return (
     <Box sx={{

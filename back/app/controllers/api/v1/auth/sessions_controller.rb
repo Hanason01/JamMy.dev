@@ -3,6 +3,11 @@ class Api::V1::Auth::SessionsController < DeviseTokenAuth::SessionsController
 
   private
 
+  # Serializerで制御
+  def render_create_success
+    render json: UserSerializer.new(@resource).serializable_hash
+  end
+
   # DeviseTokenAuth:ApplicationControllerがincludeするconcerns/set_user_by_token.rbのset_cookieメソッドをオーバーライド
   def set_cookie(auth_header)
     # Cookieの有効期限カスタム設定
