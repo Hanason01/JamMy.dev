@@ -26,7 +26,11 @@ export function SignUpForm({redirectTo}) {
     const { confirmPassword, ...filteredData } = data;
     try {
       await signUp(filteredData);
-      router.push(redirectTo || "/projects");
+      if (redirectTo){
+        router.push(redirectTo);
+      }else{
+        window.location.href = "/projects";
+      }
     } catch (error) {
     if (error.email) {
         setError("email", { type: "manual", message: error.email });

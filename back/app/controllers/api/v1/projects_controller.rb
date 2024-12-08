@@ -1,16 +1,15 @@
 class Api::V1::ProjectsController < ApplicationController
   before_action :authenticate_user!, only: [:create, :destroy]
   def index
-    projects = Project.includes(:user)
-                      .where(status: ["open", "close"] )
-                      .where(visibility: "is_public")
+    projects = Project.includes(:user, :audio_file)
+                      .where(status: [:open, :closed] )
+                      .where(visibility: :is_public)
                       .order(created_at: :desc)
-
-    # if user_signed_in?
-    #   projects = projects.includes(:likes, :comments, :bookmarks)
-    # end
-    render json: ProjectSerializer.new(projects, { include: [:user] }).serializable_hash
-
+    if projects.any?
+      render json: ProjectSerializer.new(projects, { include: [:user, :audio_file] }).serializable_hash
+    else
+      render json: { data: []}, status: :ok
+    end
   end
 
   def create
@@ -26,8 +25,7 @@ class Api::V1::ProjectsController < ApplicationController
       end
 
         #ファイル保存
-      audio_file = project.audio_files.build(
-        user: current_user,
+      audio_file = project.build_audio_file(
         file_path: upload_audio_file_to_s3(params[:project][:audio_file])
       )
       unless audio_file.save

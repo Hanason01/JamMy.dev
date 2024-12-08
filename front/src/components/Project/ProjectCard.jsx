@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Paper, Box, Avatar, Button, IconButton, Typography } from "@mui/material";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -12,10 +12,20 @@ import { useCollaborationRequest } from "../../hooks/services/collaboration/useC
 import { useProjectContext } from "../../context/useProjectContext";
 
 export function ProjectCard({project, user, onPlayClick}){
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(false); //概要展開
+  const [isOwner, setIsOwner] = useState(false); //ユーザー保有か検証
   const toggleExpanded = () => setExpanded(!expanded);
   //コラボレーション、応募管理ページへの遷移に利用
   const { setCurrentProject, setCurrentUser } = useProjectContext();
+
+  //ローカルストレージからcurrentUserオブジェクトを取得
+  useEffect(() => {
+    const storedUser = localStorage.getItem('authenticatedUser');
+    if (storedUser) {
+      const currentUser = JSON.parse(storedUser);
+      setIsOwner(currentUser.id === user.id);
+    }
+  }, []);
 
   //プロジェクト概要の短縮
   const previewLength = 100;
@@ -89,7 +99,9 @@ export function ProjectCard({project, user, onPlayClick}){
             </IconButton>
           </Box>
         )}
-        <Button variant="secondary" onClick={() => handleCollaborationRequest()}>応募する</Button>
+        {!isOwner && (
+          <Button variant="secondary" onClick={() => handleCollaborationRequest()}>応募する</Button>
+        )}
         <Box
           sx={{
             display: 'flex',
@@ -99,7 +111,7 @@ export function ProjectCard({project, user, onPlayClick}){
         >
           <PeopleIcon sx={{ color: 'text.secondary'}} />
           <Typography variant="body2" color="textSecondary">
-            ユーザーB、ユーザーC他数名が参加（実装途中）
+            ユーザーB、ユーザーC他数名が参加（実装中）
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end'}}>

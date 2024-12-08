@@ -12,8 +12,10 @@ export const useLogoutRequest = () => {
       const response = await del(`/auth/sign_out`, { withCredentials: true });
       if (response.status === 200) {
         handleLogout(); //認証状態リセット
-        router.push("/projects");
+        window.location.href = "/projects";
       }
+
+
     } catch (error) {
       //401=トークン無効を想定。404=ログアウト済を想定
       if (error.response?.status === 401 || error.response?.status === 404) {

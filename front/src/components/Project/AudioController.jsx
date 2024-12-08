@@ -7,8 +7,8 @@ import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import CloseIcon from '@mui/icons-material/Close';
 
-export function AudioController({onClose, audioUrl, project, user }){
-  const { isPlaying, currentTime, duration, play, pause, seek } = useProjectIndexAudioPlayer(audioUrl);
+export function AudioController({onClose, audioData, project, user }){
+  const { isPlaying, currentTime, duration, play, pause, seek } = useProjectIndexAudioPlayer(audioData);
 
   useEffect(() => {
       play(); //初回レンダリング時のみ自動再生

@@ -5,10 +5,13 @@ import { Box, Alert, CircularProgress, Typography } from "@mui/material";
 import { ProjectCard } from "./ProjectCard";
 import { AudioController } from "../../components/Project/AudioController";
 import { projectIndexRequest } from "../../hooks/services/project/ProjectIndexRequest";
+import { useFetchAudioData } from "../../hooks/audio/useFetchAudioData";
+
 
 export function ProjectWrapper(){
   const [isAudioControllerVisible, setAudioControllerVisible] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
+  const [audioData, setAudioData] = useState(null);
   const [projects, setProjects] = useState([]);
   const [included, setIncluded] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +21,7 @@ export function ProjectWrapper(){
   const [projectForController, setProjectForController] = useState(null);
   const [userForController, setUserForController] = useState(null);
 
+  const { fetchAudioData } = useFetchAudioData();
   // included 配列を使ってユーザー情報をマッピング
   const userMap = included.reduce((map, item) => {
     if (item.type === "user") {
@@ -26,6 +30,15 @@ export function ProjectWrapper(){
     return map;
   }, {});
 
+  //audioFile情報をマッピング
+  const audioMap = included.reduce((map, item) => {
+    if (item.type === "audio_file") {
+      map[item.id] = item.attributes.file_path;
+    }
+    return map;
+  }, {});
+
+  //リクエスト初期化
   useEffect(() => {
     const loadProjects = async () => {
       try {
@@ -41,18 +54,30 @@ export function ProjectWrapper(){
     loadProjects();
   }, []);
 
-  const handlePlayClick = (project) => {
+  //再生ボタン押下時処理
+  const handlePlayClick = async (project) => {
     const user = userMap[project.relationships.user.data.id];
-    setProjectForController(project); // 現在再生中のプロジェクトをセット
-    setUserForController(user); // 現在再生中のユーザーをセット
-    setAudioUrl(project.attributes.audioUrl); // オーディオURLをセット
-    setAudioControllerVisible(true); // コントローラーを表示
+    const audioFileId = project.relationships.audio_file?.data?.id;
+    const audioFilePath = audioFileId ? audioMap[audioFileId] : null;
+    try {
+      const audioData = await fetchAudioData(audioFilePath);
+      setAudioData(audioData);
+      setAudioUrl(audioFilePath);
+      setAudioControllerVisible(true);
+      setProjectForController(project);
+      setUserForController(user);
+    }catch(e) {
+      console.error("音声データが取得できませんでした");
+    }
   };
+
+  //AudioController閉じる処理
   const handleCloseClick = () => {
     setProjectForController(null);
     setUserForController(null);
     setAudioControllerVisible(false);
     setAudioUrl(null);
+    setAudioData(null);
   };
 
 
@@ -94,12 +119,12 @@ export function ProjectWrapper(){
           );
         })
       )}
-      {isAudioControllerVisible && (
+      {isAudioControllerVisible && audioUrl && audioData &&(
         <AudioController
           onClose={handleCloseClick}
-          audioUrl={audioUrl}
           project={projectForController}
           user={userForController}
+          audioData={audioData}
         />
       )}
     </Box>

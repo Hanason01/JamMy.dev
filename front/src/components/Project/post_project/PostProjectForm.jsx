@@ -27,7 +27,7 @@ export function PostProjectForm({audioBuffer, settings}) {
       //エンコード処理
       if(!encodedFileRef.current){
         console.log("エンコード処理に送るaudioBuffer", audioBuffer);
-        audioFile = await audioEncoder(audioBuffer, "FLAC");
+        audioFile = await audioEncoder(audioBuffer, "MP3"); //MVP用、本リリースではFLAC
         encodedFileRef.current = audioFile;
         console.log("エンコード後のファイル",audioFile);
       }
