@@ -38,7 +38,7 @@ export function AuthModal({open, handleClose, redirectTo}){
             width: "90%",
             p: 3,
             mx: "auto",
-            my: "20%",
+            my: "5%",
           }}
         >
           <Tabs

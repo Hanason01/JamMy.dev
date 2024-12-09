@@ -36,8 +36,8 @@ export function SignUpForm({redirectTo}) {
         setError("email", { type: "manual", message: error.email });
       } else if (error.password) {
         setError("password", { type: "manual", message: error.password });
-      } else if (error.username) {
-        setError("username", { type: "manual", message: error.username });
+      } else if (error.nickname) {
+        setError("nickname", { type: "manual", message: error.nickname });
       } else {
         // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
         setFormError(error.general);
@@ -98,6 +98,15 @@ export function SignUpForm({redirectTo}) {
         {...register("email")}
         error={!!errors.email}
         helperText={errors.email?.message}
+        />
+        <TextField
+        label="ニックネーム"
+        variant="outlined"
+        placeholder="15文字以内"
+        fullWidth
+        {...register("nickname")}
+        error={!!errors.nickname}
+        helperText={errors.nickname?.message}
         />
         <PasswordField
           label="パスワード"
