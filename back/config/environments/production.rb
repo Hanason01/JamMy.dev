@@ -90,4 +90,5 @@ Rails.application.configure do
   config.hosts << "jam-my.com"         # フロントエンドのドメイン
   config.hosts << "www.jam-my.com"     # フロントエンドのサブドメイン
   config.hosts << "api.jam-my.com"     # バックエンドのサブドメイン
+  config.hosts << "jammy-dev.onrender.com"
 end
