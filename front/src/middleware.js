@@ -24,6 +24,6 @@ export function middleware(req) {
 
 // 認証対象のパスを指定
 export const config = {
-  matcher: ['/mypage/:path*','/projects/:path+','/post_project/:path*',
+  matcher: ['/projects/:path+','/post_project/:path*', '/mypage/:path*', '/notification/:path*',
   ],
 };

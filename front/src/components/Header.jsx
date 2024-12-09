@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '../context/useAuthContext';
 import { useLogoutRequest } from '../hooks/services/user/useLogoutRequest';
+import Link from "next/link";
 import { AppBar, Box, Toolbar, Typography, Avatar, Menu, MenuItem } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
 
@@ -65,22 +65,23 @@ export function Header() {
   return (
     <Box sx={{
       flexGrow: 1,
-      height: '64px' }}>
+      height: '56px' }}>
       <AppBar position="fixed">
-        <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Toolbar sx={{ position: 'relative' }}>
+          <Typography
+          variant="h6"
+          component={Link}
+          href="/"
+          sx={{
+            position:'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            textDecoration: "none",
+              color: "inherit",
+            }}>
             JamMy
           </Typography>
-            <div>
+            <Box sx={{ marginLeft: 'auto' }}>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -112,14 +113,13 @@ export function Header() {
               >
                 {isAuthenticated || localUser ? (
                   <div>
-                    <MenuItem onClick={handleClose}>マイページ</MenuItem>
                     <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
                   </div>
                 ) : (
                   <MenuItem onClick={handleLogin}>ログイン</MenuItem>
                 )}
               </Menu>
-            </div>
+            </Box>
         </Toolbar>
       </AppBar>
     </Box>
