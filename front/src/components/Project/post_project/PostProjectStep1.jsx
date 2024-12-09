@@ -6,7 +6,7 @@ import { RecordingCore } from "../core_logic/RecordingCore";
 import { PostProjectProcessing } from "./PostProjectProcessing";
 
 export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForPost, activeStep}){
-  const [recordingDuration, setRecordingDuration] = useState(30); //秒数
+  const [recordingDurationSliderValue, setRecordingDurationSliderValue] = useState(30); //秒数
   const [speedSliderValue, setSpeedSliderValue] = useState(120); //速度
   const [countIn, setCountIn] = useState(0); //カウントイン
   const [metronomeOn, setMetronomeOn] = useState(false); //メトロノームON/OFF
@@ -16,13 +16,13 @@ export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForP
   //RecordingCore→PostProjectProcessingへの受け渡し
   const [audioBufferForProcessing, setAudioBufferForProcessing] = useState(null);
 
-  console.log("hasRecordedの状態",hasRecorded);
-  console.log("audioBufferForProcessingの状態", audioBufferForProcessing);
 
   const preCounts = [0,1,2,3,4,5,6,7]
 
   //秒数セット
-  const handleRecordingDurationChange = (event) => setRecordingDuration(event.target.value);
+  const handleRecordingDurationSliderChange = (event, newValue) => {
+    setRecordingDurationSliderValue(newValue);
+  }
   //速度セット
   const handleSpeedSliderChange = (event, newValue) => setSpeedSliderValue(newValue);
   //カウントインセット
@@ -37,7 +37,7 @@ export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForP
     setAudioBufferForPost(audioBuffer); //Step2のプレビュー用（Stepper）
     const settings = {
       tempo: speedSliderValue,
-      duration: recordingDuration,
+      duration: recordingDurationSliderValue,
     }
     console.log("Step1が親へ渡すsettings", settings);
     setSettingsForPost(settings); //Step2用の録音設定
@@ -69,32 +69,32 @@ export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForP
             color: "text.primary", // 入力フィールドの文字色
           },
       }}>
-        <TextField
-          label="秒数"
-          variant="standard"
-          type="number"
-          value={recordingDuration}
-          onChange={handleRecordingDurationChange}
-          slotProps={{
-            input: {
-              endAdornment: <InputAdornment position="end">秒</InputAdornment>
-            }
-          }}
-          sx={{my:1, width: "20%"}}
-          // {...register("second")}
-          // error={!!errors.second}
-          // helperText={errors.second?.message}
-        />
-        <Box sx={{display: "flex", alignItems: "center", my:1, width: "50%"}}>
-          <Slider
-            value={speedSliderValue}
-            onChange={handleSpeedSliderChange}
-            min={1}
-            max={200}
-            sx={{mr:2}}
-            />
-          <Typography sx={{width: "40px"}}>
-            {speedSliderValue}
+        <Box sx={{display: "flex", alignItems: "center", my:1, width: "65%"}}>
+          <Box sx={{ flexGrow: 1, mr: 2 }}>
+            <Slider
+              value={recordingDurationSliderValue}
+              onChange={handleRecordingDurationSliderChange}
+              min={1}
+              max={60}
+              sx={{mr:2}}
+              />
+          </Box>
+          <Typography  align="left" sx={{width: "60px"}}>
+            {recordingDurationSliderValue} 秒
+          </Typography>
+        </Box>
+        <Box sx={{display: "flex", alignItems: "center", my:1, width: "65%"}}>
+          <Box sx={{ flexGrow: 1, mr: 2 }}>
+            <Slider
+              value={speedSliderValue}
+              onChange={handleSpeedSliderChange}
+              min={1}
+              max={200}
+              sx={{mr:2}}
+              />
+          </Box>
+          <Typography  align="left" sx={{width: "60px"}}>
+            {speedSliderValue}BPM
           </Typography>
         </Box>
         {/* <TextField
@@ -145,7 +145,7 @@ export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForP
           settings={{
             tempo: speedSliderValue,
             countIn: countIn,
-            duration: recordingDuration,
+            duration: recordingDurationSliderValue,
             metronomeOn: metronomeOn,
           }}
           />

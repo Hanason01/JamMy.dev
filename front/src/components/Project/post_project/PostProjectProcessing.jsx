@@ -5,7 +5,7 @@ import { AudioPlayer } from "../core_logic/AudioPlayer";
 import { AudioProcessor } from "../core_logic/AudioProcessor";
 
 export function PostProjectProcessing({audioBufferForProcessing, setHasRecorded, setAudioBufferForProcessing, activeStep}){
-  const audioContextRef = useRef(null);
+  const audioContextForProcessingRef = useRef(null);
   const gainNodeRef = useRef(null);
   const [isInitialized, setIsInitialized] = useState(false); //初期化フラグ
 
@@ -21,7 +21,7 @@ export function PostProjectProcessing({audioBufferForProcessing, setHasRecorded,
       // 音量編集用のGainNodeの作成およびDestinationへの接続
       const gainNode = context.createGain();
       gainNode.connect(context.destination);
-      audioContextRef.current = context;
+      audioContextForProcessingRef.current = context;
       gainNodeRef.current = gainNode;
 
       setIsInitialized(true);
@@ -39,10 +39,10 @@ export function PostProjectProcessing({audioBufferForProcessing, setHasRecorded,
         gainNodeRef.current = null;
         console.log("GainNode を切断しました",gainNodeRef.current);
       }
-      if (audioContextRef.current) {
-        audioContextRef.current.close().then(() => {
-          audioContextRef.current = null;
-          console.log("AudioContext を閉じました",audioContextRef.current);
+      if (audioContextForProcessingRef.current) {
+        audioContextForProcessingRef.current.close().then(() => {
+          audioContextForProcessingRef.current = null;
+          console.log("AudioContext を閉じました",audioContextForProcessingRef.current);
         });
       }
       console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが完了");
@@ -56,14 +56,14 @@ export function PostProjectProcessing({audioBufferForProcessing, setHasRecorded,
       <div>
         <AudioPlayer
         audioBuffer={audioBufferForProcessing}
-        audioContext={audioContextRef.current}
+        audioContext={audioContextForProcessingRef.current}
         gainNode={gainNodeRef.current}
         setHasRecorded={setHasRecorded}
         setAudioBufferForProcessing={setAudioBufferForProcessing}
         activeStep={activeStep}
         />
         <AudioProcessor
-        audioContext={audioContextRef.current}
+        audioContext={audioContextForProcessingRef.current}
         gainNode={gainNodeRef.current}
         />
       </div>

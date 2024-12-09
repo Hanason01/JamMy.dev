@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function useAudioRecorder(settings, audioContextRef,audioWorkletNodeRef) {
+export function useAudioRecorder(settings, audioContextRef,audioWorkletNodeRef, setLoading, setIsRecording, cleanupAnalyzer, stopMetronome) {
 
   const [audioBuffer, setAudioBuffer] = useState(null);
 
@@ -47,8 +47,15 @@ export function useAudioRecorder(settings, audioContextRef,audioWorkletNodeRef) 
         console.log("メッセージを受け取った:audioWorkletNodeは",audioWorkletNode)
         console.log("メッセージの種類:", event.data.type);
         if (event.data.type === "complete") {
-          // 録音停止時にプロセッサから送られた最終データを処理
-          processCompleteData(event.data.audioData);
+          setLoading(true);
+          setIsRecording(false);
+          cleanupAnalyzer();
+          stopMetronome();
+          setTimeout(async () => {
+           // 録音停止時にプロセッサから送られた最終データを処理
+            processCompleteData(event.data.audioData);
+            setLoading(false);
+          }, 100);
           console.log("completeをワークレットから受け取りprocessCompleteDataを行う");
         }
       };

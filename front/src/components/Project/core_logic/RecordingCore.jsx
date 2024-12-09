@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Button, Box, IconButton, Typography } from "@mui/material";
+import { Button, Box, IconButton, Typography, CircularProgress } from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
@@ -15,6 +15,7 @@ export function RecordingCore({ onRecordingComplete, settings}){
   const [ isRecording, setIsRecording ] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false); //録音時初期化
   const [isInitializing, setIsInitializing] = useState(false); // 初期化中のフラグ(useEffectの制御)
+  const [loading, setLoading] = useState(false); // ローディング状態
 
   //WebAudioApi関連
   const audioContextRef = useRef(null);
@@ -23,10 +24,11 @@ export function RecordingCore({ onRecordingComplete, settings}){
   const clickSoundBufferRef = useRef(null);
 
   //フック関連
-  const { init, start, stop, audioBuffer } = useAudioRecorder(settings,audioContextRef, audioWorkletNodeRef);
   const { isCountingIn, startCountIn, countInInitialize } = useAudioCountIn( clickSoundBufferRef.current, settings);
   const { metronomeInitialize, startMetronome, stopMetronome } = useAudioMetronome(clickSoundBufferRef.current, settings);
   const { analyzerData, initializeAnalyzer, cleanupAnalyzer } = useAudioAnalyzer();
+  const { init, start, stop, audioBuffer } = useAudioRecorder(settings,audioContextRef, audioWorkletNodeRef, setLoading, setIsRecording, cleanupAnalyzer, stopMetronome);
+
   // console.log("RecordingCore時点のクリック音声",clickSoundBuffer);
 
   //録音フィードバック関連
@@ -137,12 +139,19 @@ export function RecordingCore({ onRecordingComplete, settings}){
 
 
   // 録音停止処理
-  const handleStopRecording = () => {
-    stop();
-    stopMetronome();
+  const handleStopRecording = async() => {
+    // サークルを表示するためにloadingをtrueに設定
+    setLoading(true);
     setIsRecording(false);
-    cleanupAnalyzer(mediaStreamSourceRef.current);
-    console.log("stop()発動");
+    // 次の処理を非同期で遅延させて再レンダリングを待つ
+    setTimeout(async () => {
+      stop();
+      stopMetronome();
+      cleanupAnalyzer(mediaStreamSourceRef.current);
+      console.log("stop()発動");
+      // 完了後にloadingをfalseに設定
+      setLoading(false);
+    }, 100); // 状態が確実に反映されるように非同期で処理を遅らせる
   };
 
   // 録音中・カウントイン中で共通の録音開始フロー
@@ -194,7 +203,7 @@ export function RecordingCore({ onRecordingComplete, settings}){
       alignItems: "center",
       mt:2,
       pb:10,
-      gap:5
+      gap:3
       }}>
         <Box sx={{
           width: "100%",
@@ -203,11 +212,30 @@ export function RecordingCore({ onRecordingComplete, settings}){
         }}>
           {/* <Button variant="secondary" startIcon={<SettingsIcon />}>マイク選択</Button> */}
         </Box>
-        {isRecording &&<Typography variant="h6">{formatRemainingTime()}</Typography>}
-        {isRecording && <AnalyzerVisualization analyzerData={analyzerData} duration={settings.duration} />}
-        <IconButton onClick={isRecording ? handleStopRecording : handleStartRecording} sx={{ color:"red", pl: 0 }}>
-                {!isRecording ? <RadioButtonCheckedIcon sx={{fontSize: "8rem"}}/> : <StopCircleIcon sx={{fontSize: "8rem"}}/>}
-        </IconButton>
+        {isRecording ? (
+          <Box sx= {{display: "flex",
+            flexDirection: "column",
+            alignItems: "center",}}>
+            <Typography variant="h6">{formatRemainingTime()}</Typography>
+            <AnalyzerVisualization analyzerData={analyzerData} duration={settings.duration}/>
+          </Box>
+          ) : (
+          <Box sx={{ width: "400px", height: "182px" }} />
+          )}
+        <Box>
+          {loading ? (
+            <CircularProgress
+              size={64}
+              sx={{
+                color: "primary",
+              }}
+            />
+          ) : (
+          <IconButton onClick={isRecording ? handleStopRecording : handleStartRecording} sx={{ color:"red", pl: 0 }}>
+                  {!isRecording ? <RadioButtonCheckedIcon sx={{fontSize: "8rem"}}/> : <StopCircleIcon sx={{fontSize: "8rem"}}/>}
+          </IconButton>
+          )}
+        </Box>
     </Box>
   );
 };

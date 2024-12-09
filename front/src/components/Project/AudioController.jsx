@@ -12,7 +12,7 @@ export function AudioController({onClose, audioData, project, user }){
 
   useEffect(() => {
       play(); //初回レンダリング時のみ自動再生
-  }, []);
+  }, [audioData]);
 
   return(
     <Box
