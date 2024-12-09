@@ -17,13 +17,16 @@ export function ProjectCard({project, user, onPlayClick}){
   const toggleExpanded = () => setExpanded(!expanded);
   //コラボレーション、応募管理ページへの遷移に利用
   const { setCurrentProject, setCurrentUser } = useProjectContext();
+  // console.log("isOwner追跡", isOwner);
 
   //ローカルストレージからcurrentUserオブジェクトを取得
   useEffect(() => {
     const storedUser = localStorage.getItem('authenticatedUser');
     if (storedUser) {
       const currentUser = JSON.parse(storedUser);
+      console.log("Currentuser と user.id", currentUser.id,user.id);
       setIsOwner(currentUser.id === user.id);
+      console.log("Currentuser + user.id" ,currentUser.id === user.id);
     }
   }, []);
 

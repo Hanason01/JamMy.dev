@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Box, TextField, Button, MenuItem, Divider, Alert } from "@mui/material";
+import { Box, TextField, Button, MenuItem, Divider, Alert, CircularProgress } from "@mui/material";
 import { usePostProjectValidation } from "../../../hooks/validation/usePostProjectValidation";
 import { usePostProjectRequest } from "../../../hooks/services/project/usePostProjectRequest";
 import { audioEncoder } from "../../../utiles/audioEncoder";
@@ -15,46 +15,49 @@ export function PostProjectForm({audioBuffer, settings}) {
   // const [visibility, setVisibility] = useState("公開"); //公開範囲
   // const preCategory = ["音楽","その他"]
   // const preVisibility = ["公開","限定公開"]
-  // console.log("PostProjectFormが受け取ったaudioBufferとsettigs",audioBuffer, settings);
+  const [loading, setLoading] = useState(false); // ローディング状態
 
   const { register, handleSubmit, setError, errors } = usePostProjectValidation();
 
   const { postProject } = usePostProjectRequest();
   const sendDataToAPI = async (data, audioBuffer, settings) => {
     console.log("sendDataToAPI発動、3つの引数", data, audioBuffer,settings);
-    try {
-      let audioFile = encodedFileRef.current
-      //エンコード処理
-      if(!encodedFileRef.current){
-        console.log("エンコード処理に送るaudioBuffer", audioBuffer);
-        audioFile = await audioEncoder(audioBuffer, "MP3"); //MVP用、本リリースではFLAC
-        encodedFileRef.current = audioFile;
-        console.log("エンコード後のファイル",audioFile);
-      }
-      // フォームデータの結合
-      console.log("フォームに入れるsettings情報",settings);
-      console.log("フォームに入れるdata情報",data);
-      console.log("フォームに入れるaudioFile",audioFile);
-      const formData = new FormData();
-      formData.append("project[title]", data.title);
-      formData.append("project[description]", data.description);
-      formData.append("project[tempo]", settings.tempo);
-      formData.append("project[duration]", settings.duration);
-      formData.append("project[audio_file]", audioFile);
-      console.log("リクエスト送信前のformData", formData);
+    setLoading(true);
+    setTimeout(async () => {
+      try {
+        let audioFile = encodedFileRef.current
+        //エンコード処理
+        if(!encodedFileRef.current){
+          console.log("エンコード処理に送るaudioBuffer", audioBuffer);
+          audioFile = await audioEncoder(audioBuffer, "MP3"); //MVP用、本リリースではFLAC
+          encodedFileRef.current = audioFile;
+          console.log("エンコード後のファイル",audioFile);
+        }
+        // フォームデータの結合
+        // console.log("フォームに入れるsettings情報",settings);
+        // console.log("フォームに入れるdata情報",data);
+        // console.log("フォームに入れるaudioFile",audioFile);
+        const formData = new FormData();
+        formData.append("project[title]", data.title);
+        formData.append("project[description]", data.description);
+        formData.append("project[tempo]", settings.tempo);
+        formData.append("project[duration]", settings.duration);
+        formData.append("project[audio_file]", audioFile);
+        console.log("リクエスト送信前のformData", formData);
 
-      await postProject(formData);
-      router.push("/projects");
-    } catch (error) {
-      if (error.title) {
-        setError("title", { type: "manual", message: error.title });
-      } else if (error.description) {
-        setError("description", { type: "manual", message: error.description });
-      } else {
-        // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
-        setFormError(error.general);
+        await postProject(formData);
+        window.location.href = "/projects";
+      } catch (error) {
+        if (error.title) {
+          setError("title", { type: "manual", message: error.title });
+        } else if (error.description) {
+          setError("description", { type: "manual", message: error.description });
+        } else {
+          // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
+          setFormError(error.general);
+        }
       }
-    }
+    }, 100);
   };
 
   // const handleCategoryChange = (event) => setCategory(event.target.value);
@@ -147,11 +150,19 @@ export function PostProjectForm({audioBuffer, settings}) {
           {/* <Button type="submit" variant="contained" color="primary" fullWidth sx={{mt:2}}>
             下書き保存
           </Button> */}
-        <Button type="submit" variant="primary" >
-          投稿する
-        </Button>
-        {/* </Box> */}
-
+        {loading ? (
+          <CircularProgress
+            size={48}
+            sx={{
+              color: "primary",
+            }}
+          />
+        ) : (
+          <Button type="submit" variant="primary" sx={{mt:4}} >
+            投稿する
+          </Button>
+        )}
+          {/* </Box> */}
       </Box>
     </Box>
   );

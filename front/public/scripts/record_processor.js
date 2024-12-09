@@ -27,9 +27,9 @@ class AudioProcessor extends AudioWorkletProcessor {
 
   //AudioContextが動作すると以下関数は自動で発動する
   process(inputs) {
-    console.log("RecordProcessorのprocess稼働");
+    // console.log("RecordProcessorのprocess稼働");
     console.log("processで受け取るinputs", inputs);
-    console.log("process 稼働中, isRecording:", this.isRecording, "currentTime:", currentTime);
+    // console.log("process 稼働中, isRecording:", this.isRecording, "currentTime:", currentTime);
       // 録音処理
     if (!this.isRecording){
       console.log("process 稼働中, isRecordingがfalseです:", currentTime);
@@ -42,10 +42,11 @@ class AudioProcessor extends AudioWorkletProcessor {
       this.audioData.push(new Float32Array(channelData));//データの蓄積
     }
 
-    console.log("currentTime:", currentTime);
-    console.log("this.startTime:", this.startTime);
-    console.log("this.maxDuration", this.maxDuration);
+    // console.log("currentTime:", currentTime);
+    // console.log("this.startTime:", this.startTime);
+    // console.log("this.maxDuration", this.maxDuration);
     const elapsedTime = currentTime - this.startTime;
+    console.log("elapsed time:", elapsedTime);
       if (elapsedTime >= this.maxDuration) {
         this.finishRecording();
       }
