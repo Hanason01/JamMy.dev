@@ -23,10 +23,7 @@ export function SignInForm({redirectTo}) {
   const sendDataToAPI = async (data) => {
     try {
       await signIn(data);
-      if (redirectTo){
-        router.push(redirectTo);
-      }else{
-        router.push("/projects?refresh=true");
+      router.push(redirectTo || "/projects?refresh=true");
       }
 
     } catch (error) {
