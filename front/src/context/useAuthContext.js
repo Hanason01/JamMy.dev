@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
+  console.log("AuthProviderでisAuthenticatedを追跡",isAuthenticated);
 
   //初期化
   useEffect(() => {

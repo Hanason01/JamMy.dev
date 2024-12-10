@@ -9,11 +9,13 @@ import { PasswordField } from "./PasswordField";
 
 import { useSignInValidation } from "../../hooks/validation/useSignInValidation";
 import { useSignInRequest } from "../../hooks/services/user/useSignInRequest";
+import { useAuthContext } from "../..//context/useAuthContext";
 
 export function SignInForm({redirectTo}) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState("");
+  const { isAuthenticated } = useAuthContext();
 
   const handleTogglePasswordVisibility = () => setShowPassword(!showPassword);
 
@@ -25,6 +27,7 @@ export function SignInForm({redirectTo}) {
       await signIn(data);
       // redirectTo の値をログに出力
       console.log("Redirecting to:", redirectTo);
+      console.log("signInが終わった後のisAuthenticated", isAuthenticated);
 
       // router.push の前後でログを追加
       if (redirectTo) {
@@ -46,6 +49,7 @@ export function SignInForm({redirectTo}) {
         // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
         setFormError(error.general);
       }
+      console.log("sendDataToAPIが終わった後のisAuthenticated", isAuthenticated);
     }
   };
 
