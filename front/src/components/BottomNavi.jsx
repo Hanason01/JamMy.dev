@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from "next/navigation";
+import { useEffect } from 'react';
+import { useRouter, usePathname } from "next/navigation";
 import { useCurrentRouteState} from '@/context/useCurrentRouteContext';
 import Box from '@mui/material/Box';
 import BottomNavigation from '@mui/material/BottomNavigation';
@@ -12,8 +12,14 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonIcon from '@mui/icons-material/Person';
 
 export function BottomNavi() {
+  const pathname = usePathname();
   const router = useRouter();
   const { currentRoute, setCurrentRoute } = useCurrentRouteState();
+
+  // `router.pathname` が変更されたら `currentRoute` を更新
+  useEffect(() => {
+    setCurrentRoute(pathname); // Contextに反映
+  }, [pathname, setCurrentRoute]);
 
   const value = (() => {
     switch (currentRoute) {
