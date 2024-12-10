@@ -22,7 +22,8 @@ class AudioProcessor extends AudioWorkletProcessor {
     };
     console.log("RecordProcessorが初期化される");
 
-
+    // メインスレッドへ準備完了を通知
+    this.port.postMessage({ type: "ready" });
   }
 
   //AudioContextが動作すると以下関数は自動で発動する

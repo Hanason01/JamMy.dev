@@ -10,7 +10,7 @@ import { useAudioPlayer } from "../../../hooks/audio/useAudioPlayer";
 //Step2や応募画面等プレビューのみの用途の場合は、propsはaudioBufferとaudioContextのみ受け取る前提
 export function AudioPlayer({audioBuffer, audioContext, gainNode, setHasRecorded, setAudioBufferForProcessing, activeStep}){
   const { isPlaying, init, play, pause, seek, currentTime, duration } = useAudioPlayer(audioBuffer, audioContext, gainNode);
-  // console.log("AudioPlayer.jsxが発動（親から渡されてきた値３つ）", audioBuffer, audioContext, gainNode);
+  console.log("AudioPlayer.jsxが発動（親から渡されてきた値３つ）", audioBuffer, audioContext, gainNode);
 
   //初期化処理
   useEffect(() => {

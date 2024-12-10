@@ -18,10 +18,10 @@ export function RecordingCore({ onRecordingComplete, settings}){
   const [loading, setLoading] = useState(false); // ローディング状態
 
   //WebAudioApi関連
-  const audioContextRef = useRef(null);
+  const audioContextRef = useRef(null); //メトロノームと共有
   const mediaStreamSourceRef = useRef(null);
   const audioWorkletNodeRef = useRef(null);
-  const clickSoundBufferRef = useRef(null);
+  const clickSoundBufferRef = useRef(null); //メトロノームとカウントインに渡す用
 
   //フック関連
   const { isCountingIn, startCountIn, countInInitialize } = useAudioCountIn( clickSoundBufferRef.current, settings);
@@ -29,43 +29,52 @@ export function RecordingCore({ onRecordingComplete, settings}){
   const { analyzerData, initializeAnalyzer, cleanupAnalyzer } = useAudioAnalyzer();
   const { init, start, stop, audioBuffer } = useAudioRecorder(settings,audioContextRef, audioWorkletNodeRef, setLoading, setIsRecording, cleanupAnalyzer, stopMetronome);
 
-  // console.log("RecordingCore時点のクリック音声",clickSoundBuffer);
-
   //録音フィードバック関連
   const [remainingTime, setRemainingTime] = useState(settings.duration ?? 30); // 残り時間（デフォルトは30秒）
 
   //初期化関数
-  const initializeRecording = async () => {
-    if (isInitialized || isInitializing ) return;
+  const initializeRecording = async (isMounted) => {
+    if (isInitialized || isInitializing || !isMounted()) return;
     setIsInitializing(true);
     try {
-      const { audioContext, mediaStreamSource, audioWorkletNode, clickSoundBuffer } = await init();
+      if (!isMounted()) return; // アンマウント後は中断
+      const initResult = await init(isMounted);
+      if (!initResult) {
+        console.warn("init() が中断されました。初期化処理を中止します。");
+        return;
+      }
+
+      const { audioContext, mediaStreamSource, audioWorkletNode, clickSoundBuffer } = initResult;
 
       // Ref保持
+      if (!isMounted()) return;
       audioContextRef.current = audioContext;
       mediaStreamSourceRef.current = mediaStreamSource;
       audioWorkletNodeRef.current = audioWorkletNode;
       clickSoundBufferRef.current = clickSoundBuffer;
       console.log("init()完了");
-      console.log("init()の戻り値があるか", audioContext, clickSoundBuffer);
+      console.log("init()の戻り値があるか", audioContext,  mediaStreamSource, audioWorkletNode,clickSoundBuffer);
 
       // アナライザー初期化
-      if (audioContext && mediaStreamSource) {
+      if (audioContext && mediaStreamSource && isMounted()) {
+        console.log("アナライザー初期化時点のcotextとmediasource", audioContext, mediaStreamSource);
         initializeAnalyzer(audioContext, mediaStreamSource);
         console.log("アナライザー初期化完了");
       }
 
       // カウントイン初期化
-      countInInitialize(clickSoundBuffer);
+      if(isMounted())countInInitialize(clickSoundBuffer); //カウントインは別context管理
       //メトロノーム初期化
-      metronomeInitialize(audioContext, clickSoundBuffer);
+      if(isMounted())metronomeInitialize(audioContext, clickSoundBuffer);
 
-      setIsInitialized(true);
-      console.log("RecordingCoreの初期化完了");
+      if(isMounted()){
+        setIsInitialized(true);
+        console.log("RecordingCoreの初期化完了");
+      }
     }catch (e) {
       console.error("録音初期化に失敗しました", e);
     }finally{
-      setIsInitializing(false);
+      if(isMounted())setIsInitializing(false);
     }
   };
 
@@ -81,38 +90,46 @@ export function RecordingCore({ onRecordingComplete, settings}){
 
 
 
+    let isMounted = true; // マウント状態を追跡
+
     //初期化処理
-    const safeInitialize = async () => {
-      await initializeRecording();
-    };
-    safeInitialize();
+    initializeRecording(() => isMounted); //最新のisMountedを参照する関数として渡す
+
 
 
     // クリーンアップ処理
     return () => {
+      isMounted = false; // アンマウントを記録
+
       console.log(`RecordingCoreがアンマウントされました[${new Date().toISOString()}]`);
       console.log("RecordingCore: クリーンアップ開始");
+      // (1)アナライザーのクリーンアップ
+      cleanupAnalyzer(mediaStreamSourceRef.current);
+
+      // (2)AudioWorkletNodeのクリーンアップ
       if (audioWorkletNodeRef.current) {
         audioWorkletNodeRef.current.port.postMessage({ type: "stop" });
         audioWorkletNodeRef.current.disconnect();
         audioWorkletNodeRef.current = null;
         console.log("AudioWorkletNode をクリーンアップしました", audioWorkletNodeRef.current);
       }
+      // (3) MediaStreamSourceのクリーンアップ
       if (mediaStreamSourceRef.current) {
         mediaStreamSourceRef.current.disconnect();
         mediaStreamSourceRef.current = null;
         console.log("MediaStreamSource をクリーンアップしました", mediaStreamSourceRef.current);
       }
+      // (4) AudioContextのクリーンアップ
       if (audioContextRef.current) {
-        audioContextRef.current.close().then(() => {
+        // audioContextRef.current.close().then(() => {
           audioContextRef.current = null;
           console.log("AudioContext を閉じました",audioContextRef.current);
-        });
+        // });
       }
+      // (5) 録音中断、メトロノーム停止、初期化状態リセット
       setIsRecording(false);
-      cleanupAnalyzer(); // アナライザーのクリーンアップ
-      stopMetronome(); //メトロノームのクリーンアップ
-      setIsInitialized(false); // 初期化状態をfalseに
+      stopMetronome();
+      setIsInitialized(false);
       setIsInitializing(false);
       console.log("RecordingCore: クリーンアップ完了");
     };
@@ -120,12 +137,6 @@ export function RecordingCore({ onRecordingComplete, settings}){
 
   // 録音開始処理
   const handleStartRecording = async () => {
-    //初期化未済の場合、初期化
-    if (!isInitialized) {
-      console.log("初期化が未完了のため、初期化を実行します");
-      await initializeRecording();
-    }
-
     if (settings.countIn > 0) {
       startCountIn(settings, () => {
         console.log("startRecording呼び出しタイミング:", performance.now()); // コールバックの呼び出しタイミング
@@ -145,10 +156,8 @@ export function RecordingCore({ onRecordingComplete, settings}){
     setIsRecording(false);
     // 次の処理を非同期で遅延させて再レンダリングを待つ
     setTimeout(async () => {
-      stop();
-      stopMetronome();
-      cleanupAnalyzer(mediaStreamSourceRef.current);
       console.log("stop()発動");
+      stop();
       // 完了後にloadingをfalseに設定
       setLoading(false);
     }, 100); // 状態が確実に反映されるように非同期で処理を遅らせる
@@ -201,9 +210,8 @@ export function RecordingCore({ onRecordingComplete, settings}){
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      mt:2,
       pb:10,
-      gap:3
+      gap:2
       }}>
         <Box sx={{
           width: "100%",
@@ -220,7 +228,7 @@ export function RecordingCore({ onRecordingComplete, settings}){
             <AnalyzerVisualization analyzerData={analyzerData} duration={settings.duration}/>
           </Box>
           ) : (
-          <Box sx={{ width: "400px", height: "182px" }} />
+          <Box sx={{ width: "400px", height: "132px" }} />
           )}
         <Box>
           {loading ? (
@@ -231,8 +239,8 @@ export function RecordingCore({ onRecordingComplete, settings}){
               }}
             />
           ) : (
-          <IconButton onClick={isRecording ? handleStopRecording : handleStartRecording} sx={{ color:"red", pl: 0 }}>
-                  {!isRecording ? <RadioButtonCheckedIcon sx={{fontSize: "8rem"}}/> : <StopCircleIcon sx={{fontSize: "8rem"}}/>}
+          <IconButton disabled={isInitializing} onClick={isRecording ? handleStopRecording : handleStartRecording} sx={{ color:"red", pl: 0 }}>
+                  {!isRecording ? <RadioButtonCheckedIcon sx={{fontSize: "6rem"}}/> : <StopCircleIcon sx={{fontSize: "6rem"}}/>}
           </IconButton>
           )}
         </Box>
