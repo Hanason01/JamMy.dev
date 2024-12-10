@@ -26,10 +26,10 @@ export function PostProjectStepper(){
 
   if(isAuthenticated) {
     return (
-      <Box sx={{m:2, p:2}}>
+      <Box sx={{m:1, p:1}}>
         <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
-          <PostAddIcon color="primary" sx={{ fontSize: "3rem"}} />
-          <Typography variant="h5" sx={{ color: "text.primary" }}>投稿画面</Typography>
+          <PostAddIcon color="primary" sx={{ fontSize: "2rem"}} />
+          <Typography variant="h6" sx={{ color: "text.primary" }}>投稿画面</Typography>
         </Box>
         <Stepper activeStep={activeStep}
                 sx={{
