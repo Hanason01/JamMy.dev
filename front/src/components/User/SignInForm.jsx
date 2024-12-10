@@ -23,12 +23,15 @@ export function SignInForm({redirectTo}) {
   const sendDataToAPI = async (data) => {
     try {
       await signIn(data);
-      if (redirectTo){
-        router.push(redirectTo);
-      }else{
-        router.push("/projects?refresh=true");
+      console.log("signInが成功:", data);
+      console.log("redirectTo:", redirectTo);
+      console.log("router.pushを実行");
+      if (redirectTo) {
+        await router.push(redirectTo);
+      } else {
+        await router.push("/projects?refresh=true");
       }
-
+      console.log("router.pushが成功");
     } catch (error) {
       if (error.email) {
         setError("email", { type: "manual", message: error.email });
