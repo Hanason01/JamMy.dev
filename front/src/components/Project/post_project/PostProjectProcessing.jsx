@@ -15,6 +15,7 @@ export function PostProjectProcessing({audioBufferForProcessing, setHasRecorded,
     console.log("現在のisInitializedの値:", isInitialized);
     // 初期化処理（録音時とは別の Node 構成を取る）
     const initializeAudioContext = () => {
+      if (audioContextForProcessingRef.current === null) {
       console.log("AudioContext と GainNode の初期化を開始");
       const context = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -26,6 +27,7 @@ export function PostProjectProcessing({audioBufferForProcessing, setHasRecorded,
 
       setIsInitialized(true);
       console.log("AudioContext と GainNode を初期化しました");
+      }
     };
 
     initializeAudioContext();
@@ -34,22 +36,24 @@ export function PostProjectProcessing({audioBufferForProcessing, setHasRecorded,
     return () => {
       console.log(`PostProjectProcessingがアンマウントされました[${new Date().toISOString()}]`);
       console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが発動");
+      setIsInitialized(false);
       if (gainNodeRef.current) {
         gainNodeRef.current.disconnect();
         gainNodeRef.current = null;
         console.log("GainNode を切断しました",gainNodeRef.current);
       }
       if (audioContextForProcessingRef.current) {
-        audioContextForProcessingRef.current.close().then(() => {
+        // audioContextForProcessingRef.current.close().then(() => {
           audioContextForProcessingRef.current = null;
           console.log("AudioContext を閉じました",audioContextForProcessingRef.current);
-        });
+        // });
       }
       console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが完了");
     };
   }, []);
 
   console.log("PostProjectProcessing の現在の isInitialized（useEffectの外側に配置）:", isInitialized);
+  console.log("この段階でContextがあるか", audioContextForProcessingRef.current);
 
   if(isInitialized){
     return(

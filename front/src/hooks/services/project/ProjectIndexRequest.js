@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { handleStatusErrors } from "../ErrorHandler";
 
-export const projectIndexRequest = async (data) => {
+export const projectIndexRequest = async () => {
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects`, data, { withCredentials: true });
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects`);
     return{
       data: response.data.data, // 投稿データ
       included: response.data.included || [], // 関連データ（存在しない場合は空配列）

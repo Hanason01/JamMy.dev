@@ -52,7 +52,7 @@ export function AnalyzerVisualization({ analyzerData }) {
       style={{
         width: "100%",
         maxWidth: "400px",
-        height: "150px",
+        height: "100px",
       }}
     />
   );

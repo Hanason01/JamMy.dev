@@ -113,7 +113,7 @@ export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForP
             </MenuItem>
           ))}
           </TextField> */}
-          <FormGroup sx={{my:1,width: "50%"}}>
+          <FormGroup sx={{my:1,width: "60%"}}>
             <FormControlLabel required control={<Switch checked={metronomeOn} onChange={handleMetronomeToggle}/> }label="メトロノーム"
             sx={{
               "& .MuiFormControlLabel-label": {

@@ -26,7 +26,7 @@ export function SignInForm({redirectTo}) {
       if (redirectTo){
         router.push(redirectTo);
       }else{
-        window.location.href = "/projects";
+        router.push("/projects?refresh=true");
       }
 
     } catch (error) {
