@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext();
 
@@ -8,6 +8,15 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
+
+  //初期化
+  useEffect(() => {
+    const storedUser = localStorage.getItem("authenticatedUser");
+    if (storedUser) {
+      setAuthenticatedUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   //ログイン成功時の関数
   const handleLoginSuccess = (user) => {

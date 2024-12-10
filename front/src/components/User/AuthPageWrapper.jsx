@@ -7,7 +7,7 @@ import { AuthModal } from './AuthModal';
 export function AuthPageWrapper() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") //直前のリクエストURL
+  const redirectTo = searchParams.get("redirectTo") || sessionStorage.getItem("redirectTo") || "/" //直前のリクエストURL
   const [openAuthModal, setOpenAuthModal] = useState(true);
 
   const handleClose = () => {
