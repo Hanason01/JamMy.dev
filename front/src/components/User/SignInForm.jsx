@@ -24,7 +24,6 @@ export function SignInForm({redirectTo}) {
     try {
       await signIn(data);
       router.push(redirectTo || "/projects?refresh=true");
-      }
 
     } catch (error) {
       if (error.email) {
