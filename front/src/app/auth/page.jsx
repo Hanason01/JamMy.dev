@@ -1,3 +1,5 @@
+"use client";
+
 import { AuthPageWrapper } from '../../components/User/AuthPageWrapper';
 import { Suspense } from'react';
 
