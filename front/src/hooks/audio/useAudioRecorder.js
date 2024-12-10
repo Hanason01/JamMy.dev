@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function useAudioRecorder(settings, audioContextRef,audioWorkletNodeRef, setLoading, setIsRecording, cleanupAnalyzer, stopMetronome) {
+export function useAudioRecorder(settings, audioContextRef,audioWorkletNodeRef, mediaStreamSourceRef, setLoading, setIsRecording, cleanupAnalyzer, stopMetronome) {
 
   const [audioBuffer, setAudioBuffer] = useState(null);
 
@@ -118,36 +118,66 @@ export function useAudioRecorder(settings, audioContextRef,audioWorkletNodeRef, 
     }
   };
 
-    // 完成データの処理（
-    const processCompleteData = async (audioData) => {
-      if (!audioContextRef.current) return;
-      // データの検証を追加
-      if (!audioData || audioData.length === 0 || !audioData[0] || audioData[0].length === 0) {
-        console.error("無効な録音データが検出されました: ", audioData);
-        // プロセッサーに停止を指示（エラー時も停止を保証）
-        if (audioWorkletNodeRef.current) {
-          audioWorkletNodeRef.current.port.postMessage({ type: "terminate" });
-        }
-        return; // 無効なデータの場合は処理を中止
-      }
-
-      // Float32Array を統合(一次元配列化)して arrayBuffer に変換
-      const flatData = audioData.reduce((acc, val) => acc.concat(Array.from(val)), []);
-      console.log("flatData:", flatData);
-
-      // AudioBuffer を手動で作成
-      console.log("AudioBuffer手動作成の部分:context",audioContextRef.current);
-      const audioBuffer = audioContextRef.current.createBuffer(1, flatData.length, audioContextRef.current.sampleRate);
-      audioBuffer.getChannelData(0).set(flatData);
-      setAudioBuffer(audioBuffer);
-      console.log("録音データが AudioBuffer に変換されました");
-
-      // プロセッサーに停止を指示
+  // 完成データの処理（
+  const processCompleteData = async (audioData) => {
+    if (!audioContextRef.current) return;
+    // データの検証を追加
+    if (!audioData || audioData.length === 0 || !audioData[0] || audioData[0].length === 0) {
+      console.error("無効な録音データが検出されました: ", audioData);
+      // プロセッサーに停止を指示（エラー時も停止を保証）
       if (audioWorkletNodeRef.current) {
-      audioWorkletNodeRef.current.port.postMessage({ type: "terminate" });
-      console.log("プロセッサーに terminate メッセージを送信しました");
+        audioWorkletNodeRef.current.port.postMessage({ type: "terminate" });
       }
-    };
+      return; // 無効なデータの場合は処理を中止
+    }
 
-  return { init, start, stop, audioBuffer };
+    // Float32Array を統合(一次元配列化)して arrayBuffer に変換
+    const flatData = audioData.reduce((acc, val) => acc.concat(Array.from(val)), []);
+    console.log("flatData:", flatData);
+
+    // AudioBuffer を手動で作成
+    console.log("AudioBuffer手動作成の部分:context",audioContextRef.current);
+    const audioBuffer = audioContextRef.current.createBuffer(1, flatData.length, audioContextRef.current.sampleRate);
+    audioBuffer.getChannelData(0).set(flatData);
+    setAudioBuffer(audioBuffer);
+    console.log("録音データが AudioBuffer に変換されました");
+
+    // プロセッサーに停止を指示
+    if (audioWorkletNodeRef.current) {
+    audioWorkletNodeRef.current.port.postMessage({ type: "terminate" });
+    console.log("プロセッサーに terminate メッセージを送信しました");
+    }
+  };
+
+  // 録音クリーンアップ関数
+  const cleanupRecording = () => {
+    console.log("RecordingHook: クリーンアップ開始");
+
+    // (1) AudioWorkletNode のクリーンアップ
+    if (audioWorkletNodeRef.current) {
+      audioWorkletNodeRef.current.port.postMessage({ type: "terminate" }); // terminateメッセージを送信
+      audioWorkletNodeRef.current.disconnect();
+      audioWorkletNodeRef.current = null;
+      console.log("AudioWorkletNode をクリーンアップしました",audioWorkletNodeRef.current);
+    }
+
+    // (2) MediaStreamSource のクリーンアップ
+    if (mediaStreamSourceRef.current) {
+      mediaStreamSourceRef.current.disconnect();
+      mediaStreamSourceRef.current = null;
+      console.log("MediaStreamSource をクリーンアップしました",mediaStreamSourceRef.current);
+    }
+
+    // (3) AudioContextのクリーンアップ
+      if (audioContextRef.current) {
+        // audioContextRef.current.close().then(() => {
+          audioContextRef.current = null;
+          console.log("AudioContext を閉じました",audioContextRef.current);
+        // });
+      }
+
+    console.log("RecordingHook: クリーンアップ完了");
+  };
+
+  return { init, start, stop, audioBuffer, cleanupRecording };
 }

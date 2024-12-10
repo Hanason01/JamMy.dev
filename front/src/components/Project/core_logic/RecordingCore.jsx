@@ -27,7 +27,7 @@ export function RecordingCore({ onRecordingComplete, settings}){
   const { isCountingIn, startCountIn, countInInitialize } = useAudioCountIn( clickSoundBufferRef.current, settings);
   const { metronomeInitialize, startMetronome, stopMetronome } = useAudioMetronome(clickSoundBufferRef.current, settings);
   const { analyzerData, initializeAnalyzer, cleanupAnalyzer } = useAudioAnalyzer();
-  const { init, start, stop, audioBuffer } = useAudioRecorder(settings,audioContextRef, audioWorkletNodeRef, setLoading, setIsRecording, cleanupAnalyzer, stopMetronome);
+  const { init, start, stop, audioBuffer, cleanupRecording } = useAudioRecorder(settings,audioContextRef, audioWorkletNodeRef, mediaStreamSourceRef,setLoading, setIsRecording, cleanupAnalyzer, stopMetronome);
 
   //録音フィードバック関連
   const [remainingTime, setRemainingTime] = useState(settings.duration ?? 30); // 残り時間（デフォルトは30秒）
@@ -103,30 +103,9 @@ export function RecordingCore({ onRecordingComplete, settings}){
 
       console.log(`RecordingCoreがアンマウントされました[${new Date().toISOString()}]`);
       console.log("RecordingCore: クリーンアップ開始");
-      // (1)アナライザーのクリーンアップ
-      cleanupAnalyzer(mediaStreamSourceRef.current);
 
-      // (2)AudioWorkletNodeのクリーンアップ
-      if (audioWorkletNodeRef.current) {
-        audioWorkletNodeRef.current.port.postMessage({ type: "stop" });
-        audioWorkletNodeRef.current.disconnect();
-        audioWorkletNodeRef.current = null;
-        console.log("AudioWorkletNode をクリーンアップしました", audioWorkletNodeRef.current);
-      }
-      // (3) MediaStreamSourceのクリーンアップ
-      if (mediaStreamSourceRef.current) {
-        mediaStreamSourceRef.current.disconnect();
-        mediaStreamSourceRef.current = null;
-        console.log("MediaStreamSource をクリーンアップしました", mediaStreamSourceRef.current);
-      }
-      // (4) AudioContextのクリーンアップ
-      if (audioContextRef.current) {
-        // audioContextRef.current.close().then(() => {
-          audioContextRef.current = null;
-          console.log("AudioContext を閉じました",audioContextRef.current);
-        // });
-      }
-      // (5) 録音中断、メトロノーム停止、初期化状態リセット
+      cleanupAnalyzer(mediaStreamSourceRef.current);
+      cleanupRecording();
       setIsRecording(false);
       stopMetronome();
       setIsInitialized(false);
