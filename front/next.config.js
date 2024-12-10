@@ -5,7 +5,6 @@ const nextConfig = {
       {
         source: "/:path*", // 全てのパスに適用
         headers: [
-          { key: "Cache-Control", value: "no-store" },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
         ],

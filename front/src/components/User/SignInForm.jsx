@@ -27,11 +27,15 @@ export function SignInForm({redirectTo}) {
       console.log("redirectTo:", redirectTo);
       console.log("router.pushを実行");
       if (redirectTo) {
-        await router.push(redirectTo);
+        router.push(redirectTo).then(() => {
+          // 強制的にリロード
+          window.location.href = redirectTo;
+        });
       } else {
-        await router.push("/projects?refresh=true");
+        router.push("/projects?refresh=true").then(() => {
+          window.location.href = "/projects?refresh=true";
+        });
       }
-      console.log("router.pushが成功");
     } catch (error) {
       if (error.email) {
         setError("email", { type: "manual", message: error.email });
