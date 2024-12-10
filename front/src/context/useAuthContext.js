@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
       setAuthenticatedUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
     }
+    console.log("Authenticatedの初期化をcontextで行う");
   }, []);
 
   //ログイン成功時の関数
