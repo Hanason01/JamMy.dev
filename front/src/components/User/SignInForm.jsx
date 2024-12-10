@@ -25,22 +25,27 @@ export function SignInForm({redirectTo}) {
       await signIn(data);
     console.log("signInが成功:", data);
     console.log("redirectTo:", redirectTo);
-    console.log("router.pushを実行");
 
+    // リダイレクトを試みる
+    console.log("router.pushを実行");
     if (redirectTo) {
-      router.push(redirectTo).then(() => {
-        console.log("router.pushが成功、window.location.hrefを設定");
-        window.location.href = redirectTo;
-      }).catch((err) => {
-        console.error("router.pushでエラー:", err);
-      });
+      router.push(redirectTo)
+        .then(() => {
+          console.log("router.pushが成功:", redirectTo);
+          window.location.href = redirectTo; // 強制リロード
+        })
+        .catch((err) => {
+          console.error("router.pushでエラー:", err);
+        });
     } else {
-      router.push("/projects?refresh=true").then(() => {
-        console.log("router.pushが成功、window.location.hrefを設定");
-        window.location.href = "/projects?refresh=true";
-      }).catch((err) => {
-        console.error("router.pushでエラー:", err);
-      });
+      router.push("/projects?refresh=true")
+        .then(() => {
+          console.log("router.pushが成功: /projects?refresh=true");
+          window.location.href = "/projects?refresh=true"; // 強制リロード
+        })
+        .catch((err) => {
+          console.error("router.pushでエラー:", err);
+        });
     }
 
     } catch (error) {
