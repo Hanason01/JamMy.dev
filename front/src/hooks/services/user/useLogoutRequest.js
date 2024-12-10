@@ -1,3 +1,5 @@
+"use client";
+
 import { useAuthContext } from "../../../context/useAuthContext";
 import { useRouter } from "next/navigation";
 import { useRequest } from "../useRequestWrapper";
@@ -12,7 +14,7 @@ export const useLogoutRequest = () => {
       const response = await del(`/auth/sign_out`, { withCredentials: true });
       if (response.status === 200) {
         handleLogout(); //認証状態リセット
-        window.location.href = "/projects";
+        router.push("/projects?refresh=true");
       }
 
 

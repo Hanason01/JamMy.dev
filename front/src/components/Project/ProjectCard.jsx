@@ -11,24 +11,11 @@ import { ja } from "date-fns/locale";
 import { useCollaborationRequest } from "../../hooks/services/collaboration/useCollaborationNewRequest";
 import { useProjectContext } from "../../context/useProjectContext";
 
-export function ProjectCard({project, user, onPlayClick}){
+export function ProjectCard({project, user, onPlayClick, isOwner}){
   const [expanded, setExpanded] = useState(false); //概要展開
-  const [isOwner, setIsOwner] = useState(false); //ユーザー保有か検証
   const toggleExpanded = () => setExpanded(!expanded);
   //コラボレーション、応募管理ページへの遷移に利用
   const { setCurrentProject, setCurrentUser } = useProjectContext();
-  // console.log("isOwner追跡", isOwner);
-
-  //ローカルストレージからcurrentUserオブジェクトを取得
-  useEffect(() => {
-    const storedUser = localStorage.getItem('authenticatedUser');
-    if (storedUser) {
-      const currentUser = JSON.parse(storedUser);
-      console.log("Currentuser と user.id", currentUser.id,user.id);
-      setIsOwner(currentUser.id === user.id);
-      console.log("Currentuser + user.id" ,currentUser.id === user.id);
-    }
-  }, []);
 
   //プロジェクト概要の短縮
   const previewLength = 100;

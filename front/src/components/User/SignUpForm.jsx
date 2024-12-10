@@ -29,7 +29,7 @@ export function SignUpForm({redirectTo}) {
       if (redirectTo){
         router.push(redirectTo);
       }else{
-        window.location.href = "/projects";
+        router.push("/projects?refresh=true");
       }
     } catch (error) {
     if (error.email) {

@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
 import { ProjectCard } from "./ProjectCard";
 import { AudioController } from "../../components/Project/AudioController";
 import { projectIndexRequest } from "../../hooks/services/project/ProjectIndexRequest";
 import { useFetchAudioData } from "../../hooks/audio/useFetchAudioData";
+import { Refresh } from "@mui/icons-material";
 
 
 export function ProjectWrapper(){
@@ -16,6 +18,10 @@ export function ProjectWrapper(){
   const [included, setIncluded] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  //リフレッシュフラグ
+  const searchParams = useSearchParams();
+  const refresh = searchParams.get("refresh");
 
   //オーディオコントローラーに使用
   const [projectForController, setProjectForController] = useState(null);
@@ -52,7 +58,7 @@ export function ProjectWrapper(){
       }
     };
     loadProjects();
-  }, []);
+  }, [refresh]);
 
   //再生ボタン押下時処理
   const handlePlayClick = async (project) => {
@@ -109,12 +115,17 @@ export function ProjectWrapper(){
       ) : (
         projects.map((project) => {
           const user = userMap[project.relationships.user.data.id];
+
+            // ローカルストレージからユーザーを取得して isOwner を計算
+          const storedUser = JSON.parse(localStorage.getItem("authenticatedUser"));
+          const isOwner = storedUser?.id === user.id;
           return(
             <ProjectCard
             key={project.attributes.id}
             onPlayClick={handlePlayClick}
             project={project}
             user={user}
+            isOwner={isOwner}
             />
           );
         })

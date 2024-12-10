@@ -9,7 +9,7 @@ export function Overview(){
   const { openAuthModal } = useAuthContext();
 
   const handleNavigateToProjects = () => {
-    router.push("/projects");
+    router.push("/projects?refresh=true");
   };
 
   return (
