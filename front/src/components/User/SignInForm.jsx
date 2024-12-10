@@ -23,30 +23,11 @@ export function SignInForm({redirectTo}) {
   const sendDataToAPI = async (data) => {
     try {
       await signIn(data);
-    console.log("signInが成功:", data);
-    console.log("redirectTo:", redirectTo);
-
-    // リダイレクトを試みる
-    console.log("router.pushを実行");
-    if (redirectTo) {
-      router.push(redirectTo)
-        .then(() => {
-          console.log("router.pushが成功:", redirectTo);
-          window.location.href = redirectTo; // 強制リロード
-        })
-        .catch((err) => {
-          console.error("router.pushでエラー:", err);
-        });
-    } else {
-      router.push("/projects?refresh=true")
-        .then(() => {
-          console.log("router.pushが成功: /projects?refresh=true");
-          window.location.href = "/projects?refresh=true"; // 強制リロード
-        })
-        .catch((err) => {
-          console.error("router.pushでエラー:", err);
-        });
-    }
+      if (redirectTo){
+        router.push(redirectTo);
+      }else{
+        router.push("/projects?refresh=true");
+      }
 
     } catch (error) {
       if (error.email) {
