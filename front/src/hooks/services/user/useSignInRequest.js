@@ -2,12 +2,13 @@ import axios from 'axios';
 import { useAuthContext } from "../../../context/useAuthContext";
 
 export const useSignInRequest = () => {
-  const { handleLoginSuccess } = useAuthContext();
+  const { handleLoginSuccess, isAuthenticated } = useAuthContext();
 
   const signIn = async (data) => {
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/sign_in`, data, { withCredentials: true });
       handleLoginSuccess(response.data.data);
+      console.log("handleLoginSuccessが終了した後のisAuthenticated",isAuthenticated);
       return response.data;
     } catch (error) {
       const formattedErrors = {};

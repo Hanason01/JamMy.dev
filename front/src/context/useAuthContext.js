@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
 
   //ログイン成功時の関数
   const handleLoginSuccess = (user) => {
+    console.log("handleLoginSuccessが呼ばれました、この時点のisAuthenticated",isAuthenticated);
     setIsAuthenticated(true);
     setAuthenticatedUser(user);
     // ローカルストレージに保存
