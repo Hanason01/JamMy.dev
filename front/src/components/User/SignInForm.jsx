@@ -23,19 +23,26 @@ export function SignInForm({redirectTo}) {
   const sendDataToAPI = async (data) => {
     try {
       await signIn(data);
-      console.log("signInが成功:", data);
-      console.log("redirectTo:", redirectTo);
-      console.log("router.pushを実行");
-      if (redirectTo) {
-        router.push(redirectTo).then(() => {
-          // 強制的にリロード
-          window.location.href = redirectTo;
-        });
-      } else {
-        router.push("/projects?refresh=true").then(() => {
-          window.location.href = "/projects?refresh=true";
-        });
-      }
+    console.log("signInが成功:", data);
+    console.log("redirectTo:", redirectTo);
+    console.log("router.pushを実行");
+
+    if (redirectTo) {
+      router.push(redirectTo).then(() => {
+        console.log("router.pushが成功、window.location.hrefを設定");
+        window.location.href = redirectTo;
+      }).catch((err) => {
+        console.error("router.pushでエラー:", err);
+      });
+    } else {
+      router.push("/projects?refresh=true").then(() => {
+        console.log("router.pushが成功、window.location.hrefを設定");
+        window.location.href = "/projects?refresh=true";
+      }).catch((err) => {
+        console.error("router.pushでエラー:", err);
+      });
+    }
+
     } catch (error) {
       if (error.email) {
         setError("email", { type: "manual", message: error.email });
