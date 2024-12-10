@@ -185,6 +185,11 @@ export function RecordingCore({ onRecordingComplete, settings}){
     }
   }, [audioBuffer]);
 
+  // 残り時間を同期反映する
+  useEffect(() => {
+    setRemainingTime(settings.duration || 30);
+  }, [settings.duration]);
+
   //残り時間表示
   useEffect(() => {
     let timerId;
@@ -220,7 +225,7 @@ export function RecordingCore({ onRecordingComplete, settings}){
         }}>
           {/* <Button variant="secondary" startIcon={<SettingsIcon />}>マイク選択</Button> */}
         </Box>
-        {isRecording ? (
+        {isInitialized? (
           <Box sx= {{display: "flex",
             flexDirection: "column",
             alignItems: "center",}}>

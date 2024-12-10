@@ -82,11 +82,11 @@ export function useAudioRecorder(settings, audioContextRef,audioWorkletNodeRef, 
       console.log("クリック音がロードされました", clickSoundBuffer);
 
 
-      //(9) AudioContext を suspend 状態にする（録音準備状態）
-      if (!isMounted()) return;
-      console.log("AudioContext を suspend 状態にします");
-      await audioContext.suspend();
-      console.log("AudioContext が suspend 状態になりました");
+      // //(9) AudioContext を suspend 状態にする（録音準備状態）
+      // if (!isMounted()) return;
+      // console.log("AudioContext を suspend 状態にします");
+      // await audioContext.suspend();
+      // console.log("AudioContext が suspend 状態になりました");
 
       //初期化結果を返す（初期化後状態変数登録が必要になる為、フックのreturnとは別でreturn)
       return { audioContext, mediaStreamSource, audioWorkletNode, clickSoundBuffer };
@@ -101,12 +101,12 @@ export function useAudioRecorder(settings, audioContextRef,audioWorkletNodeRef, 
     if (audioWorkletNodeRef.current) {
       audioWorkletNodeRef.current.port.postMessage({ type: "start",duration: settings.duration }); //プロセッサに録音開始と秒数を指示
       console.log(`録音を開始しました (最大 ${settings.duration} 秒)`);
-      //AudioContextをruntimeにする
-      if (audioContextRef.current && audioContextRef.current.state === "suspended") {
-        console.log("AudioContextをresumeします");
-        audioContextRef.current.resume();
-        console.log("AudioContextがrunning状態になりました");
-      }
+      // //AudioContextをruntimeにする
+      // if (audioContextRef.current && audioContextRef.current.state === "suspended") {
+      //   console.log("AudioContextをresumeします");
+      //   audioContextRef.current.resume();
+      //   console.log("AudioContextがrunning状態になりました");
+      // }
     }
   };
 
@@ -124,6 +124,10 @@ export function useAudioRecorder(settings, audioContextRef,audioWorkletNodeRef, 
       // データの検証を追加
       if (!audioData || audioData.length === 0 || !audioData[0] || audioData[0].length === 0) {
         console.error("無効な録音データが検出されました: ", audioData);
+        // プロセッサーに停止を指示（エラー時も停止を保証）
+        if (audioWorkletNodeRef.current) {
+          audioWorkletNodeRef.current.port.postMessage({ type: "terminate" });
+        }
         return; // 無効なデータの場合は処理を中止
       }
 
@@ -137,6 +141,12 @@ export function useAudioRecorder(settings, audioContextRef,audioWorkletNodeRef, 
       audioBuffer.getChannelData(0).set(flatData);
       setAudioBuffer(audioBuffer);
       console.log("録音データが AudioBuffer に変換されました");
+
+      // プロセッサーに停止を指示
+      if (audioWorkletNodeRef.current) {
+      audioWorkletNodeRef.current.port.postMessage({ type: "terminate" });
+      console.log("プロセッサーに terminate メッセージを送信しました");
+      }
     };
 
   return { init, start, stop, audioBuffer };
