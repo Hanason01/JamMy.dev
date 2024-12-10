@@ -23,8 +23,19 @@ export function SignInForm({redirectTo}) {
   const sendDataToAPI = async (data) => {
     try {
       await signIn(data);
-      console.log("redirectTo",redirectTo);
-      router.push(redirectTo || "/projects?refresh=true");
+      // redirectTo の値をログに出力
+      console.log("Redirecting to:", redirectTo);
+
+      // router.push の前後でログを追加
+      if (redirectTo) {
+        console.log("Navigating to redirectTo:", redirectTo);
+        await router.push(redirectTo);
+        console.log("Navigation to redirectTo completed successfully:", redirectTo);
+      } else {
+        console.log("No redirectTo provided, navigating to default /projects");
+        await router.push("/projects?refresh=true");
+        console.log("Navigation to default /projects completed successfully");
+      }
 
     } catch (error) {
       if (error.email) {
