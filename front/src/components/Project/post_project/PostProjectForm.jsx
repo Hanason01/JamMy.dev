@@ -46,7 +46,7 @@ export function PostProjectForm({audioBuffer, settings}) {
         console.log("リクエスト送信前のformData", formData);
 
         await postProject(formData);
-        window.location.href = "/projects";
+        router.push("/projects?refresh=true");
       } catch (error) {
         if (error.title) {
           setError("title", { type: "manual", message: error.title });
