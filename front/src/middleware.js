@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(req) {
-    //チェック対象のリクエストURL取得
-    const url = req.nextUrl;
+  const response = NextResponse.next();
+
+  // キャッシュを無効化するヘッダーを追加
+  response.headers.set('Cache-Control', 'no-store');
+
+  //チェック対象のリクエストURL取得
+  const url = req.nextUrl;
 
     // 静的リソースは処理しない
   if (url.pathname.startsWith('/_next/static') ||
@@ -10,7 +15,7 @@ export function middleware(req) {
     url.pathname.startsWith('/images') ||
     url.pathname === '/favicon.ico' ||
     url.pathname.startsWith('/fonts')) {
-  return NextResponse.next();
+    return response;
   }
   const token = req.cookies.get('auth_cookie');
   console.log("middlewareがクッキーにアクセスした結果", token);
@@ -19,7 +24,7 @@ export function middleware(req) {
     authPage.searchParams.set('redirectTo', url.pathname); // 元のURLを保持
     return NextResponse.redirect(authPage);
   }
-  return NextResponse.next();
+  return response;
 }
 
 // 認証対象のパスを指定
