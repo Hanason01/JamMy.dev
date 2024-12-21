@@ -1,3 +1,4 @@
+import Script from "next/script";
 import { ThemeProviderWrapper } from '../components/ThemeProviderWrapper';
 import { AuthProvider } from '../context/useAuthContext';
 import { AuthModal } from '../components/User/AuthModal';
@@ -25,6 +26,22 @@ if (process.env.NODE_ENV === "production") {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        {/* Googleタグのスクリプト */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-NTWJ7EGQPC"
+          strategy="afterInteractive"
+        />
+        {/* Googleタグのスクリプト */}
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-NTWJ7EGQPC');
+          `}
+        </Script>
+      </head>
       <body>
         <AuthProvider>
           <CurrentRouteProvider>
