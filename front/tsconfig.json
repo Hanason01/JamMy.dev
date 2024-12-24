@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "checkJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "incremental": true,
+    "module": "esnext",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@Collaboration/*": ["src/components/Collaboration/*"],
+      "@Project/*": ["src/components/Project/*"],
+      "@TopPage/*": ["src/components/TopPage/*"],
+      "@User/*": ["src/components/User/*"],
+      "@context/*": ["src/context/*"],
+      "@audio/*": ["src/hooks/audio/*"],
+      "@services/*": ["src/hooks/services/*"],
+      "@validation/*": ["src/hooks/validation/*"],
+      "@theme/*": ["src/theme/*"],
+      "@sharedTypes/*": ["src/sharedTypes/*"],
+      "@utiles/*": ["src/utiles/*"],
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
