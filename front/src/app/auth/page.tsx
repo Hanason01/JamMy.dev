@@ -1,4 +1,4 @@
-import { AuthPageWrapper } from '../../components/User/AuthPageWrapper';
+import { AuthPageWrapper } from '@User/AuthPageWrapper';
 import { Suspense } from'react';
 
 export default function AuthPage() {
