@@ -32,9 +32,11 @@ export function SignUpForm({redirectTo}: {redirectTo:string}) {
       sessionStorage.removeItem("redirectTo");
 
       if (redirectTo){
-        router.push(redirectTo);
+        // router.push(redirectTo);
+        window.location.href = redirectTo;
       }else{
-        router.push("/projects?refresh=true");
+        // router.push("/projects?refresh=true");
+        window.location.href = "/projects?refresh=true";
       }
     } catch (error: any) {
     if (error.email) {

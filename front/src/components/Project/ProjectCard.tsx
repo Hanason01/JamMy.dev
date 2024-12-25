@@ -2,6 +2,7 @@
 
 import { Project, User} from "@sharedTypes/types";
 import { useState} from "react";
+import { useRouter } from "next/navigation";
 import { Paper, Box, Avatar, Button, IconButton, Typography } from "@mui/material";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -9,7 +10,6 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import PeopleIcon from '@mui/icons-material/People';
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
-import { useCollaborationRequest } from "@services/collaboration/useCollaborationNewRequest";
 import { useProjectContext } from "@context/useProjectContext";
 
 export function ProjectCard({
@@ -27,6 +27,7 @@ export function ProjectCard({
   const toggleExpanded = () => setExpanded(!expanded);
   //コラボレーション、応募管理ページへの遷移に利用
   const { setCurrentProject, setCurrentUser } = useProjectContext();
+  const router = useRouter();
 
   //プロジェクト概要の短縮
   const previewLength = 100;
@@ -37,18 +38,11 @@ export function ProjectCard({
   const createdAt = new Date(project.attributes.created_at);
   const formattedDate = formatDistanceToNow(createdAt, { addSuffix: true, locale: ja })
 
-  //リクエストフックの設置
-  const { collaborationNewRequest } = useCollaborationRequest();
-
-  //応募リクエスト
-  const handleCollaborationRequest = async () => {
-    try {
-      await collaborationNewRequest(project);
-      setCurrentProject(project);
-      setCurrentUser(user);
-    } catch (error) {
-      console.error("応募リクエストに失敗しました:", error);
-    }
+  //応募ぺーじ遷移
+  const handleCollaborationRequest = () => {
+    setCurrentProject(project);
+    setCurrentUser(user);
+    router.push(`/projects/${project.id}/collaboration`);
   };
 
   return(
