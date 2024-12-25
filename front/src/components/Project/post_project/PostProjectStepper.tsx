@@ -6,7 +6,7 @@ import { Stepper, Step, StepLabel, Box, Typography } from "@mui/material";
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import { PostProjectStep1 } from "@Project/post_project/PostProjectStep1";
 import { PostProjectStep2 } from "@components/Project/post_project/PostProjectStep2";
-import { useRequireAuth } from "@context/useRequireAuth";
+// import { useRequireAuth } from "@context/useRequireAuth";
 
 const steps = ["録音", "投稿"];
 
@@ -17,7 +17,7 @@ export function PostProjectStepper(){
     tempo: 120,
     duration: 30,
   });
-  const isAuthenticated = useRequireAuth();
+  // const isAuthenticated = useRequireAuth();
 
   //ステップ進行制御
   const handleNext = () => {
@@ -28,7 +28,7 @@ export function PostProjectStepper(){
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  if(isAuthenticated) {
+  // if(isAuthenticated) {
     return (
       <Box sx={{m:1, p:1}}>
         <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
@@ -65,5 +65,5 @@ export function PostProjectStepper(){
         </Box>
       </Box>
     );
-  }
+  // }
 };
