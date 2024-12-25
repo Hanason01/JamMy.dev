@@ -2,6 +2,7 @@
 
 import { User } from '@sharedTypes/types';
 import { useState, useEffect } from 'react';
+import { useRouter } from "next/navigation";
 import { useAuthContext } from '@context/useAuthContext';
 import { useLogoutRequest } from '@services/user/useLogoutRequest';
 import Link from "next/link";
@@ -14,6 +15,7 @@ export function Header() {
   const { isAuthenticated, authenticatedUser, handleAuthError } = useAuthContext();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [localUser, setLocalUser] = useState<User | null>(null);
+  const router = useRouter();
 
   // ローカルストレージからユーザー情報を取得（リロード対策）
   useEffect(() => {
@@ -32,12 +34,16 @@ export function Header() {
     setAnchorEl(null);
   };
 
-  //ログイン処理
-  const handleLogin = ()=>{
-    //認証状態をfalseにしshowAuthModalをtrueに
-    handleAuthError();
-    handleClose();
-  }
+  // //ログイン処理
+  // const handleLogin = ()=>{
+  //   //認証状態をfalseにしshowAuthModalをtrueに
+  //   handleAuthError();
+  //   handleClose();
+  // }
+
+  const handleNavigateToAuth = () => {
+    router.push("/auth");
+  };
 
   //ログアウト処理
   const { logout } = useLogoutRequest();
@@ -117,7 +123,7 @@ export function Header() {
                     <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
                   </div>
                 ) : (
-                  <MenuItem onClick={handleLogin}>ログイン</MenuItem>
+                  <MenuItem onClick={handleNavigateToAuth}>ログイン</MenuItem>
                 )}
               </Menu>
             </Box>
