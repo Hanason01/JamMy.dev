@@ -41,7 +41,7 @@ export function SignUpForm({redirectTo}: {redirectTo:string}) {
         setError("email", { type: "manual", message: error.email });
       } else if (error.password) {
         setError("password", { type: "manual", message: error.password });
-      } else if (error.nickname) {
+      } else if (error.username) {
         setError("username", { type: "manual", message: error.username });
       } else {
         // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
