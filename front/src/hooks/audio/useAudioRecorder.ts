@@ -1,8 +1,16 @@
 import { useState } from "react";
 import {AudioBuffer, Settings } from "@sharedTypes/types";
 
-//呼び出し元から受け取った値の型定義
-interface UseAudioRecorderProps {
+export function useAudioRecorder({
+  settings,
+  audioContextRef,
+  audioWorkletNodeRef,
+  mediaStreamSourceRef,
+  setLoading,
+  setIsRecording,
+  cleanupAnalyzer,
+  stopMetronome
+} : {
   settings: Settings;
   audioContextRef: React.MutableRefObject<AudioContext | null>;
   audioWorkletNodeRef: React.MutableRefObject<AudioWorkletNode | null>;
@@ -11,19 +19,13 @@ interface UseAudioRecorderProps {
   setIsRecording: React.Dispatch<React.SetStateAction<boolean>>;
   cleanupAnalyzer: (mediaStreamSource: MediaStreamAudioSourceNode | null) => void;
   stopMetronome: () => void;
-}
-
-export function useAudioRecorder({settings, audioContextRef,audioWorkletNodeRef, mediaStreamSourceRef, setLoading, setIsRecording, cleanupAnalyzer, stopMetronome}: UseAudioRecorderProps) {
+}) {
 
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer>(null);
+  const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
 
   //初期化関数
-  const init = async (isMounted: () => boolean): Promise<{
-    audioContext: AudioContext;
-    mediaStreamSource: MediaStreamAudioSourceNode;
-    audioWorkletNode: AudioWorkletNode;
-    clickSoundBuffer: AudioBuffer;
-  } | null> => {
+  const init = async (isMounted: () => boolean, deviceId?: string | null) => {
     if (!isMounted()) return null; // アンマウント後は中断
     try {
       console.log("AudioContext の初期化を開始");
@@ -33,30 +35,48 @@ export function useAudioRecorder({settings, audioContextRef,audioWorkletNodeRef,
       const audioContext = new (window.AudioContext ||(window as any).webkitAudioContext)();
       console.log("AudioContext の初期化に成功",audioContext);
 
-      //(2)デバイスからの音声ストリーム取得
+      //(2)マイクデバイスリスト取得とデフォルトマイクの設定
+      if (!isMounted()) return null;
+      console.log("マイクデバイスのリストを取得開始");
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audioDevices = devices.filter((device) => device.kind === "audioinput");
+      setMicrophones(audioDevices); // マイクリストを保存
+      console.log("audioDevices", audioDevices);
+
+      const micId = deviceId ? deviceId : audioDevices.length > 0 ? audioDevices[0].deviceId : null;
+      console.log("initが受け取ったdeviceId", deviceId);
+      console.log("これから接続すべきmicID", micId);
+      if (!micId) {
+        console.warn("利用可能なマイクが見つかりませんでした");
+        return null; // マイクがない場合は初期化を中止
+      }
+
+      //(3)デフォルトマイクの音声ストリーム取得
       if (!isMounted()) return null;
       console.log("マイク入力を取得開始");
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: { exact: micId } },
+      });
       console.log("マイク入力の取得に成功",stream);
 
-      //(3)MediaStreamSourceの作成
+      //(4)MediaStreamSourceの作成
       if (!isMounted()) return null;
       console.log("MediaStreamSource の作成");
       const mediaStreamSource = audioContext.createMediaStreamSource(stream);
       console.log("MediaStreamSourceの内容:", mediaStreamSource);
 
-      // (4)AudioWorkletProcessorの登録
+      // (5)AudioWorkletProcessorの登録
       if (!isMounted()) return null;
       console.log("AudioWorkletProcessor の登録を開始");
       await audioContext.audioWorklet.addModule("scripts/record_processor.js"); //front/public/scripts/record_processor.js
       console.log("AudioWorkletProcessor の登録に成功",audioContext);
 
-      // (5)AudioWorkletNode作成(このタイミングでProcessorが自動で初期化)
+      // (6)AudioWorkletNode作成(このタイミングでProcessorが自動で初期化)
       if (!isMounted()) return null;
       const audioWorkletNode = new AudioWorkletNode(audioContext, "record-processor");
       console.log("AudioWorkletNode の作成に成功",audioWorkletNode);
 
-      // (6) AudioWorkletNodeの初期化完了待ちとメッセージハンドラの初期化
+      // (7) AudioWorkletNodeの初期化完了待ちとメッセージハンドラの初期化
       if (!isMounted()) return null;
       console.log("プロセッサーの準備完了を待機します");
       const processorReady = await new Promise<boolean>((resolve) => {
@@ -85,13 +105,13 @@ export function useAudioRecorder({settings, audioContextRef,audioWorkletNodeRef,
         };
       })
 
-      // (7)MediaStreamSourceとAudioWorkletNodeを接続
+      // (8)MediaStreamSourceとAudioWorkletNodeを接続
       if (!processorReady || !isMounted()) return null;
       console.log("MediaStreamSourceとAudioWorkletNodeの接続を開始");
       mediaStreamSource.connect(audioWorkletNode);
       console.log("MediaStreamSourceとAudioWorkletNodeの接続に成功",mediaStreamSource);
 
-      // (8) クリック音をロード
+      // (9) クリック音をロード
       if (!isMounted()) return null;
       console.log("クリック音をロード開始");
       const response = await fetch("/audios/click-sound.mp3");
@@ -183,5 +203,12 @@ export function useAudioRecorder({settings, audioContextRef,audioWorkletNodeRef,
     console.log("RecordingHook: クリーンアップ完了");
   };
 
-  return { init, start, stop, audioBuffer, cleanupRecording };
+  return {
+    init,
+    start,
+    stop,
+    audioBuffer,
+    cleanupRecording,
+    microphones,
+  };
 }

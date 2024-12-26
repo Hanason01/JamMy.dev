@@ -2,7 +2,7 @@
 
 import { AudioBuffer, Settings } from "@sharedTypes/types";
 import { useState, useEffect, useRef } from "react";
-import { Button, Box, IconButton, Typography, CircularProgress } from "@mui/material";
+import { Button, Box, IconButton, Typography, CircularProgress, Menu, MenuItem } from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
@@ -17,6 +17,8 @@ export function RecordingCore({ onRecordingComplete, settings}: { onRecordingCom
   const [isInitialized, setIsInitialized] = useState<boolean>(false); //録音時初期化
   const [isInitializing, setIsInitializing] = useState<boolean>(false); // 初期化中のフラグ(useEffectの制御)
   const [loading, setLoading] = useState<boolean>(false); // ローディング状態
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
 
   //WebAudioApi関連
   const audioContextRef = useRef<AudioContext | null>(null); //メトロノームと共有
@@ -28,18 +30,24 @@ export function RecordingCore({ onRecordingComplete, settings}: { onRecordingCom
   const { isCountingIn, startCountIn, countInInitialize } = useAudioCountIn();
   const { metronomeInitialize, startMetronome, stopMetronome } = useAudioMetronome();
   const { analyzerData, initializeAnalyzer, cleanupAnalyzer } = useAudioAnalyzer();
-  const { init, start, stop, audioBuffer, cleanupRecording } = useAudioRecorder({settings,audioContextRef, audioWorkletNodeRef, mediaStreamSourceRef,setLoading, setIsRecording, cleanupAnalyzer, stopMetronome});
+  const { init, start, stop, audioBuffer, cleanupRecording, microphones } = useAudioRecorder({settings,audioContextRef, audioWorkletNodeRef, mediaStreamSourceRef,setLoading, setIsRecording, cleanupAnalyzer, stopMetronome});
 
   //録音フィードバック関連
   const [remainingTime, setRemainingTime] = useState<number>(settings.duration ?? 30); // 残り時間（デフォルトは30秒）
 
   //初期化関数
   const initializeRecording = async (isMounted: () => boolean): Promise<void> => {
-    if (isInitialized || isInitializing || !isMounted()) return;
+    console.log("初期化関数開始");
+    if (isInitialized || isInitializing || !isMounted()){
+      console.log("initializedがfalse", isInitialized);
+      console.log("initializingがfalse", isInitializing);
+      console.log("isMounted()がfalse", isMounted());
+      return;
+    }
     setIsInitializing(true);
     try {
       if (!isMounted()) return; // アンマウント後は中断
-      const initResult = await init(isMounted);
+      const initResult = await init(isMounted, selectedDeviceId);
       if (!initResult) {
         console.warn("init() が中断されました。初期化処理を中止します。");
         return;
@@ -79,24 +87,32 @@ export function RecordingCore({ onRecordingComplete, settings}: { onRecordingCom
     }
   };
 
+  //初期化リセット関数
+  const resetInitialization = () => {
+    console.log("初期化リセット開始");
+    cleanupAnalyzer(mediaStreamSourceRef.current);
+    cleanupRecording();
+    stopMetronome();
+    setIsRecording(false);
+    setIsInitialized(false);
+    setIsInitializing(false);
+    console.log("初期化リセット完了");
+  };
+
   //レンダリング時に初期化関数実行
   useEffect(() => {
     console.log(`[${new Date().toISOString()}] RecordingCoreがマウントされました`);
-    console.log("RecordingCore: 初期化前のAudioContextの状態", audioContextRef.current?.state);
-    console.log("RecordingCore: 初期化前のMediaStreamSourceの状態", mediaStreamSourceRef.current);
-    console.log("RecordingCore: 初期化前のaudioWorkletNodeRefの状態", audioWorkletNodeRef.current);
-    console.log("RecordingCore: 初期化前のclickSoundBufferRefの状態", clickSoundBufferRef.current);
-    console.log("RecordingCore: 初期化状態のフラグ (isInitialized):", isInitialized);
-    console.log("RecordingCore: 初期化中のフラグ (isInitializing):", isInitializing);
-
-
+    // console.log("RecordingCore: 初期化前のAudioContextの状態", audioContextRef.current?.state);
+    // console.log("RecordingCore: 初期化前のMediaStreamSourceの状態", mediaStreamSourceRef.current);
+    // console.log("RecordingCore: 初期化前のaudioWorkletNodeRefの状態", audioWorkletNodeRef.current);
+    // console.log("RecordingCore: 初期化前のclickSoundBufferRefの状態", clickSoundBufferRef.current);
+    // console.log("RecordingCore: 初期化状態のフラグ (isInitialized):", isInitialized);
+    // console.log("RecordingCore: 初期化中のフラグ (isInitializing):", isInitializing);
 
     let isMounted = true; // マウント状態を追跡
 
     //初期化処理
     initializeRecording(() => isMounted); //最新のisMountedを参照する関数として渡す
-
-
 
     // クリーンアップ処理
     return () => {
@@ -105,15 +121,18 @@ export function RecordingCore({ onRecordingComplete, settings}: { onRecordingCom
       console.log(`RecordingCoreがアンマウントされました[${new Date().toISOString()}]`);
       console.log("RecordingCore: クリーンアップ開始");
 
-      cleanupAnalyzer(mediaStreamSourceRef.current);
-      cleanupRecording();
-      setIsRecording(false);
-      stopMetronome();
-      setIsInitialized(false);
-      setIsInitializing(false);
+      resetInitialization();
       console.log("RecordingCore: クリーンアップ完了");
     };
-  }, []);
+  }, [selectedDeviceId]);
+
+  //マイク選択処理
+  const handleMicSelect = async (deviceId: string) => {
+    setMenuAnchor(null); // メニューを閉じる
+    resetInitialization(); // 初期化リセットを待つ
+    setSelectedDeviceId(deviceId); //選択されたマイクIDの保持
+  };
+
 
   // 録音開始処理
   const handleStartRecording = async (): Promise<void> => {
@@ -195,6 +214,8 @@ export function RecordingCore({ onRecordingComplete, settings}: { onRecordingCom
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
+      width: "100%",
+      // mx:5,
       pb:10,
       gap:2
       }}>
@@ -202,8 +223,25 @@ export function RecordingCore({ onRecordingComplete, settings}: { onRecordingCom
           width: "100%",
           display: "flex",
           justifyContent: "flex-end",
+          mt:3,
         }}>
-          {/* <Button variant="secondary" startIcon={<SettingsIcon />}>マイク選択</Button> */}
+          <Button
+          variant="secondary"
+          startIcon={<SettingsIcon/>}
+          onClick={(e) => setMenuAnchor(e.currentTarget)}
+          disabled={!isInitialized || isRecording}
+          >マイク選択</Button>
+          <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
+          {microphones.map((mic) => (
+            <MenuItem
+              key={mic.deviceId}
+              selected={mic.deviceId === selectedDeviceId}
+              onClick={() => handleMicSelect(mic.deviceId)}
+            >
+              {mic.label || `マイク (${mic.deviceId})`}
+            </MenuItem>
+          ))}
+          </Menu>
         </Box>
         {isInitialized? (
           <Box sx= {{display: "flex",

@@ -158,7 +158,7 @@ class AudioProcessor extends AudioWorkletProcessor {
     }
     if (!this.isRecording) {
       // 録音中でない場合は処理をスキップ
-      console.log("録音中ではありません。");
+      // console.log("録音中ではありません。");
       return true; // `false` にするとプロセッサが停止してしまうため `true` を返す
     }
 
