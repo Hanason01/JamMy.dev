@@ -1,30 +1,23 @@
 "use client";
 
-import { AudioBuffer, SetState } from "@sharedTypes/types";
+import { AudioBuffer } from "@sharedTypes/types";
 import { useEffect } from "react";
 import { Box, IconButton, Typography, Slider } from "@mui/material";
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
-import CloseIcon from '@mui/icons-material/Close';
 import { useAudioPlayer } from "@audio/useAudioPlayer";
 
 export function AudioPlayer({
   audioBuffer,
   audioContext,
   gainNode,
-  setHasRecorded,
-  setAudioBufferForProcessing,
-  activeStep
 } : {
   audioBuffer: AudioBuffer;
   audioContext: AudioContext | null;
   gainNode?: GainNode | null; //オプショナル
-  setHasRecorded?: SetState<boolean>; //オプショナル
-  setAudioBufferForProcessing?: SetState<AudioBuffer>; //オプショナル
-  activeStep: number;
 }){
-  const { isPlaying, init, play, pause, seek, currentTime, duration } = useAudioPlayer({audioBuffer, audioContext, gainNode: gainNode ?? null});
-  // console.log("AudioPlayer.jsxが発動（親から渡されてきた値３つ）", audioBuffer, audioContext, gainNode);
+  const { isPlaying, init, play, pause, seek, cleanup, currentTime, duration } = useAudioPlayer({audioBuffer, audioContext, gainNode: gainNode ?? null});
+
 
   //初期化処理
   useEffect(() => {
@@ -38,40 +31,33 @@ export function AudioPlayer({
       console.log("audioBufferとaudioContextが両方存在しない為、AudioPlayer.jsxのuseEffectが失敗しました");
     }
     return () => {
+      cleanup();
       console.log(`AudioPlayerがアンマウントされました[${new Date().toISOString()}]`);
     };
   }, []);
 
-  //閉じるボタン処理
-  const handleCloseClick = () => {
-    console.log("AudioPlayerを閉じました");
-    setHasRecorded?.(false);
-    setAudioBufferForProcessing?.(null);
-  }
 
   return(
-    <Box sx={{position: "relative", width: "100%", padding: 2}}>
-      { activeStep === 0 && (
-        <IconButton
-          onClick={handleCloseClick}
-          sx={{
-            position: "absolute",
-            top: "0px",
-            right: "8px",
-            color: "gray",
-          }}
-          aria-label="Close"
-        >
-          <CloseIcon />
-        </IconButton>
-      )}
-
+    <Box sx={{
+      position: "relative",
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center", }}>
       <Slider
         value={currentTime}
         min={0} max={duration}
         onChange={(e:Event,value: number | number[]) => seek(typeof value === "number" ? value : value[0] || 0)}
       />
-      <Box sx={{ display: "flex", justifyContent: "space-between"}}>
+      <Box sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        width: "100%",
+        alignItems: "center",
+        mb: 1
+        }}>
         <Typography color= "textSecondary" sx={{ width: "35px", textAlign: "right",}}>{Math.floor(currentTime)}秒</Typography>
         <Box display= "flex" justifyContent= "center">
           <IconButton sx={{ p: 0 }} onClick={isPlaying ? pause : play} >{isPlaying ? (
