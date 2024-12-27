@@ -1,6 +1,6 @@
 "use client";
 
-import { AudioBuffer, PostSettings } from "@sharedTypes/types";
+import { AudioBuffer, PostSettings, SetState } from "@sharedTypes/types";
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { PostProjectForm } from "@components/Project/post_project/PostProjectForm";
@@ -9,13 +9,13 @@ import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 export function PostProjectStep2({
   onBack,
   audioBufferForPost,
+  setAudioBufferForPost,
   settingsForPost,
-  activeStep
 } : {
-  onBack: () => void;
+  onBack: (mode: "edit" | "record") => void
   audioBufferForPost: AudioBuffer;
+  setAudioBufferForPost: SetState<AudioBuffer>;
   settingsForPost: PostSettings;
-  activeStep: number;
 }){
   // console.log("audioBufferForPostの値（Step1の録音データ）",audioBufferForPost);
   const audioContextRef = useRef<AudioContext | null>(null); //Step2とその子コンポーネント限定
@@ -35,6 +35,17 @@ export function PostProjectStep2({
     };
   }, []);
 
+  //録音し直すボタンハンドル
+  const handleReRecording = (): void => {
+    setAudioBufferForPost(null); // 再録時に録音データをリセット
+    onBack("record");
+  };
+
+  //編集し直すボタンハンドル
+  const handleReProcessing = (): void => {
+    setAudioBufferForPost(null); // 編集時に録音データをリセット
+    onBack("edit");
+  };
 
   return(
     <Box sx={{
@@ -46,15 +57,26 @@ export function PostProjectStep2({
     }}>
       <PostProjectForm audioBuffer={audioBufferForPost} settings={settingsForPost} />
       {audioContextRef.current && isAudioContextReady ? (
-        <AudioPlayer audioBuffer={audioBufferForPost} audioContext={audioContextRef.current} activeStep={activeStep}/>
+        <AudioPlayer audioBuffer={audioBufferForPost} audioContext={audioContextRef.current}/>
         ) : (
         <Typography>Loading...</Typography>
       )}
 
-      <Button onClick={onBack} variant="primary">録音し直す</Button>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 2,
+        }}
+      >
+        <Button onClick={handleReProcessing} variant="primary">
+          編集し直す
+        </Button>
+        <Button onClick={handleReRecording} variant="primary">
+          録音し直す
+        </Button>
+      </Box>
     </Box>
 
   );
 };
-
-//録音し直すが押された時にsetAudioBufferForPost(false)しないといけない。

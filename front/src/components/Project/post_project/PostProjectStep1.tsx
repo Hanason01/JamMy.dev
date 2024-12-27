@@ -7,21 +7,25 @@ import { RecordingCore } from "@Project/core_logic/RecordingCore";
 import { PostProjectProcessing } from "@Project/post_project/PostProjectProcessing";
 
 
-export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForPost, activeStep
+export function PostProjectStep1({onNext,
+  returnToStep1Mode,
+  setAudioBufferForPost,
+  audioBufferForProcessing,
+  setAudioBufferForProcessing,
+  setSettingsForPost
 }: {
   onNext: () => void;
+  returnToStep1Mode: "edit" | "record";
   setAudioBufferForPost: SetState<AudioBuffer>;
+  audioBufferForProcessing: AudioBuffer;
+  setAudioBufferForProcessing: SetState<AudioBuffer>;
   setSettingsForPost: SetState<PostSettings>;
-  activeStep: number;
 }){
   const [recordingDurationSliderValue, setRecordingDurationSliderValue] = useState<number>(30); //秒数
   const [speedSliderValue, setSpeedSliderValue] = useState<number>(120); //速度
   const [countIn, setCountIn] = useState<number>(0); //カウントイン
   const [metronomeOn, setMetronomeOn] = useState<boolean>(false); //メトロノームON/OFF
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
-
-  //RecordingCore→PostProjectProcessingへの受け渡し
-  const [audioBufferForProcessing, setAudioBufferForProcessing] = useState<AudioBuffer>(null);
 
   //カウントインセレクト用
   const preCounts = [0,1,2,3,4,5,6,7]
@@ -31,7 +35,6 @@ export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForP
   const handleRecordingComplete = (audioBuffer: AudioBuffer) =>{
     console.log("録音が完了しました:", audioBuffer);
     setAudioBufferForProcessing(audioBuffer); //Step1のプレビュー用
-    setAudioBufferForPost(audioBuffer); //Step2のプレビュー用（Stepper）
     const settings: PostSettings = {
       tempo: speedSliderValue,
       duration: recordingDurationSliderValue,
@@ -48,6 +51,15 @@ export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForP
       console.log(`PostProjectStep1がアンマウントされました[${new Date().toISOString()}]`);
     };
   }, []);
+
+  //被遷移制御（STEP2の編集or録音しなおし）
+  useEffect(() => {
+    if (returnToStep1Mode === "edit") {
+      setHasRecorded(true);
+    } else {
+      setHasRecorded(false);
+    }
+  }, [returnToStep1Mode]);
 
   return(
     <Box sx={{
@@ -121,7 +133,7 @@ export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForP
           </FormGroup>
       </Box>
 
-      <Divider />
+      <Divider sx={{my: 5}} />
       <Box sx={{
           display: "flex",
           flexDirection: "column",
@@ -131,9 +143,12 @@ export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForP
         }}>
         {hasRecorded ? (
           <PostProjectProcessing
+          mode = "with-effects"
           audioBufferForProcessing={audioBufferForProcessing} setHasRecorded={setHasRecorded}
           setAudioBufferForProcessing={setAudioBufferForProcessing}
-          activeStep={activeStep}
+          setAudioBufferForPost={setAudioBufferForPost}
+          onNext = {onNext}
+          returnToStep1Mode={returnToStep1Mode}
           />
         ) : (
           <RecordingCore
@@ -145,16 +160,6 @@ export function PostProjectStep1({onNext, setAudioBufferForPost, setSettingsForP
             metronomeOn: metronomeOn,
           }}
           />
-        )}
-        {hasRecorded && (
-          <Box>
-            <Button
-            onClick={onNext}
-            variant="primary"
-            >
-              投稿する
-            </Button>
-          </Box>
         )}
       </Box>
     </Box>

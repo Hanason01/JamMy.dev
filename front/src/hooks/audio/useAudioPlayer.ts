@@ -1,5 +1,5 @@
 import { AudioBuffer } from "@sharedTypes/types";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 export function useAudioPlayer({
   audioBuffer,
@@ -114,21 +114,19 @@ export function useAudioPlayer({
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (intervalIdRef.current !== null) {
-        window.clearInterval(intervalIdRef.current);
-      }
-      if (sourceNodeRef.current) {
-        sourceNodeRef.current.stop(); // 再生を停止
-        sourceNodeRef.current.disconnect();
-        sourceNodeRef.current = null;
-      }
-      console.log("useAudioPlayer: クリーンアップ完了。context",audioContext);
-      console.log("useAudioPlayer: クリーンアップ完了。gainnode",gainNode);
-      console.log("useAudioPlayer: クリーンアップ完了。sourcenode",sourceNodeRef.current);
-    };
-  }, []);
+  const cleanup = (): void => {
+    if (intervalIdRef.current !== null) {
+      window.clearInterval(intervalIdRef.current);
+    }
+    if (sourceNodeRef.current) {
+      sourceNodeRef.current.stop();
+      sourceNodeRef.current.disconnect();
+      sourceNodeRef.current = null;
+    }
+    console.log("useAudioPlayer: クリーンアップ完了。context",audioContext);
+    console.log("useAudioPlayer: クリーンアップ完了。gainnode",gainNode);
+    console.log("useAudioPlayer: クリーンアップ完了。sourcenode",sourceNodeRef.current);
+  };
 
   return {
     isPlaying: isPlayingRef.current,
@@ -138,5 +136,6 @@ export function useAudioPlayer({
     play,
     pause,
     seek,
+    cleanup
   };
 }

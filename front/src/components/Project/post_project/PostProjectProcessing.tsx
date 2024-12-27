@@ -2,87 +2,238 @@
 
 import { AudioBuffer, SetState } from "@sharedTypes/types";
 import { useEffect, useRef, useState } from "react";
+import { Box, Button, IconButton, CircularProgress } from "@mui/material";
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { AudioProcessor } from "@Project/core_logic/AudioProcessor";
+import { useAudioProcessing } from "@audio/useAudioProcessing";
 
 
 export function PostProjectProcessing({
+  mode,
   audioBufferForProcessing,
   setHasRecorded,
   setAudioBufferForProcessing,
-  activeStep
+  setAudioBufferForPost,
+  onNext,
+  returnToStep1Mode
 } : {
+  mode: "player-only" | "with-effects";
   audioBufferForProcessing: AudioBuffer;
   setHasRecorded: SetState<boolean>;
   setAudioBufferForProcessing: SetState<AudioBuffer>;
-  activeStep: number;
+  setAudioBufferForPost: SetState<AudioBuffer>;
+  onNext: () => void;
+  returnToStep1Mode: "edit" | "record";
   }){
   const audioContextForProcessingRef = useRef<AudioContext | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
+  // const reverbInputGainNodeRef = useRef<GainNode | null>(null); //リバーブ調整node
+  // const convolverNodeRef = useRef<{
+  //   left: ConvolverNode | null;
+  //   right: ConvolverNode | null;
+  // }>({ left: null, right: null });//リバーブ成分生成node
+  const mixGainNodeRef = useRef<GainNode | null>(null); //音量調整node
   const [isInitialized, setIsInitialized] = useState<boolean>(false); //初期化フラグ
+  const [loading, setLoading] = useState<boolean>(false); // ローディング状態
+  const [selectedVolume, setSelectedVolume] = useState<number>(1); // 音量管理
+
+  const { processAudio } = useAudioProcessing({ selectedVolume });
 
   useEffect(() => {
     console.log(`[${new Date().toISOString()}] PostProjectProcessingがマウントされました`);
     console.log("PostProjectProcessingのuseEffectが開始");
     console.log("現在のisInitializedの値:", isInitialized);
     // 初期化処理（録音時とは別の Node 構成を取る）
-    const initializeAudioContext = (): void => {
+
+    let isMounted = true; // マウント状態を追跡
+
+    const initializeAudioContext = async (): Promise<void> => {
+      if (!isMounted) return;
+
       if (audioContextForProcessingRef.current === null) {
       console.log("AudioContext と GainNode の初期化を開始");
       const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-
-      // 音量編集用のGainNodeの作成およびDestinationへの接続
-      const gainNode = context.createGain();
-      gainNode.connect(context.destination);
+      console.log("AudioContextの初期化が終了");
       audioContextForProcessingRef.current = context;
-      gainNodeRef.current = gainNode;
 
-      setIsInitialized(true);
-      console.log("AudioContext と GainNode を初期化しました");
+      // エフェクトモードの場合、各Node構築
+      if (!isMounted) return;
+      if (mode === "with-effects"){
+        //ノード作成
+        // const leftConvolver = context.createConvolver();
+        // const rightConvolver = context.createConvolver();
+        // const reverbGainNode = context.createGain();
+        // reverbGainNode.gain.value = 0; // デフォルトは無効
+        const mixGainNode = context.createGain();
+
+        // // IRデータのロード（非同期）
+        // try {
+        //   if (!isMounted) return;
+        //   const [leftIR, rightIR] = await Promise.all([
+        //     fetch("audios/impulse-response-L.wav")
+        //       .then((res) => res.arrayBuffer())
+        //       .then((buffer) => context.decodeAudioData(buffer)),
+        //     fetch("audios/impulse-response-R.wav")
+        //       .then((res) => res.arrayBuffer())
+        //       .then((buffer) => context.decodeAudioData(buffer)),
+        //   ]);
+        //   leftConvolver.buffer = leftIR;
+        //   rightConvolver.buffer = rightIR;
+        //   console.log("Left ConvolverNode Buffer:", leftConvolver.buffer);
+        //   console.log("Right ConvolverNode Buffer:", rightConvolver.buffer);
+
+        // } catch (error) {
+        //   console.error("IRデータのロードまたはデコードに失敗しました:", error);
+        // }
+
+        //   //接続(ReverbInputGainNode → ChannelSplitter → (L/R ConvolverNodes) → ChannelMerger → MixGainNode → Destination)
+        // if (!isMounted) return;
+        // const splitter = context.createChannelSplitter(2);
+        // const merger = context.createChannelMerger(2);
+
+        // reverbGainNode.connect(splitter); // リバーブ入力をスプリット
+        // splitter.connect(leftConvolver, 0); // 左チャンネル
+        // splitter.connect(rightConvolver, 1); // 右チャンネル
+
+        // leftConvolver.connect(merger, 0, 0); // 左をマージ
+        // rightConvolver.connect(merger, 0, 1); // 右をマージ
+
+        // merger.connect(mixGainNode); // マージ後にミックス
+        mixGainNode.connect(context.destination); // 出力
+
+        //保持
+        if (!isMounted) return;
+        // reverbInputGainNodeRef.current = reverbGainNode;
+        // convolverNodeRef.current = { left: leftConvolver, right: rightConvolver };
+        mixGainNodeRef.current = mixGainNode;
       }
-    };
 
+      //初期化完了
+      if (isMounted){
+        setIsInitialized(true);
+        console.log("AudioContext と GainNode を初期化しました");
+      }
+    }
+    };
     initializeAudioContext();
 
     // クリーンアップ処理
     return () => {
+      isMounted = false;
       console.log(`PostProjectProcessingがアンマウントされました[${new Date().toISOString()}]`);
       console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが発動");
       setIsInitialized(false);
-      if (gainNodeRef.current) {
-        gainNodeRef.current.disconnect();
-        gainNodeRef.current = null;
-        console.log("GainNode を切断しました",gainNodeRef.current);
+
+      // ノードのクリーンアップ
+      // if (reverbInputGainNodeRef.current) {
+      //   reverbInputGainNodeRef.current.disconnect();
+      //   reverbInputGainNodeRef.current = null;
+      //   console.log("ReverbInputGainNode を切断しました");
+      // }
+
+      // if (convolverNodeRef.current) {
+      //   if (convolverNodeRef.current.left) {
+      //     convolverNodeRef.current.left.disconnect();
+      //     console.log("Left ConvolverNode を切断しました");
+      //   }
+      //   if (convolverNodeRef.current.right) {
+      //     convolverNodeRef.current.right.disconnect();
+      //     console.log("Right ConvolverNode を切断しました");
+      //   }
+      //   convolverNodeRef.current = { left: null, right: null };
+      // }
+
+      if (mixGainNodeRef.current) {
+        mixGainNodeRef.current.disconnect();
+        mixGainNodeRef.current = null;
+        console.log("MixGainNode を切断しました");
       }
+
       if (audioContextForProcessingRef.current) {
-        // audioContextForProcessingRef.current.close().then(() => {
+        console.log("AudioContext の状態:", audioContextForProcessingRef.current.state);
           audioContextForProcessingRef.current = null;
-          console.log("AudioContext を閉じました",audioContextForProcessingRef.current);
-        // });
+          console.log("AudioContext を閉じました");
       }
+
       console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが完了");
     };
-  }, []);
+  }, [returnToStep1Mode === "edit"]);
 
   console.log("PostProjectProcessing の現在の isInitialized（useEffectの外側に配置）:", isInitialized);
   console.log("この段階でContextがあるか", audioContextForProcessingRef.current);
 
+
+    //閉じるボタン処理
+    const handleCloseClick = () => {
+      console.log("AudioPlayerを閉じました");
+      setHasRecorded?.(false);
+      setAudioBufferForProcessing?.(null);
+    }
+
+  // 投稿ボタンを押したときの処理
+  const handleSubmit = async () => {
+    setLoading(true); // ローディング状態を開始
+    setTimeout(async () => {
+      try {
+        if (audioBufferForProcessing) {
+          console.log("AudioBuffer の処理を開始します...");
+          const processedBuffer = await processAudio(audioBufferForProcessing);
+          console.log("AudioBuffer の処理が完了しました:", processedBuffer);
+
+          // 処理後の AudioBuffer を親コンポーネントに渡しプレビュー用bufferを解除
+          setAudioBufferForPost(processedBuffer);
+        }
+        onNext(); // 次のステップに進む
+      } catch (error) {
+        console.error("AudioBuffer の処理中にエラーが発生しました:", error);
+      } finally {
+        setLoading(false); // ローディング状態を終了
+      }
+    }, 100);
+  };
+
   if(isInitialized){
     return(
-      <div>
-        <AudioPlayer
-        audioBuffer={audioBufferForProcessing}
-        audioContext={audioContextForProcessingRef.current}
-        gainNode={gainNodeRef.current}
-        setHasRecorded={setHasRecorded}
-        setAudioBufferForProcessing={setAudioBufferForProcessing}
-        activeStep={activeStep}
-        />
-        <AudioProcessor
-        audioContext={audioContextForProcessingRef.current}
-        gainNode={gainNodeRef.current}
-        />
-      </div>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%"}}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", my:8, mx: 1}}>
+          <Box sx={{ flex: 2 }}>
+            <AudioPlayer
+            audioBuffer={audioBufferForProcessing}
+            audioContext={audioContextForProcessingRef.current}
+            gainNode={mixGainNodeRef.current} //with-effectsモードのみ
+            />
+          </Box>
+          {mode === "with-effects" && audioContextForProcessingRef.current &&(
+            <Box sx={{ flex: "0 0 auto" }}>
+              <AudioProcessor
+              mixGainNode={mixGainNodeRef.current}
+              setSelectedVolume={setSelectedVolume}
+              // reverbInputGainNode={reverbInputGainNodeRef.current}
+              />
+            </Box>
+          )}
+          <IconButton
+            onClick={handleCloseClick}
+            sx={{
+              alignSelf: "flex-start",
+              color: "gray",
+            }}
+            aria-label="Close"
+          >
+            <HighlightOffIcon fontSize="large"/>
+          </IconButton>
+        </Box>
+        <Box sx={{ textAlign: "center" }}>
+          <Button
+          onClick={handleSubmit}
+          variant="primary"
+          disabled={loading}
+          startIcon={loading && <CircularProgress size={24} />}
+          >
+            投稿する
+          </Button>
+        </Box>
+      </Box>
     );
   }
 };
