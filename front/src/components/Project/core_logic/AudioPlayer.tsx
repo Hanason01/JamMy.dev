@@ -11,10 +11,12 @@ export function AudioPlayer({
   audioBuffer,
   audioContext,
   gainNode,
+  isPlaybackTriggered = false,//渡されなかった場合はfalseとする
 } : {
   audioBuffer: AudioBuffer;
   audioContext: AudioContext | null;
   gainNode?: GainNode | null; //オプショナル
+  isPlaybackTriggered?: boolean; //オプショナル
 }){
   const { isPlaying, init, play, pause, seek, cleanup, currentTime, duration } = useAudioPlayer({audioBuffer, audioContext, gainNode: gainNode ?? null});
 
@@ -36,6 +38,17 @@ export function AudioPlayer({
     };
   }, []);
 
+  // isPlaybackTriggered による同時再生制御
+  useEffect(() => {
+    if (isPlaybackTriggered) {
+      console.log("isPlaybackTriggeredがtrueになったので再生を開始します");
+      play();
+    } else {
+      console.log("isPlaybackTriggeredがfalseになったので再生を停止しリセットします");
+      pause();
+      seek(0); // 再生位置をリセット
+    }
+  }, [isPlaybackTriggered]);
 
   return(
     <Box sx={{

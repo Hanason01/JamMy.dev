@@ -24,6 +24,13 @@ export interface UserAttributes {
 }
 
 //Project
+// EnrichedProject 型定義
+export interface EnrichedProject extends Project {
+  user: User;
+  audioFilePath?: string;
+  isOwner: boolean;
+}
+
 // Project Attributes 型定義
 export interface ProjectAttributes {
   id: number;
@@ -179,4 +186,6 @@ export interface PostSettings {
     setCurrentProject: SetState<Project | null>;
     currentUser: User | null;
     setCurrentUser: SetState<User | null>;
+    currentAudioFilePath: string | null;
+    setCurrentAudioFilePath: SetState<string | null>;
   }

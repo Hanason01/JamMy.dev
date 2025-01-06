@@ -9,6 +9,8 @@ const initialContext: ProjectContextType = {
   setCurrentProject: () => {},
   currentUser: null,
   setCurrentUser: () => {},
+  currentAudioFilePath: null,
+  setCurrentAudioFilePath: () => {},
 };
 
 const ProjectContext = createContext<ProjectContextType>(initialContext);
@@ -16,9 +18,10 @@ const ProjectContext = createContext<ProjectContextType>(initialContext);
 export function ProjectProvider({ children }: WithChildren) {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentAudioFilePath, setCurrentAudioFilePath] = useState<string | null>(null);
 
   return (
-    <ProjectContext.Provider value={{ currentProject, setCurrentProject, currentUser, setCurrentUser }}>
+    <ProjectContext.Provider value={{ currentProject, setCurrentProject, currentUser, setCurrentUser,currentAudioFilePath, setCurrentAudioFilePath }}>
       {children}
     </ProjectContext.Provider>
   );

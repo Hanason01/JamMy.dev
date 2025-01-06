@@ -1,5 +1,5 @@
 "use client";
-import { Project, IncludedItem, User, AudioFile } from "@sharedTypes/types";
+import { Project, User, EnrichedProject, AudioFile } from "@sharedTypes/types";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
@@ -7,51 +7,64 @@ import { ProjectCard } from "@Project/ProjectCard";
 import { AudioController } from "@components/Project/AudioController";
 import { projectIndexRequest } from "@services/project/ProjectIndexRequest";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
-import { Refresh } from "@mui/icons-material";
 
 
 export function ProjectWrapper(){
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioData, setAudioData] = useState<ArrayBuffer | null>(null);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [included, setIncluded] = useState<IncludedItem[]>([]);
+  const [projects, setProjects] = useState<EnrichedProject[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  //リフレッシュフラグ
-  const searchParams = useSearchParams();
-  const refresh = searchParams.get("refresh");
 
   //オーディオコントローラーに使用
   const [projectForController, setProjectForController] = useState<Project | null>(null);
   const [userForController, setUserForController] = useState<User | null>(null);
 
   const { fetchAudioData } = useFetchAudioData();
-  // included 配列を使ってユーザー情報をマッピング
-  const userMap: Record<string, User> = included.reduce<Record<string, User>>((map, item) => {
-    if (item.type === "user") {
-      map[item.id] = item as User;
-    }
-    return map;
-  }, {});
 
-  //audioFile情報をマッピング
-  const audioMap: Record<string, string> = included.reduce<Record<string, string>>((map, item) => {
-    if (item.type === "audio_file") {
-      const audioFile = item as AudioFile;
-      map[audioFile.id] = audioFile.attributes.file_path;
-    }
-    return map;
-  }, {});
 
   //リクエスト初期化
   useEffect(() => {
     const loadProjects = async () => {
       try {
         const { data, included } = await projectIndexRequest();
-        setProjects(data);
-        setIncluded(included);
+
+      // ユーザー情報をマッピング
+      const userMap: Record<string, User> = included.reduce<Record<string, User>>((map, item) => {
+        if (item.type === "user") {
+          map[item.id] = item as User;
+        }
+        return map;
+      }, {});
+
+      //audioFile情報をマッピング
+      const audioMap: Record<string, string> = included.reduce<Record<string, string>>((map, item) => {
+        if (item.type === "audio_file") {
+          const audioFile = item as AudioFile;
+          map[audioFile.id] = audioFile.attributes.file_path;
+        }
+        return map;
+
+      }, {});
+
+      // ローカルストレージからユーザーを取得して isOwner を計算
+      const storedUser = localStorage.getItem("authenticatedUser");
+      const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+
+      // projects を拡張
+      const enrichedProjects = data.map((project) => {
+        const user = userMap[project.relationships.user.data.id];
+        const audioFileId = project.relationships.audio_file?.data?.id;
+        const audioFilePath = audioFileId ? audioMap[audioFileId] : undefined;
+
+        // isOwner を計算
+        const isOwner = parsedUser?.id === user.id;
+        return { ...project, user, audioFilePath, isOwner };
+      });
+
+        setProjects(enrichedProjects);
       }catch(error: any) {
         setError(error.message);
       }finally {
@@ -59,13 +72,12 @@ export function ProjectWrapper(){
       }
     };
     loadProjects();
-  }, [refresh]);
+  }, []);
 
   //再生ボタン押下時処理
-  const handlePlayClick = async (project: Project) => {
-    const user = userMap[project.relationships.user.data.id];
-    const audioFileId = project.relationships.audio_file?.data?.id;
-    const audioFilePath = audioFileId ? audioMap[audioFileId] : null;
+  const handlePlayClick = async (project: EnrichedProject) => {
+    const { user, audioFilePath } = project;
+    console.log("AudioControllerでのfilePath", audioFilePath, project.attributes.id);
     try {
       if (audioFilePath) {
         const audioData = await fetchAudioData(audioFilePath);
@@ -116,19 +128,11 @@ export function ProjectWrapper(){
         </Box>
       ) : (
         projects.map((project) => {
-          const user = userMap[project.relationships.user.data.id];
-
-            // ローカルストレージからユーザーを取得して isOwner を計算
-            const storedUser = localStorage.getItem("authenticatedUser");
-            const parsedUser = storedUser ? JSON.parse(storedUser) : null;
-            const isOwner = parsedUser?.id === user.id;
           return(
             <ProjectCard
             key={project.attributes.id}
             onPlayClick={handlePlayClick}
             project={project}
-            user={user}
-            isOwner={isOwner}
             />
           );
         })

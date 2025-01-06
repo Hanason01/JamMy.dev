@@ -1,6 +1,6 @@
 "use client";
 
-import { AudioBuffer, Settings } from "@sharedTypes/types";
+import { AudioBuffer, Settings, SetState } from "@sharedTypes/types";
 import { useState, useEffect, useRef } from "react";
 import { Button, Box, IconButton, Typography, CircularProgress, Menu, MenuItem } from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -11,8 +11,22 @@ import { useAudioAnalyzer } from "@audio/useAudioAnalyzer";
 import { useAudioCountIn } from "@audio/useAudioCountIn";
 import { useAudioMetronome } from "@audio/useAudioMetronome";
 import { AnalyzerVisualization } from "@Project/core_logic/AnalyzerVisualization";
+import { usePlayback } from "@context/usePlayBackContext";
 
-export function RecordingCore({ onRecordingComplete, settings}: { onRecordingComplete: (audioBuffer: AudioBuffer) => void; settings: Settings}){
+export function RecordingCore({
+  globalAudioContext,
+  onRecordingComplete,
+  settings,
+  enablePostAudio = false, //渡されなかった場合はfalseとする
+  setIsPlaybackTriggered = () => {}, //渡されなかった場合は空の関数とする
+
+} : {
+  globalAudioContext: AudioContext | null;
+  onRecordingComplete: (audioBuffer: AudioBuffer) => void;
+  settings: Settings;
+  enablePostAudio?: boolean; //オプショナル
+  setIsPlaybackTriggered?: SetState<boolean> //オプショナル
+}){
   const [ isRecording, setIsRecording ] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false); //録音時初期化
   const [isInitializing, setIsInitializing] = useState<boolean>(false); // 初期化中のフラグ(useEffectの制御)
@@ -30,7 +44,18 @@ export function RecordingCore({ onRecordingComplete, settings}: { onRecordingCom
   const { isCountingIn, startCountIn, countInInitialize } = useAudioCountIn();
   const { metronomeInitialize, startMetronome, stopMetronome } = useAudioMetronome();
   const { analyzerData, initializeAnalyzer, cleanupAnalyzer } = useAudioAnalyzer();
-  const { init, start, stop, audioBuffer, cleanupRecording, microphones } = useAudioRecorder({settings,audioContextRef, audioWorkletNodeRef, mediaStreamSourceRef,setLoading, setIsRecording, cleanupAnalyzer, stopMetronome});
+  const { init, start, stop, audioBuffer, cleanupRecording, microphones } = useAudioRecorder(
+    {
+    globalAudioContext,
+    settings,
+    audioContextRef,
+    audioWorkletNodeRef,
+    mediaStreamSourceRef,
+    setLoading,
+    setIsRecording,
+    cleanupAnalyzer,
+    stopMetronome
+  });
 
   //録音フィードバック関連
   const [remainingTime, setRemainingTime] = useState<number>(settings.duration ?? 30); // 残り時間（デフォルトは30秒）
@@ -90,6 +115,11 @@ export function RecordingCore({ onRecordingComplete, settings}: { onRecordingCom
   //初期化リセット関数
   const resetInitialization = () => {
     console.log("初期化リセット開始");
+    // enablePostAudio が有効な場合にトリガーをリセット
+    if (enablePostAudio) {
+      setIsPlaybackTriggered(false); // AudioPlayer.tsxがキャッチ
+      console.log("アンマウント、あるいは録音自動終了により、再生トリガーをリセットしました");
+    }
     cleanupAnalyzer(mediaStreamSourceRef.current);
     cleanupRecording();
     stopMetronome();
@@ -147,24 +177,14 @@ export function RecordingCore({ onRecordingComplete, settings}: { onRecordingCom
     }
   };
 
-
-  // 録音停止処理
-  const handleStopRecording = async(): Promise<void> => {
-    // サークルを表示するためにloadingをtrueに設定
-    setLoading(true);
-    setIsRecording(false);
-    // 次の処理を非同期で遅延させて再レンダリングを待つ
-    setTimeout(async () => {
-      console.log("stop()発動");
-      stop();
-      // 完了後にloadingをfalseに設定
-      setLoading(false);
-    }, 100); // 状態が確実に反映されるように非同期で処理を遅らせる
-  };
-
   // 録音中・カウントイン中で共通の録音開始フロー
   const startRecording = (): void => {
     console.log("startRecording 内の audioContext:", audioContextRef.current);
+    // enablePostAudio が有効な場合にトリガーをセット
+    if (enablePostAudio) {
+      setIsPlaybackTriggered(true); // AudioPlayer.tsxがキャッチ
+      console.log("enablePostAudio が有効なため、再生トリガーを設定しました");
+    }
     setRemainingTime(settings.duration || 0);
     setIsRecording(true);
     start();
@@ -174,6 +194,27 @@ export function RecordingCore({ onRecordingComplete, settings}: { onRecordingCom
     if (settings.metronomeOn) {
       startMetronome(settings.tempo);
     }
+  };
+
+  // 録音停止処理
+  const handleStopRecording = async(): Promise<void> => {
+    // サークルを表示するためにloadingをtrueに設定
+    setLoading(true);
+    setIsRecording(false);
+
+    // enablePostAudio が有効な場合にトリガーをリセット
+    if (enablePostAudio) {
+      setIsPlaybackTriggered(false); // AudioPlayer.tsxがキャッチ
+      console.log("enablePostAudio が有効。再生トリガーをリセットしました");
+    }
+
+    // 次の処理を非同期で遅延させて再レンダリングを待つ
+    setTimeout(async () => {
+      console.log("stop()発動");
+      stop();
+      // 完了後にloadingをfalseに設定
+      setLoading(false);
+    }, 100); // 状態が確実に反映されるように非同期で処理を遅らせる
   };
 
   //録音停止をフックに生成されるaudioBufferを親へ渡す(audioBufferは停止時一度のみ生成)

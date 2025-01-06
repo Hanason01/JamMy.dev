@@ -1,6 +1,6 @@
 "use client";
 
-import { Project, User} from "@sharedTypes/types";
+import { Project, User, EnrichedProject} from "@sharedTypes/types";
 import { useState} from "react";
 import { useRouter } from "next/navigation";
 import { Paper, Box, Avatar, Button, IconButton, Typography } from "@mui/material";
@@ -14,19 +14,15 @@ import { useProjectContext } from "@context/useProjectContext";
 
 export function ProjectCard({
   project,
-  user,
   onPlayClick,
-  isOwner
 } : {
-  project: Project;
-  user: User;
-  onPlayClick: (project: Project) => void;
-  isOwner: boolean;
+  project: EnrichedProject;
+  onPlayClick: (project: EnrichedProject) => void;
 }){
   const [expanded, setExpanded] = useState<boolean>(false); //概要展開
   const toggleExpanded = () => setExpanded(!expanded);
   //コラボレーション、応募管理ページへの遷移に利用
-  const { setCurrentProject, setCurrentUser } = useProjectContext();
+  const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath } = useProjectContext();
   const router = useRouter();
 
   //プロジェクト概要の短縮
@@ -38,10 +34,11 @@ export function ProjectCard({
   const createdAt = new Date(project.attributes.created_at);
   const formattedDate = formatDistanceToNow(createdAt, { addSuffix: true, locale: ja })
 
-  //応募ぺーじ遷移
+  //応募ページ遷移
   const handleCollaborationRequest = () => {
     setCurrentProject(project);
-    setCurrentUser(user);
+    setCurrentUser(project.user);
+    setCurrentAudioFilePath(project.audioFilePath || null);
     router.push(`/projects/${project.id}/collaboration`);
   };
 
@@ -63,12 +60,12 @@ export function ProjectCard({
           sx={{ display: 'flex', alignItems: 'center'}}
         >
           <Avatar
-            src={user.attributes.image || "/default-icon.png"}
-            alt={user.attributes.nickname || user.attributes.username || undefined }
+            src={project.user.attributes.image || "/default-icon.png"}
+            alt={project.user.attributes.nickname || project.user.attributes.username || undefined }
           />
           <Box sx={{ ml:2, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography variant="body1" component="span" color="textPrimary">
-              {user.attributes.nickname || user.attributes.username }
+              {project.user.attributes.nickname || project.user.attributes.username }
             </Typography>
             <Typography variant="body2" color="textPrimary">
               {formattedDate}
@@ -94,7 +91,7 @@ export function ProjectCard({
             </IconButton>
           </Box>
         )}
-        {!isOwner && (
+        {!project.isOwner && (
           <Button variant="secondary" onClick={() => handleCollaborationRequest()}>応募する</Button>
         )}
         <Box
@@ -120,7 +117,5 @@ export function ProjectCard({
           }}><PlayArrowIcon sx={{ fontSize: 70 }}/></IconButton>
         </Box>
       </Paper>
-
-
   );
 };
