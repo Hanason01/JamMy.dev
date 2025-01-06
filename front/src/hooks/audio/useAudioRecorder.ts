@@ -2,6 +2,7 @@ import { useState } from "react";
 import {AudioBuffer, Settings } from "@sharedTypes/types";
 
 export function useAudioRecorder({
+  globalAudioContext,
   settings,
   audioContextRef,
   audioWorkletNodeRef,
@@ -11,6 +12,7 @@ export function useAudioRecorder({
   cleanupAnalyzer,
   stopMetronome
 } : {
+  globalAudioContext: AudioContext | null;
   settings: Settings;
   audioContextRef: React.MutableRefObject<AudioContext | null>;
   audioWorkletNodeRef: React.MutableRefObject<AudioWorkletNode | null>;
@@ -32,8 +34,16 @@ export function useAudioRecorder({
 
       //(1)AudioContextのインスタンス作成
       if (!isMounted()) return null;
-      const audioContext = new (window.AudioContext ||(window as any).webkitAudioContext)();
+      const audioContext = globalAudioContext
+      ? globalAudioContext
+      : new (window.AudioContext ||(window as any).webkitAudioContext)();
       console.log("AudioContext の初期化に成功",audioContext);
+
+      if (!globalAudioContext) {
+        console.log("新しい AudioContext を作成しました:", audioContext);
+      } else {
+        console.log("globalAudioContext を使用します:", audioContext);
+      }
 
       //(2)マイクデバイスリスト取得とデフォルトマイクの設定
       if (!isMounted()) return null;
@@ -68,7 +78,7 @@ export function useAudioRecorder({
       // (5)AudioWorkletProcessorの登録
       if (!isMounted()) return null;
       console.log("AudioWorkletProcessor の登録を開始");
-      await audioContext.audioWorklet.addModule("scripts/record_processor.js"); //front/public/scripts/record_processor.js
+      await audioContext.audioWorklet.addModule("/scripts/record_processor.js"); //front/public/scripts/record_processor.js
       console.log("AudioWorkletProcessor の登録に成功",audioContext);
 
       // (6)AudioWorkletNode作成(このタイミングでProcessorが自動で初期化)
