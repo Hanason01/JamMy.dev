@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {AudioBuffer, Settings } from "@sharedTypes/types";
+import {AudioBuffer, Settings, SetState } from "@sharedTypes/types";
 
 export function useAudioRecorder({
   globalAudioContext,
@@ -10,17 +10,25 @@ export function useAudioRecorder({
   setLoading,
   setIsRecording,
   cleanupAnalyzer,
-  stopMetronome
+  stopMetronome,
+  setIsPlaybackTriggered,
+  playbackTriggeredByRef,
+  enablePostAudio,
+  id
 } : {
   globalAudioContext: AudioContext | null;
   settings: Settings;
   audioContextRef: React.MutableRefObject<AudioContext | null>;
   audioWorkletNodeRef: React.MutableRefObject<AudioWorkletNode | null>;
   mediaStreamSourceRef: React.MutableRefObject<MediaStreamAudioSourceNode | null>;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsRecording: React.Dispatch<React.SetStateAction<boolean>>;
+  setLoading: SetState<boolean>;
+  setIsRecording: SetState<boolean>;
   cleanupAnalyzer: (mediaStreamSource: MediaStreamAudioSourceNode | null) => void;
   stopMetronome: () => void;
+  setIsPlaybackTriggered: SetState<boolean>;
+  playbackTriggeredByRef: React.MutableRefObject<string | null>;
+  enablePostAudio?: boolean;
+  id?: string;
 }) {
 
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer>(null);
@@ -105,6 +113,12 @@ export function useAudioRecorder({
             setIsRecording(false);
             cleanupAnalyzer(mediaStreamSource);
             stopMetronome();
+            // context関連を初期化（録音自然終了時を想定）
+            if (enablePostAudio && id) {
+              playbackTriggeredByRef.current=id;
+              setIsPlaybackTriggered(false);
+              console.log("アンマウント、あるいは録音自動終了により、再生トリガーをリセットしました");
+            }
             setTimeout(async () => {
              // 録音停止時にプロセッサから送られた最終データを処理
               processCompleteData(event.data.audioData);
