@@ -14,18 +14,18 @@ import { AnalyzerVisualization } from "@Project/core_logic/AnalyzerVisualization
 import { usePlayback } from "@context/usePlayBackContext";
 
 export function RecordingCore({
+  id,
   globalAudioContext,
   onRecordingComplete,
   settings,
   enablePostAudio = false, //渡されなかった場合はfalseとする
-  setIsPlaybackTriggered = () => {}, //渡されなかった場合は空の関数とする
 
 } : {
+  id?: string;  //オプショナル
   globalAudioContext: AudioContext | null;
   onRecordingComplete: (audioBuffer: AudioBuffer) => void;
   settings: Settings;
   enablePostAudio?: boolean; //オプショナル
-  setIsPlaybackTriggered?: SetState<boolean> //オプショナル
 }){
   const [ isRecording, setIsRecording ] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false); //録音時初期化
@@ -39,6 +39,9 @@ export function RecordingCore({
   const mediaStreamSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const audioWorkletNodeRef = useRef<AudioWorkletNode | null>(null);
   const clickSoundBufferRef = useRef<AudioBuffer | null>(null); //メトロノームとカウントインに渡す用
+
+  //Context関連
+  const {setIsPlaybackTriggered, playbackTriggeredByRef} = usePlayback();
 
   //フック関連
   const { isCountingIn, startCountIn, countInInitialize } = useAudioCountIn();
@@ -54,7 +57,11 @@ export function RecordingCore({
     setLoading,
     setIsRecording,
     cleanupAnalyzer,
-    stopMetronome
+    stopMetronome,
+    setIsPlaybackTriggered,
+    playbackTriggeredByRef,
+    enablePostAudio,
+    id
   });
 
   //録音フィードバック関連
@@ -115,17 +122,15 @@ export function RecordingCore({
   //初期化リセット関数
   const resetInitialization = () => {
     console.log("初期化リセット開始");
-    // enablePostAudio が有効な場合にトリガーをリセット
-    if (enablePostAudio) {
-      setIsPlaybackTriggered(false); // AudioPlayer.tsxがキャッチ
-      console.log("アンマウント、あるいは録音自動終了により、再生トリガーをリセットしました");
-    }
     cleanupAnalyzer(mediaStreamSourceRef.current);
     cleanupRecording();
     stopMetronome();
     setIsRecording(false);
     setIsInitialized(false);
     setIsInitializing(false);
+    if (enablePostAudio && id) {
+      playbackTriggeredByRef.current=null;
+    }
     console.log("初期化リセット完了");
   };
 
@@ -150,7 +155,6 @@ export function RecordingCore({
 
       console.log(`RecordingCoreがアンマウントされました[${new Date().toISOString()}]`);
       console.log("RecordingCore: クリーンアップ開始");
-
       resetInitialization();
       console.log("RecordingCore: クリーンアップ完了");
     };
@@ -180,15 +184,17 @@ export function RecordingCore({
   // 録音中・カウントイン中で共通の録音開始フロー
   const startRecording = (): void => {
     console.log("startRecording 内の audioContext:", audioContextRef.current);
-    // enablePostAudio が有効な場合にトリガーをセット
-    if (enablePostAudio) {
-      setIsPlaybackTriggered(true); // AudioPlayer.tsxがキャッチ
-      console.log("enablePostAudio が有効なため、再生トリガーを設定しました");
-    }
     setRemainingTime(settings.duration || 0);
     setIsRecording(true);
     start();
     console.log("start()発動");
+
+    // enablePostAudio が有効な場合にトリガーをセット
+      if (enablePostAudio && id) {
+      playbackTriggeredByRef.current=id;
+      setIsPlaybackTriggered(true); // AudioPlayer.tsxがキャッチ
+      console.log("enablePostAudio が有効なため、再生トリガーを設定しました");
+    }
 
     //メトロノーム設定があればメトロノーム初期化と開始
     if (settings.metronomeOn) {
@@ -201,20 +207,8 @@ export function RecordingCore({
     // サークルを表示するためにloadingをtrueに設定
     setLoading(true);
     setIsRecording(false);
-
-    // enablePostAudio が有効な場合にトリガーをリセット
-    if (enablePostAudio) {
-      setIsPlaybackTriggered(false); // AudioPlayer.tsxがキャッチ
-      console.log("enablePostAudio が有効。再生トリガーをリセットしました");
-    }
-
-    // 次の処理を非同期で遅延させて再レンダリングを待つ
-    setTimeout(async () => {
-      console.log("stop()発動");
-      stop();
-      // 完了後にloadingをfalseに設定
-      setLoading(false);
-    }, 100); // 状態が確実に反映されるように非同期で処理を遅らせる
+    stop();
+    console.log("stop()発動");
   };
 
   //録音停止をフックに生成されるaudioBufferを親へ渡す(audioBufferは停止時一度のみ生成)

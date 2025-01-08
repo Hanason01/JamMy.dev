@@ -2,13 +2,13 @@
 
 import { AudioBuffer,PostSettings,SetState, Project, User } from "@sharedTypes/types";
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Box, Typography, TextField, InputAdornment, Slider, Button, MenuItem, Switch, FormGroup, FormControlLabel, Divider, CircularProgress, Avatar } from "@mui/material";
 import { RecordingCore } from "@Project/core_logic/RecordingCore";
 import { PostProjectProcessing } from "@Project/post_project/PostProjectProcessing";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { useProjectContext } from "@context/useProjectContext";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
-import { usePlayback } from "@context/usePlayBackContext";
 
 export function CollaborationStep1({
   onNext,
@@ -31,7 +31,8 @@ export function CollaborationStep1({
   const [speedSliderValue, setSpeedSliderValue] = useState<number>(120); //速度
   const [countIn, setCountIn] = useState<number>(0); //カウントイン
   const [metronomeOn, setMetronomeOn] = useState<boolean>(false); //メトロノームON/OFF
-  const [enablePostAudio, setEnablePostAudio] = useState<boolean>(true); //投稿音声同時再生
+  const [enablePostAudio, setEnablePostAudio] = useState<boolean>(true); //録音時投稿音声同時再生
+  const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(false); //プレビュー時投稿音声同時再生
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(currentProject);
   const [user, setUser] = useState<User | null>(currentUser);
@@ -40,33 +41,31 @@ export function CollaborationStep1({
   const globalAudioContextRef = useRef<AudioContext | null>(null);
   const [audioData, setAudioData] = useState<AudioBuffer>(null);
 
+  const router = useRouter();
+
+  //AudioPlayer識別ID
+  const playerIds = ["Post", "Collaboration", "Recording"];
+
   //カウントインセレクト用
   const preCounts = [0,1,2,3,4,5,6,7]
 
   //フック
   const { fetchAudioData } = useFetchAudioData();
-  const { isPlaybackTriggered, setIsPlaybackTriggered } = usePlayback();
 
-  //録音データの受け取りと受け渡し
-  const handleRecordingComplete = (audioBuffer: AudioBuffer) =>{
-    console.log("録音が完了しました:", audioBuffer);
-    setAudioBufferForProcessing(audioBuffer); //Step1のプレビュー用
-    setHasRecorded(true); //編集コンポーネントへ表示切替
-  };
 
   // データ格納（リロード対策）
-useEffect(() => {
-  const initializeData = () => {
-      if (currentProject && currentUser && currentAudioFilePath) {
-        // セッションストレージに保存
-        sessionStorage.setItem("currentProject", JSON.stringify(currentProject));
-        sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
-        sessionStorage.setItem("currentAudioFilePath", currentAudioFilePath);
-        console.log("Contextのデータをセッションストレージに保存しました");
-      }
-  };
-  initializeData();
-}, []);
+  useEffect(() => {
+    const initializeData = () => {
+        if (currentProject && currentUser && currentAudioFilePath) {
+          // セッションストレージに保存
+          sessionStorage.setItem("currentProject", JSON.stringify(currentProject));
+          sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
+          sessionStorage.setItem("currentAudioFilePath", currentAudioFilePath);
+          console.log("Contextのデータをセッションストレージに保存しました");
+        }
+    };
+    initializeData();
+  }, []);
 
   //初期化
   useEffect(() => {
@@ -129,6 +128,21 @@ useEffect(() => {
     };
   }, []);
 
+  //初回アクセス時の保有チェック
+  useEffect(() => {
+    if (!user) {
+      console.log("userが未ロード");
+      return;
+    }
+    const authenticatedUser = JSON.parse(localStorage.getItem("authenticatedUser") || "null");
+    console.log("authenticatedUser,curretUser", authenticatedUser.id,user.id)
+
+    if (user.id === authenticatedUser.id) {
+      console.log("自分の投稿にアクセスしたため、/projects にリダイレクトします");
+      router.push("/projects");
+    }
+  }, [user]);
+
   //被遷移制御（STEP2の編集or録音しなおし）
   useEffect(() => {
     if (returnToStep1Mode === "edit") {
@@ -137,6 +151,14 @@ useEffect(() => {
       setHasRecorded(false);
     }
   }, [returnToStep1Mode]);
+
+  //録音データの受け取りと受け渡し
+  const handleRecordingComplete = (audioBuffer: AudioBuffer) =>{
+    console.log("録音が完了しました:", audioBuffer);
+    setAudioBufferForProcessing(audioBuffer); //Step1のプレビュー用
+    setHasRecorded(true); //編集コンポーネントへ表示切替
+    setEnablePostAudioPreview(true); //プレビューで同時音声をONにする
+  };
 
   return(
     <Box sx={{
@@ -213,9 +235,10 @@ useEffect(() => {
           </Box>
         {audioData && globalAudioContextRef.current ? (
           <AudioPlayer
+            id = {playerIds[0]} //Post
             audioBuffer={audioData}
             audioContext={globalAudioContextRef.current}
-            isPlaybackTriggered={isPlaybackTriggered}
+            enablePostAudioPreview={enablePostAudioPreview}
           />
         ) : (
           <Box
@@ -248,6 +271,7 @@ useEffect(() => {
         {globalAudioContextRef.current ? (
           hasRecorded ? (
             <PostProjectProcessing
+            id = {playerIds[1]} //Collaboration
             mode = "with-effects"
             // globalAudioContext={globalAudioContextRef.current}
             audioBufferForProcessing={audioBufferForProcessing} setHasRecorded={setHasRecorded}
@@ -255,9 +279,12 @@ useEffect(() => {
             setAudioBufferForPost={setAudioBufferForPost}
             onNext = {onNext}
             returnToStep1Mode={returnToStep1Mode}
+            enablePostAudioPreview={enablePostAudioPreview}
+            setEnablePostAudioPreview={setEnablePostAudioPreview}
             />
           ) : (
             <RecordingCore
+            id = {playerIds[2]} //Collaboration
             globalAudioContext={globalAudioContextRef.current}
             onRecordingComplete={handleRecordingComplete}
             settings={{
@@ -267,7 +294,6 @@ useEffect(() => {
               metronomeOn: metronomeOn,
             }}
             enablePostAudio={enablePostAudio}
-            setIsPlaybackTriggered={setIsPlaybackTriggered}
             />
             )
           ) : (

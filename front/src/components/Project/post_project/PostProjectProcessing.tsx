@@ -2,22 +2,27 @@
 
 import { AudioBuffer, SetState } from "@sharedTypes/types";
 import { useEffect, useRef, useState } from "react";
-import { Box, Button, IconButton, CircularProgress } from "@mui/material";
+import { Box, Button, IconButton, CircularProgress, FormGroup, FormControlLabel, Switch} from "@mui/material";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { AudioProcessor } from "@Project/core_logic/AudioProcessor";
 import { useAudioProcessing } from "@audio/useAudioProcessing";
+import { usePlayback } from "@context/usePlayBackContext";
 
 
 export function PostProjectProcessing({
+  id,
   mode,
   audioBufferForProcessing,
   setHasRecorded,
   setAudioBufferForProcessing,
   setAudioBufferForPost,
   onNext,
-  returnToStep1Mode
+  returnToStep1Mode,
+  enablePostAudioPreview,
+  setEnablePostAudioPreview
 } : {
+  id: string; //オプショナル
   mode: "player-only" | "with-effects";
   audioBufferForProcessing: AudioBuffer;
   setHasRecorded: SetState<boolean>;
@@ -25,6 +30,8 @@ export function PostProjectProcessing({
   setAudioBufferForPost: SetState<AudioBuffer>;
   onNext: () => void;
   returnToStep1Mode: "edit" | "record";
+  enablePostAudioPreview?: boolean; //オプショナル
+  setEnablePostAudioPreview?: SetState<boolean>; //オプショナル
   }){
   const audioContextForProcessingRef = useRef<AudioContext | null>(null);
   // const reverbInputGainNodeRef = useRef<GainNode | null>(null); //リバーブ調整node
@@ -38,6 +45,9 @@ export function PostProjectProcessing({
   const [selectedVolume, setSelectedVolume] = useState<number>(1); // 音量管理
 
   const { processAudio } = useAudioProcessing({ selectedVolume });
+
+  //Context関連
+  const {setIsPlaybackReset, playbackResetTriggeredByRef} = usePlayback();
 
   useEffect(() => {
     console.log(`[${new Date().toISOString()}] PostProjectProcessingがマウントされました`);
@@ -159,13 +169,15 @@ export function PostProjectProcessing({
     };
   }, [returnToStep1Mode === "edit"]);
 
-  console.log("PostProjectProcessing の現在の isInitialized（useEffectの外側に配置）:", isInitialized);
-  console.log("この段階でContextがあるか", audioContextForProcessingRef.current);
+  // console.log("PostProjectProcessing の現在の isInitialized（useEffectの外側に配置）:", isInitialized);
+  // console.log("この段階でContextがあるか", audioContextForProcessingRef.current);
 
 
     //閉じるボタン処理
     const handleCloseClick = () => {
       console.log("AudioPlayerを閉じました");
+      playbackResetTriggeredByRef.current = id;
+      setIsPlaybackReset(true);
       setHasRecorded?.(false);
       setAudioBufferForProcessing?.(null);
     }
@@ -194,13 +206,37 @@ export function PostProjectProcessing({
 
   if(isInitialized){
     return(
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%"}}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", my:8, mx: 1}}>
+      <Box sx={{ display: "flex", flexDirection: "column", width: "100%"}}>
+        { id && (
+        <FormGroup sx={{my:1,width: "60%"}}>
+          <FormControlLabel required control={
+            <Switch
+            checked={enablePostAudioPreview}
+            onChange={(e) =>{
+              if (setEnablePostAudioPreview) {
+                setEnablePostAudioPreview(e.target.checked);
+              } else {
+              console.error("setEnablePostAudioPreview is undefined");
+              }
+            }}
+            />
+          }label="投稿音声と同時に聴く"
+          sx={{
+            "& .MuiFormControlLabel-label": {
+              fontSize: "0.9rem",
+              color: "text.primary",
+            },
+          }} />
+        </FormGroup>
+        )}
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb:8, mt:2, mx: 1}}>
           <Box sx={{ flex: 2 }}>
             <AudioPlayer
+            id={id} //Collaboration
             audioBuffer={audioBufferForProcessing}
             audioContext={audioContextForProcessingRef.current}
             gainNode={mixGainNodeRef.current} //with-effectsモードのみ
+            enablePostAudioPreview={enablePostAudioPreview}
             />
           </Box>
           {mode === "with-effects" && audioContextForProcessingRef.current &&(
