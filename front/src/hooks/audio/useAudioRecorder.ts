@@ -44,7 +44,9 @@ export function useAudioRecorder({
       if (!isMounted()) return null;
       const audioContext = globalAudioContext
       ? globalAudioContext
-      : new (window.AudioContext ||(window as any).webkitAudioContext)();
+      : new (window.AudioContext ||(window as any).webkitAudioContext)({
+        sampleRate: 44100
+      });
       console.log("AudioContext の初期化に成功",audioContext);
 
       if (!globalAudioContext) {
@@ -181,9 +183,16 @@ export function useAudioRecorder({
       return; // 無効なデータの場合は処理を中止
     }
 
-    // Float32Array を統合(一次元配列化)して arrayBuffer に変換
-    const flatData = audioData.reduce<number[]>((acc, val: Float32Array) => acc.concat(Array.from(val)), []);
-    console.log("flatData:", flatData);
+    // 必要な総フレーム数を計算
+    const totalFrames = audioData.reduce((acc, val) => acc + val.length, 0);
+    const flatData = new Float32Array(totalFrames); // 必要なサイズで配列を確保
+
+    // 各チャンクを直接コピー
+    let offset = 0;
+    for (const chunk of audioData) {
+      flatData.set(chunk, offset);
+      offset += chunk.length;
+    }
 
     // AudioBuffer を手動で作成
     console.log("AudioBuffer手動作成の部分:context",audioContextRef.current);

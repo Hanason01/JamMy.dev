@@ -33,6 +33,7 @@ export function CollaborationStep1({
   const [metronomeOn, setMetronomeOn] = useState<boolean>(false); //メトロノームON/OFF
   const [enablePostAudio, setEnablePostAudio] = useState<boolean>(true); //録音時投稿音声同時再生
   const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(false); //プレビュー時投稿音声同時再生
+  console.log("enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡",enablePostAudioPreview);
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(currentProject);
   const [user, setUser] = useState<User | null>(currentUser);
@@ -92,7 +93,9 @@ export function CollaborationStep1({
         }
 
         // globalAudioContext の初期化
-        globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
+          sampleRate: 44100
+        });
         console.log("globalAudioContext の初期化に成功", globalAudioContextRef.current);
 
         // AudioBuffer の取得

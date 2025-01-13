@@ -25,7 +25,9 @@ export function PostProjectStep2({
   useEffect(() => {
     console.log(`[${new Date().toISOString()}] PostProjectStep2がマウントされました`);
     if (audioBufferForPost && !audioContextRef.current){
-      audioContextRef.current= new (window.AudioContext || (window as any).webkitAudioContext)()
+      audioContextRef.current= new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: 44100
+      })
       setIsAudioContextReady(true);
       console.log("audioContextRef",audioContextRef.current);
     }

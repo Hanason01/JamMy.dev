@@ -128,6 +128,17 @@ export interface PostSettings {
     "project[audio_file]": File;
   }
 
+  // PostCollaborationForm
+  export interface PostCollaborationFormData {
+    comment?: string;
+  }
+
+  //PostCollaborationRequest
+  export interface PostCollaborationRequestData {
+    "project[comment]": string;
+    "project[audio_file]": File;
+  }
+
   //LoginForm
   export interface LoginFormData {
     email: string;

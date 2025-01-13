@@ -3,7 +3,7 @@
 .gitignore
 
 # Node.js の依存関係ディレクトリ
-# node_modules/
+node_modules/
 
 # Yarn のエラー情報
 yarn-error.log
