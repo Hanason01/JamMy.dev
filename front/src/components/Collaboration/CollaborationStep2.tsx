@@ -23,7 +23,9 @@ export function CollaborationStep2({
   useEffect(() => {
     console.log(`[${new Date().toISOString()}] CollaborationStep2がマウントされました`);
     if (audioBufferForPost && !audioContextRef.current){
-      audioContextRef.current= new (window.AudioContext || (window as any).webkitAudioContext)()
+      audioContextRef.current= new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: 44100
+      })
       setIsAudioContextReady(true);
       console.log("audioContextRef",audioContextRef.current);
     }
@@ -53,7 +55,7 @@ export function CollaborationStep2({
       justifyContent: "center",
       gap:3
     }}>
-      <CollaborationForm audioBuffer={audioBufferForPost} settings={settingsForPost} />
+      <CollaborationForm audioBuffer={audioBufferForPost} />
       {audioContextRef.current && isAudioContextReady ? (
         <AudioPlayer audioBuffer={audioBufferForPost} audioContext={audioContextRef.current}/>
         ) : (

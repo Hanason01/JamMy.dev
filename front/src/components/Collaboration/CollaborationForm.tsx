@@ -1,42 +1,165 @@
 "use client";
 
-import { User, Project} from "@sharedTypes/types";
-import { useState, useEffect } from 'react';
+import { AudioBuffer, PostCollaborationFormData, PostCollaborationRequestData, User, Project } from "@sharedTypes/types";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Box, TextField, Button, MenuItem, Divider, Alert, CircularProgress } from "@mui/material";
+import { usePostCollaborationValidation } from "@validation/usePostCollaborationValidation";
+import { usePostCollaborationRequest } from "@services/project/collaboration/usePostCollaborationRequest";
+import { audioEncoder } from "@utiles/audioEncoder";
 import { useProjectContext } from "@context/useProjectContext";
 
-export function CollaborationForm() {
+export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
   const { currentProject, currentUser } = useProjectContext();
-  const [storedProject, setStoredProject] = useState<Project | null>(null);
-  const [storedUser, setStoredUser] = useState<User | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+  const [formError, setFormError] = useState<string>("");
+  const encodedFileRef = useRef<File | null>(null);
+  const [loading, setLoading] = useState<boolean>(false); // ローディング状態
 
-  //以下ブラウザ依存コードにつきuseEffectで管理
+  const { register, handleSubmit, setError, errors } = usePostCollaborationValidation();
+
+
+  //初期化
   useEffect(() => {
-  // セッションストレージにデータを保存(リロード対策)
-  if (currentProject && currentUser) {
-      sessionStorage.setItem('currentProject', JSON.stringify(currentProject));
-      sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+    // contextがあればそのまま変数代入
+    if (currentProject && currentUser) {
+        setProject(currentProject);
+        setUser(currentUser);
+      }
+
+    // contextがなければセッションストレージから復元
+    if (!currentProject){
+      const projectFromStorage = sessionStorage.getItem('currentProject');
+      const project = projectFromStorage ? JSON.parse(projectFromStorage) as Project : null;
+      setProject(project);
     }
-  // セッションストレージからデータを取得
-  const projectFromStorage = sessionStorage.getItem('currentProject');
-  const userFromStorage = sessionStorage.getItem('currentUser');
-  const project = projectFromStorage ? JSON.parse(projectFromStorage) as Project : null;
-  const user = userFromStorage ? JSON.parse(userFromStorage) as User : null;
-  setStoredProject(project);
-  setStoredUser(user);
-  }, []);
 
-  //状態変数またはセッションよりデータを取得
-  const project = currentProject || storedProject;
-  const user = currentUser || storedUser;
+    if (!currentUser){
+      const userFromStorage = sessionStorage.getItem('currentUser');
+      const user = userFromStorage ? JSON.parse(userFromStorage) as User : null;
+      setUser(user);
+    }
+    }, []);
 
-  if (!project || !user) {
-    return <p>プロジェクト情報が見つかりません。</p>;
-  }
+
+  //応募リクエスト処理
+  const { postCollaboration } = usePostCollaborationRequest();
+  const sendDataToAPI = async (
+    data: PostCollaborationFormData,
+    audioBuffer: AudioBuffer,
+  ) => {
+    setLoading(true);
+    setTimeout(async () => {
+      try {
+        let audioFile = encodedFileRef.current
+        //エンコード処理
+        if(!encodedFileRef.current){
+          console.log("エンコード処理に送るaudioBuffer", audioBuffer);
+          audioFile = await audioEncoder(audioBuffer, "FLAC");
+          encodedFileRef.current = audioFile;
+          console.log("エンコード後のファイル",audioFile);
+        }
+
+        //audioFileチェック
+        if (!audioFile) {
+          throw new Error("エンコードされたオーディオファイルがありません");
+        }
+
+        // リクエストデータ作成
+        const requestData: PostCollaborationRequestData = {
+          //commentが未定義もしくはundefined（未入力）の場合は空文字を代入
+          "project[comment]": data.comment?.trim() || "",
+          "project[audio_file]": audioFile,
+        };
+
+        // FormData の生成
+        const formData = new FormData();
+        Object.entries(requestData).forEach(([key, value]) => {
+          formData.append(key, value as string | Blob); // 型をキャストして挿入
+        });
+        console.log("リクエスト送信前のformData", formData);
+
+        if (project){
+          await postCollaboration(formData, project.id);
+          router.push("/projects?refresh=true");
+        }
+      } catch (error: any) {
+        if (error.comment) {
+          setError("comment", { type: "manual", message: error.comment });
+        } else {
+          // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
+          setFormError(error.general);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }, 100);
+  };
 
   return (
-    <div>
-      <h1>{project.attributes.title} への応募フォーム</h1>
-      <p>投稿者: {user.attributes.username}</p>
-    </div>
+    <Box
+    component= "form"
+    onSubmit={handleSubmit((data: PostCollaborationFormData) => sendDataToAPI(data, audioBuffer))}
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "80%",
+      gap: 3,
+      my: 3,
+    }}>
+      {formError && <Alert severity="error">{formError}</Alert>}
+      <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 3,
+        width: "100%"
+      }}>
+        <TextField
+        label="応募先ユーザー名"
+        variant="standard"
+        defaultValue={user?.attributes.nickname || user?.attributes.username || "不明なユーザー"}
+        fullWidth
+        slotProps={{
+          input: {readOnly: true},
+        }}
+        />
+        <TextField
+        label="応募先タイトル"
+        variant="standard"
+        defaultValue={project?.attributes.title || "不明なタイトル"}
+        fullWidth
+        slotProps={{
+          input: {readOnly: true},
+        }}
+        />
+        <TextField
+        label="コメント（任意）"
+        variant="standard"
+        placeholder="投稿者へコメント"
+        fullWidth
+        {...register("comment")}
+        error={!!errors.comment}
+        helperText={errors.comment?.message}
+        />
+        {loading ? (
+          <CircularProgress
+            size={48}
+            sx={{
+              color: "primary",
+            }}
+          />
+        ) : (
+          <Button type="submit" variant="primary" sx={{mt:4}} >
+            投稿する
+          </Button>
+        )}
+      </Box>
+    </Box>
   );
 }
