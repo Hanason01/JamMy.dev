@@ -135,8 +135,8 @@ export interface PostSettings {
 
   //PostCollaborationRequest
   export interface PostCollaborationRequestData {
-    "project[comment]": string;
-    "project[audio_file]": File;
+    "collaboration[comment]": string;
+    "collaboration[audio_file]": File;
   }
 
   //LoginForm

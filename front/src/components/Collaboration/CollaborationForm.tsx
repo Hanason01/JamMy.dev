@@ -70,8 +70,8 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         // リクエストデータ作成
         const requestData: PostCollaborationRequestData = {
           //commentが未定義もしくはundefined（未入力）の場合は空文字を代入
-          "project[comment]": data.comment?.trim() || "",
-          "project[audio_file]": audioFile,
+          "collaboration[comment]": data.comment?.trim() || "",
+          "collaboration[audio_file]": audioFile,
         };
 
         // FormData の生成

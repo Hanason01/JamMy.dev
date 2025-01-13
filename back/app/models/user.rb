@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
   has_many :projects, dependent: :destroy
+  has_many :collaborations, dependent: :destroy
 
   validates :username,
           presence: true,

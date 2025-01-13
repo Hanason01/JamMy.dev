@@ -1,5 +1,5 @@
 class Project < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, dependent: :destroy
   has_one :audio_file, as: :fileable, dependent: :destroy
 
   enum status: { open: 0, draft: 1, closed: 2}
@@ -9,6 +9,7 @@ class Project < ApplicationRecord
   validates :description, length: { maximum: 255 }, allow_nil: true
   validates :duration, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 30 }
   validates :tempo, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 200 }
+  # statusの値保証
   validates :status, inclusion: { in: statuses.keys }
   validates :visibility, inclusion: { in: visibilities.keys }
 end

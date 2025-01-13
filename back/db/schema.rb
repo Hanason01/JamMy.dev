@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_12_07_093414) do
+ActiveRecord::Schema[7.0].define(version: 2025_01_13_094632) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -22,6 +22,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_07_093414) do
     t.datetime "updated_at", null: false
     t.index ["fileable_type", "fileable_id"], name: "index_audio_files_on_fileable_type_and_fileable_id", unique: true
     t.check_constraint "fileable_type::text = ANY (ARRAY['Project'::character varying, 'Collaboration'::character varying]::text[])", name: "check_fileable_type"
+  end
+
+  create_table "collaborations", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "status", default: 0
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_collaborations_on_project_id"
+    t.index ["user_id"], name: "index_collaborations_on_user_id"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -63,5 +74,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_07_093414) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "collaborations", "projects"
+  add_foreign_key "collaborations", "users"
   add_foreign_key "projects", "users"
 end

@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       get 'collaborations/show'
       resources :projects, only: %i[ index create ] do
-        resources :collaborations, only: %i[ new create]
+        resources :collaborations, only: %i[create]
       end
     end
   end
