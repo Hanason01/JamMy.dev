@@ -7,6 +7,7 @@ export function useAudioPlayer({
   gainNode,
   id,
   enablePostAudioPreview,
+  isPlaybackTriggered,
   setIsPlaybackTriggered,
   playbackTriggeredByRef
 } : {
@@ -15,6 +16,7 @@ export function useAudioPlayer({
   gainNode: GainNode | null;
   id?: string;
   enablePostAudioPreview?: boolean;
+  isPlaybackTriggered: boolean;
   setIsPlaybackTriggered: SetState<boolean>;
   playbackTriggeredByRef: React.MutableRefObject<string | null>;
 }) {
@@ -27,9 +29,7 @@ export function useAudioPlayer({
   const pausedAtRef = useRef<number>(0); // 停止時の再生位置
   const intervalIdRef = useRef<number | null>(null); // setInterval のID（currentTimeを更新する頻度の管理）
   const ignoreOnEndedForPauseRef = useRef<boolean>(false);//pause時のonendedの制御
-  const isNaturalEndRef = useRef<boolean>(false);//自然終了判別フラグ
 
-  console.log(`[id:${id}]isNaturalEndRef追跡`, isNaturalEndRef.current);
 
   // console.log("currentTime追跡", currentTime);
   // console.log("isPlaying追跡", isPlaying);
@@ -69,9 +69,8 @@ export function useAudioPlayer({
         if (isPlayingRef.current) {
           stopInterval();
           resetCoreLogic();
-          isNaturalEndRef.current = true;
 
-          // ★追加: 再生指示フラグのリセット
+          // 再生指示フラグのリセット
           if (enablePostAudioPreview && id) {
             setIsPlaybackTriggered(false);
             playbackTriggeredByRef.current = null;
@@ -99,7 +98,7 @@ export function useAudioPlayer({
 
   //録音時同時再生時の位置初期化
   const resetPlaybackState = (): void => {
-    ignoreOnEndedForPauseRef.current = true; //onended制御用
+    ignoreOnEndedForPauseRef.current = true;
     stopInterval();
     if (sourceNodeRef.current) {
       sourceNodeRef.current.stop();
@@ -119,7 +118,6 @@ export function useAudioPlayer({
     sourceNodeRef.current = null;
     isPlayingRef.current = false;
     setIsPlaying(false);
-    isNaturalEndRef.current = false;
   };
 
   // タイマー停止処理の共通化
@@ -133,12 +131,13 @@ export function useAudioPlayer({
 
   //再生
   const play = (): void => {
+    console.log(`[id:${id}!]再生直前のisPlayingRef追跡`,isPlayingRef.current);
+    console.log(`[id:${id}!]再生直前のisPlaybackTriggered追跡`, isPlaybackTriggered);
+    console.log(`[id:${id}!]再生直前のplaybackTriggeredByRef追跡`, playbackTriggeredByRef.current);
     if (audioContext) {
       console.log(`[id:${id}] 再生開始前のsourceNodeRef:`, sourceNodeRef.current);
       console.log(`[id:${id}] AudioContext state:`, audioContext.state);
       console.log(`[id:${id}] 再生開始前のGainNode接続状況:`, gainNode);
-
-      isNaturalEndRef.current = false;
 
       if (sourceNodeRef.current) {
         sourceNodeRef.current.disconnect(); // 古いノードを切断
@@ -184,8 +183,8 @@ export function useAudioPlayer({
       setIsPlaying(false); // 状態を更新して再レンダリング
       ignoreOnEndedForPauseRef.current = true; //onended制御用
 
-      sourceNodeRef.current.stop(); // 再生を停止
       pausedAtRef.current = audioContext.currentTime - startTimeRef.current; // 停止時の再生位置を記録
+      sourceNodeRef.current.stop(); // 再生を停止
       sourceNodeRef.current.disconnect(); // ノードを切断
       sourceNodeRef.current = null;
       stopInterval();
@@ -195,9 +194,12 @@ export function useAudioPlayer({
 
   const seek = (time: number): void => {
     if (audioContext) {
-      isNaturalEndRef.current = false;
       if (isPlayingRef.current) {
         pause();
+        //同時再生の場合、相手方も停止させる
+        if (enablePostAudioPreview && id) {
+          setIsPlaybackTriggered(false);
+        }
       }
       // 再生位置を更新
       pausedAtRef.current = time;
@@ -232,6 +234,12 @@ export function useAudioPlayer({
       sourceNodeRef.current = null;
     }
     resetCoreLogic();
+    // 再生指示フラグのリセット
+    if (enablePostAudioPreview && id) {
+      setIsPlaybackTriggered(false);
+      playbackTriggeredByRef.current = null;
+      console.log(`[id:${id}] cleanupにより再生指示フラグをリセットしました`);
+    }
     console.log(`[id:${id}!]useAudioPlayer: クリーンアップ完了。context`,audioContext);
     console.log(`[id:${id}!]useAudioPlayer: クリーンアップ完了。gainnode`,gainNode);
     console.log(`[id:${id}!]useAudioPlayer: クリーンアップ完了。sourcenode`,sourceNodeRef.current);
@@ -239,7 +247,6 @@ export function useAudioPlayer({
 
   return {
     isPlayingRef: isPlayingRef,
-    isNaturalEndRef: isNaturalEndRef,
     currentTime,
     duration,
     init,

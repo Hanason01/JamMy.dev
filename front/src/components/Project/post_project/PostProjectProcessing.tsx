@@ -47,7 +47,9 @@ export function PostProjectProcessing({
   const { processAudio } = useAudioProcessing({ selectedVolume });
 
   //Context関連
-  const {setIsPlaybackReset, playbackResetTriggeredByRef} = usePlayback();
+  const {
+    setIsPlaybackTriggered, playbackTriggeredByRef,
+    setIsPlaybackReset, playbackResetTriggeredByRef} = usePlayback();
 
   useEffect(() => {
     console.log(`[${new Date().toISOString()}] PostProjectProcessingがマウントされました`);
@@ -62,7 +64,9 @@ export function PostProjectProcessing({
 
       if (audioContextForProcessingRef.current === null) {
       console.log("AudioContext と GainNode の初期化を開始");
-      const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const context = new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: 44100
+      });
       console.log("AudioContextの初期化が終了");
       audioContextForProcessingRef.current = context;
 
@@ -156,13 +160,13 @@ export function PostProjectProcessing({
       if (mixGainNodeRef.current) {
         mixGainNodeRef.current.disconnect();
         mixGainNodeRef.current = null;
-        console.log("MixGainNode を切断しました");
+        console.log("MixGainNode を切断しました", mixGainNodeRef.current);
       }
 
       if (audioContextForProcessingRef.current) {
         console.log("AudioContext の状態:", audioContextForProcessingRef.current.state);
           audioContextForProcessingRef.current = null;
-          console.log("AudioContext を閉じました");
+          console.log("AudioContext を閉じました", audioContextForProcessingRef.current);
       }
 
       console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが完了");
@@ -180,6 +184,7 @@ export function PostProjectProcessing({
       setIsPlaybackReset(true);
       setHasRecorded?.(false);
       setAudioBufferForProcessing?.(null);
+      setEnablePostAudioPreview?.(false);
     }
 
   // 投稿ボタンを押したときの処理
@@ -204,6 +209,18 @@ export function PostProjectProcessing({
     }, 100);
   };
 
+  //同時再生制御関数
+  const handleEnablePostAudioPreview = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+      setIsPlaybackTriggered(false);
+      playbackTriggeredByRef.current = null;
+      setIsPlaybackReset(true);
+      playbackResetTriggeredByRef.current = "toggle";
+      if(setEnablePostAudioPreview){
+        setEnablePostAudioPreview(isChecked);
+      }
+  }
+
   if(isInitialized){
     return(
       <Box sx={{ display: "flex", flexDirection: "column", width: "100%"}}>
@@ -212,13 +229,7 @@ export function PostProjectProcessing({
           <FormControlLabel required control={
             <Switch
             checked={enablePostAudioPreview}
-            onChange={(e) =>{
-              if (setEnablePostAudioPreview) {
-                setEnablePostAudioPreview(e.target.checked);
-              } else {
-              console.error("setEnablePostAudioPreview is undefined");
-              }
-            }}
+            onChange={(e) =>{handleEnablePostAudioPreview(e);}}
             />
           }label="投稿音声と同時に聴く"
           sx={{
