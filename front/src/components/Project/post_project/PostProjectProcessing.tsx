@@ -22,7 +22,7 @@ export function PostProjectProcessing({
   enablePostAudioPreview,
   setEnablePostAudioPreview
 } : {
-  id: string; //オプショナル
+  id?: string; //オプショナル
   mode: "player-only" | "with-effects";
   audioBufferForProcessing: AudioBuffer;
   setHasRecorded: SetState<boolean>;
@@ -180,7 +180,9 @@ export function PostProjectProcessing({
     //閉じるボタン処理
     const handleCloseClick = () => {
       console.log("AudioPlayerを閉じました");
-      playbackResetTriggeredByRef.current = id;
+      if (id){
+        playbackResetTriggeredByRef.current = id;
+      }
       setIsPlaybackReset(true);
       setHasRecorded?.(false);
       setAudioBufferForProcessing?.(null);

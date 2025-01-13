@@ -16,7 +16,7 @@ export function useAudioRecorder({
   enablePostAudio,
   id
 } : {
-  globalAudioContext: AudioContext | null;
+  globalAudioContext?: AudioContext | null;
   settings: Settings;
   audioContextRef: React.MutableRefObject<AudioContext | null>;
   audioWorkletNodeRef: React.MutableRefObject<AudioWorkletNode | null>;

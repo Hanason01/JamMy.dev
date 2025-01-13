@@ -22,7 +22,7 @@ export function RecordingCore({
 
 } : {
   id?: string;  //オプショナル
-  globalAudioContext: AudioContext | null;
+  globalAudioContext?: AudioContext | null; //オプショナル
   onRecordingComplete: (audioBuffer: AudioBuffer) => void;
   settings: Settings;
   enablePostAudio?: boolean; //オプショナル
