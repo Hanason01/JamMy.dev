@@ -41,7 +41,7 @@ export function RecordingCore({
   const clickSoundBufferRef = useRef<AudioBuffer | null>(null); //メトロノームとカウントインに渡す用
 
   //Context関連
-  const {setIsPlaybackTriggered, playbackTriggeredByRef} = usePlayback();
+  const {setIsPlaybackTriggered, playbackTriggeredByRef, setIsPlaybackReset, playbackResetTriggeredByRef} = usePlayback();
 
   //フック関連
   const { isCountingIn, startCountIn, countInInitialize } = useAudioCountIn();
@@ -216,6 +216,10 @@ export function RecordingCore({
     if (audioBuffer) {
       onRecordingComplete(audioBuffer);
       console.log("親へバッファーを渡す",audioBuffer);
+    }
+    if(enablePostAudio) {
+      setIsPlaybackReset(true); //投稿音声をリセット
+      playbackResetTriggeredByRef.current = "Recording";
     }
   }, [audioBuffer]);
 

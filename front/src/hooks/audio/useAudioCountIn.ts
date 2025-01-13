@@ -11,7 +11,9 @@ export function useAudioCountIn() {
 
   const countInInitialize = (clickSoundBuffer: AudioBuffer): void => {
     console.log("countInInitializeが受け取ったBuffer", clickSoundBuffer);
-    const countInAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const countInAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
+      sampleRate: 44100
+    });
     countInAudioContextRef.current = countInAudioContext;
     clickSoundBufferRef.current = clickSoundBuffer;
     console.log("useAudioCountInが初期化されました:contextRefとクリック音のRef", countInAudioContextRef.current,clickSoundBufferRef.current);
