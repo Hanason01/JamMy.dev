@@ -7,8 +7,8 @@ import { Box, Typography, TextField, InputAdornment, Slider, Button, MenuItem, S
 import { RecordingCore } from "@Project/core_logic/RecordingCore";
 import { PostProjectProcessing } from "@Project/post_project/PostProjectProcessing";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
-import { useProjectContext } from "@context/useProjectContext";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
+import { useProjectContext } from "@context/useProjectContext";
 
 export function CollaborationStep1({
   onNext,
@@ -35,10 +35,6 @@ export function CollaborationStep1({
   const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(false); //プレビュー時投稿音声同時再生
   console.log("enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡",enablePostAudioPreview);
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
-  const [project, setProject] = useState<Project | null>(currentProject);
-  const [user, setUser] = useState<User | null>(currentUser);
-  const [audioFilePath, setAudioFilePath] = useState<string | null>(currentAudioFilePath);
-
   const globalAudioContextRef = useRef<AudioContext | null>(null);
   const [audioData, setAudioData] = useState<AudioBuffer>(null);
 
@@ -54,35 +50,26 @@ export function CollaborationStep1({
   const { fetchAudioData } = useFetchAudioData();
 
 
-  // データ格納（リロード対策）
-  useEffect(() => {
-    const initializeData = () => {
-        if (currentProject && currentUser && currentAudioFilePath) {
-          // セッションストレージに保存
-          sessionStorage.setItem("currentProject", JSON.stringify(currentProject));
-          sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
-          sessionStorage.setItem("currentAudioFilePath", currentAudioFilePath);
-          console.log("Contextのデータをセッションストレージに保存しました");
-        }
-    };
-    initializeData();
-  }, []);
-
   //初期化
   useEffect(() => {
     const initializeAudioContext = async () => {
+      let project = currentProject;
+      let audioFilePath = currentAudioFilePath;
+      let user = currentUser;
       try {
-        let project = currentProject;
-        let audioFilePath = currentAudioFilePath;
-
         // リロードの場合セッションストレージから復元、状態変数へ保持
         if (!currentProject || !currentUser || !currentAudioFilePath) {
             project = JSON.parse(sessionStorage.getItem("currentProject") || "null")
-            setProject(project);
-            setUser(JSON.parse(sessionStorage.getItem("currentUser") || "null"));
+            user = JSON.parse(sessionStorage.getItem("currentUser") || "null");
             audioFilePath = sessionStorage.getItem("currentAudioFilePath") || null
-            setAudioFilePath(audioFilePath);
+        }
 
+        //初回アクセス時の保有チェック
+        const authenticatedUser = JSON.parse(localStorage.getItem("authenticatedUser") || "null");
+        console.log("authenticatedUser,curretUser", authenticatedUser.id,user?.id)
+        if (user && user.id === authenticatedUser.id) {
+          console.log("自分の投稿にアクセスしたため、/projects にリダイレクトします");
+          router.push("/projects");
         }
 
         // DurationおよびTempoの初期化
@@ -131,20 +118,6 @@ export function CollaborationStep1({
     };
   }, []);
 
-  //初回アクセス時の保有チェック
-  useEffect(() => {
-    if (!user) {
-      console.log("userが未ロード");
-      return;
-    }
-    const authenticatedUser = JSON.parse(localStorage.getItem("authenticatedUser") || "null");
-    console.log("authenticatedUser,curretUser", authenticatedUser.id,user.id)
-
-    if (user.id === authenticatedUser.id) {
-      console.log("自分の投稿にアクセスしたため、/projects にリダイレクトします");
-      router.push("/projects");
-    }
-  }, [user]);
 
   //被遷移制御（STEP2の編集or録音しなおし）
   useEffect(() => {
@@ -225,15 +198,15 @@ export function CollaborationStep1({
           mt:5
           }}>
           <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-            <Avatar src={user?.attributes.image || "/default-icon.png"}
-                    alt={user?.attributes.nickname || user?.attributes.username || undefined }
+            <Avatar src={currentUser?.attributes.image || "/default-icon.png"}
+                    alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
                     sx={{ width: 25, height: 25 }} />
             <Typography variant="body2" component="span" color="textSecondary">
-              { user?.attributes.nickname || user?.attributes.username }
+              { currentUser?.attributes.nickname || currentUser?.attributes.username }
             </Typography>
             <Typography variant="body1" component="span" color="textPrimary" sx={{position: "absolute", left: "50%", transform: "translateX(-50%)",
           whiteSpace: "nowrap", }} >
-            { project?.attributes.title }
+            { currentProject?.attributes.title }
             </Typography>
           </Box>
         {audioData && globalAudioContextRef.current ? (
