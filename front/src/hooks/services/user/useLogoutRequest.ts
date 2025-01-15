@@ -13,6 +13,7 @@ export const useLogoutRequest = () => {
     try {
       const response = await del(`/auth/sign_out`, { withCredentials: true });
       if (response.status === 200) {
+        localStorage.removeItem("authenticatedUser");
         handleLogout(); //認証状態リセット
         router.push("/projects?refresh=true");
       }

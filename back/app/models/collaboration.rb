@@ -1,6 +1,6 @@
 class Collaboration < ApplicationRecord
-  belongs_to :user, dependent: :destroy
-  belongs_to :project, dependent: :destroy
+  belongs_to :user
+  belongs_to :project
   has_one :audio_file, as: :fileable, dependent: :destroy
 
   enum status: { pending: 0, approved: 1, rejected: 2}

@@ -81,11 +81,31 @@ export interface AudioFile {
   attributes: AudioFileAttributes;
 }
 
+
+//Collaborations型定義
+export interface Collaboration {
+  id: number;
+  comment?: string;
+  user: UserAttributes;
+  audioFile: AudioFileAttributes;
+}
+
+export interface ExtendedCollaboration extends Collaboration {
+  audioBuffer: AudioBuffer;
+}
+
 // Included 型定義（Union 型で表現）
 export type IncludedItem = User | AudioFile;
 
 // API Response 型定義
+  //ProjectIndex
 export interface ProjectIndexResponse {
+  data: Project[];
+  included: IncludedItem[];
+}
+
+  // CollaborationManagementIndex
+export interface CollaborationManagementIndexResponse {
   data: Project[];
   included: IncludedItem[];
 }
@@ -199,4 +219,15 @@ export interface PostSettings {
     setCurrentUser: SetState<User | null>;
     currentAudioFilePath: string | null;
     setCurrentAudioFilePath: SetState<string | null>;
+  }
+
+  //CollaborationManagement
+  export interface CollaborationManagementContextType {
+    postAudioData: AudioBuffer | null;
+    setPostAudioData: SetState<AudioBuffer | null>;
+    globalAudioContextRef: React.MutableRefObject<AudioContext | null>;
+    enablePostAudioPreview: boolean;
+    setEnablePostAudioPreview: SetState<boolean>;
+    synthesisList: ExtendedCollaboration[];
+    setSynthesisList: SetState<ExtendedCollaboration[]>;
   }

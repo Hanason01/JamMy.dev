@@ -1,0 +1,133 @@
+"use client";
+
+import { AudioBuffer,PostSettings, Collaboration } from "@sharedTypes/types";
+import { useState, useEffect } from "react";
+import { Stepper, Step, StepLabel, Box, Typography, CircularProgress } from "@mui/material";
+import HandymanIcon from '@mui/icons-material/Handyman';
+import { CollaborationManagementStep1 } from "@CollaborationManagement/CollaborationManagementStep1";
+import { CollaborationManagementStep2 } from "@CollaborationManagement/CollaborationManagementStep2";
+// import { CollaborationManagementStep3 } from "@CollaborationManagement/CollaborationManagementStep3";
+import { useProjectContext } from "@context/useProjectContext";
+import { collaborationManagementIndexRequest } from "@services/project/collaboration_management/useCollaborationManagementIndexRequest";
+import { PlaybackProvider } from "@context/usePlayBackContext";
+
+
+const steps = ["応募選択/編集", "音声合成", "保存"];
+
+export function CollaborationManagementStepper(){
+  const [activeStep, setActiveStep] = useState<number>(0);
+  const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  //管理対象のProject/User情報(Context)
+  const { currentProject, setCurrentProject, currentUser, setCurrentUser,currentAudioFilePath, setCurrentAudioFilePath } = useProjectContext();
+
+
+  // データ格納（リロード対策）
+  useEffect(() => {
+    const initializeData = () => {
+        if (currentProject && currentUser && currentAudioFilePath) {
+          // セッションストレージに保存
+          sessionStorage.setItem("currentProject", JSON.stringify(currentProject));
+          sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
+          sessionStorage.setItem("currentAudioFilePath", currentAudioFilePath);
+          console.log("Contextのデータをセッションストレージに保存しました");
+        }
+    };
+    initializeData();
+
+    return () => {
+      // セッションストレージからデータを削除
+      sessionStorage.removeItem("currentProject");
+      sessionStorage.removeItem("currentUser");
+      sessionStorage.removeItem("currentAudioFilePath");
+      console.log("Contextのデータをセッションストレージから削除しました");
+    };
+  }, []);
+
+  //応募コレクションを取得
+  useEffect(() => {
+    const loadCollaborations = async () => {
+      try {
+        if (currentProject){
+          const collaborationsData = await collaborationManagementIndexRequest(currentProject.attributes.id);
+
+          setCollaborations(collaborationsData);
+        }
+      }catch(error: any) {
+        console.error(error.message);
+      }finally {
+        setLoading(false);
+      }
+    };
+    loadCollaborations();
+  }, [JSON.stringify(currentProject)]);
+
+  //ステップ進行制御
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+      setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  return (
+    <PlaybackProvider>
+      <Box sx={{m:1, p:1}}>
+        <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+          <HandymanIcon color="primary" sx={{ fontSize: "2rem"}} />
+          <Typography variant="h6" sx={{ color: "text.primary" }}>応募管理</Typography>
+        </Box>
+        <Stepper activeStep={activeStep}
+                sx={{
+                  justifyContent: "center",
+                  width: "90%",
+                  margin: "0 auto",
+                  my:3
+                }}>
+          {steps.map((label => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          )))}
+        </Stepper>
+
+      {!loading ? (
+        <Box>
+          {activeStep === 0 &&
+          <CollaborationManagementStep1
+          onNext={handleNext}
+          collaborations = {collaborations}
+          setCollaborations = {setCollaborations}
+          />}
+          {activeStep === 1 &&
+          <CollaborationManagementStep2
+          onBack={handleBack}
+          />}
+          {/* {activeStep === 2 &&
+          <CollaborationManagementStep3
+          onBack={handleBack}
+          />} */}
+        </Box>
+      ) : (
+        <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100px",
+        }}
+        >
+          <CircularProgress
+            size={64}
+            sx={{
+              color: "primary.main",
+            }}
+          />
+        </Box>
+      )}
+      </Box>
+    </PlaybackProvider>
+  );
+};

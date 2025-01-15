@@ -21,6 +21,7 @@ export function AudioPlayer({
   gainNode?: GainNode | null; //オプショナル
   enablePostAudioPreview?: boolean; //オプショナル
 }){
+console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview);
 
   //同時再生Context
   const {
