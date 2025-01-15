@@ -8,6 +8,7 @@ Rails.application.routes.draw do
       get 'collaborations/show'
       resources :projects, only: %i[ index create ] do
         resources :collaborations, only: %i[create]
+        resources :collaboration_managements, only: %i[index]
       end
     end
   end
