@@ -42,6 +42,14 @@ export function ProjectCard({
     router.push(`/projects/${project.id}/collaboration`);
   };
 
+  //応募管理ページ遷移
+  const handleCollaborationManagementRequest = () => {
+    setCurrentProject(project);
+    setCurrentUser(project.user);
+    setCurrentAudioFilePath(project.audioFilePath || null);
+    router.push(`/projects/${project.id}/collaboration_management`);
+  };
+
   return(
     <Paper
       elevation={3}
@@ -91,7 +99,9 @@ export function ProjectCard({
             </IconButton>
           </Box>
         )}
-        {!project.isOwner && (
+        {project.isOwner ? (
+          <Button variant="secondary" onClick={() => handleCollaborationManagementRequest()}>応募管理</Button>
+        ) : (
           <Button variant="secondary" onClick={() => handleCollaborationRequest()}>応募する</Button>
         )}
         <Box

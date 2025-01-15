@@ -38,46 +38,44 @@ export function PostProjectStepper(){
     }
   };
 
-  // if(isAuthenticated) {
-    return (
-      <Box sx={{m:1, p:1}}>
-        <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
-          <PostAddIcon color="primary" sx={{ fontSize: "2rem"}} />
-          <Typography variant="h6" sx={{ color: "text.primary" }}>投稿画面</Typography>
-        </Box>
-        <Stepper activeStep={activeStep}
-                sx={{
-                  justifyContent: "center",
-                  width: "60%",
-                  margin: "0 auto",
-                  my:3
-                }}>
-          {steps.map((label => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          )))}
-        </Stepper>
-
-        <Box>
-          {activeStep === 0 &&
-          <PostProjectStep1
-          onNext={handleNext}
-          returnToStep1Mode={returnToStep1Mode}
-          setAudioBufferForPost={setAudioBufferForPost}
-          audioBufferForProcessing={audioBufferForProcessing}
-          setAudioBufferForProcessing={setAudioBufferForProcessing}
-          setSettingsForPost={setSettingsForPost}
-          />}
-          {activeStep === 1 &&
-          <PostProjectStep2
-          onBack={handleBack}
-          audioBufferForPost={audioBufferForPost}
-          setAudioBufferForPost={setAudioBufferForPost}
-          settingsForPost={settingsForPost}
-          />}
-        </Box>
+  return (
+    <Box sx={{m:1, p:1}}>
+      <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+        <PostAddIcon color="primary" sx={{ fontSize: "2rem"}} />
+        <Typography variant="h6" sx={{ color: "text.primary" }}>投稿画面</Typography>
       </Box>
-    );
-  // }
+      <Stepper activeStep={activeStep}
+              sx={{
+                justifyContent: "center",
+                width: "60%",
+                margin: "0 auto",
+                my:3
+              }}>
+        {steps.map((label => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        )))}
+      </Stepper>
+
+      <Box>
+        {activeStep === 0 &&
+        <PostProjectStep1
+        onNext={handleNext}
+        returnToStep1Mode={returnToStep1Mode}
+        setAudioBufferForPost={setAudioBufferForPost}
+        audioBufferForProcessing={audioBufferForProcessing}
+        setAudioBufferForProcessing={setAudioBufferForProcessing}
+        setSettingsForPost={setSettingsForPost}
+        />}
+        {activeStep === 1 &&
+        <PostProjectStep2
+        onBack={handleBack}
+        audioBufferForPost={audioBufferForPost}
+        setAudioBufferForPost={setAudioBufferForPost}
+        settingsForPost={settingsForPost}
+        />}
+      </Box>
+    </Box>
+  );
 };
