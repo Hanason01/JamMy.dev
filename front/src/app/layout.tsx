@@ -4,7 +4,6 @@ import { AuthProvider } from '@context/useAuthContext';
 // import { AuthModal } from '@User/AuthModal';
 import { ProjectProvider } from '@context/useProjectContext';
 import { CurrentRouteProvider } from "@context/useCurrentRouteContext"
-import { CollaborationManagementProvider } from "@context/useCollaborationManagementContext";
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -49,12 +48,9 @@ export default function RootLayout({ children }: Readonly<{
         <AuthProvider>
           <CurrentRouteProvider>
             <ProjectProvider>
-              <CollaborationManagementProvider>
-                <ThemeProviderWrapper>
-                  {children}
-                </ThemeProviderWrapper>
-              </CollaborationManagementProvider>
-
+              <ThemeProviderWrapper>
+                {children}
+              </ThemeProviderWrapper>
             </ProjectProvider>
           </CurrentRouteProvider>
         </AuthProvider>

@@ -103,6 +103,7 @@ export function CollaborationManagementStepper(){
           />}
           {activeStep === 1 &&
           <CollaborationManagementStep2
+          onNext={handleNext}
           onBack={handleBack}
           />}
           {/* {activeStep === 2 &&

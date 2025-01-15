@@ -3,11 +3,12 @@
 import { AudioBuffer,PostSettings,SetState, Project, User, Collaboration, ExtendedCollaboration } from "@sharedTypes/types";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Box, Typography, TextField, InputAdornment, Slider, Button, MenuItem, Switch, FormGroup, FormControlLabel, Divider, CircularProgress, Avatar, Select, Dialog, DialogTitle, DialogContent,IconButton } from "@mui/material";
+import { Box, Typography, TextField, InputAdornment, Slider, Button, MenuItem, Switch, FormGroup, FormControlLabel, Divider, CircularProgress, Avatar, Select, Dialog, DialogTitle, DialogContent, DialogContentText,IconButton, Snackbar, } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { PostProjectProcessing } from "@Project/post_project/PostProjectProcessing";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
+import { useAudioProcessing } from "@audio/useAudioProcessing";
 import { useProjectContext } from "@context/useProjectContext";
 import { useCollaborationManagementContext } from "@context/useCollaborationManagementContext";
 import { usePlayback } from "@context/usePlayBackContext";
@@ -26,14 +27,17 @@ export function CollaborationManagementStep1({
     currentProject, setCurrentProject,
     currentUser, setCurrentUser,
     currentAudioFilePath, setCurrentAudioFilePath } = useProjectContext();
+
   const {
     postAudioData, setPostAudioData,
     globalAudioContextRef,
     synthesisList, setSynthesisList,
   } = useCollaborationManagementContext();
+
   const {
     setIsPlaybackTriggered, playbackTriggeredByRef,
     setIsPlaybackReset, playbackResetTriggeredByRef} = usePlayback();
+
 
   //状態変数
   const [loading, setLoading] = useState<boolean>(false);
@@ -44,7 +48,15 @@ export function CollaborationManagementStep1({
   ]);
   const [isEditing, setIsEditing] = useState<boolean>(false); //slotsにcollaborationが入っていれ（編集中）ばtrue
   const [openSlots, setOpenSlots] = useState<{ [key: string]: boolean }>({});
- //ダイアログ用
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false); // Snackbar の開閉状態管理
+  const [selectedVolume, setSelectedVolume] = useState<number>(1); // 音量管理
+
+
+  //フック関係
+  const { processAudio } = useAudioProcessing({ selectedVolume });
+
+
+
 
   // ダイアログを開く関数
   const handleClickOpen = (slotId: string) => {
@@ -110,20 +122,6 @@ export function CollaborationManagementStep1({
       }
     };
     initializeAudioContext();
-
-    // クリーンアップ処理
-    return () => {
-      if (postAudioData) {
-        setPostAudioData(null);
-        console.log("audioDataのクリーンアップに成功");
-      }
-      if (globalAudioContextRef.current) {
-        globalAudioContextRef.current.close();
-        globalAudioContextRef.current = null;
-        console.log("globalAudioContext を閉じました");
-      }
-      console.log("STEP1のクリーンアップが終了しました");
-    };
   }, []);
 
 
@@ -163,32 +161,53 @@ export function CollaborationManagementStep1({
 
 
   // 合成リストに追加
-  const handleAddToSynthesisList = () => {
+  const handleAddToSynthesisList = async () => {
+    try{
     // スロットに入っている collaborationId を持つアイテムを合成リストに追加
-    const itemsToAdd: ExtendedCollaboration[] = slots
+    const itemsToAdd: ExtendedCollaboration[] = await Promise.all(
+      slots
       .filter((slot) => slot.collaborationId !== null)
-      .map((slot) => {
+      .map(async(slot) => {
         const collaboration = collaborations.find((c) => c.id === slot.collaborationId);
+        //collaborationガード
         if (!collaboration) {
           throw new Error(`CollaborationID ${slot.collaborationId}。IDない状態でSlotsに追加された応募音声（不正なデータ）があります。`);
         }
+        //audioBufferガード
+        if (!slot.audioBuffer) {
+          throw new Error(`スロット ${slot.slotId} に AudioBuffer が存在しません。`);
+        }
+        //エフェクト適用
+        const processedBuffer = await processAudio(slot.audioBuffer);
+
         return {
           ...collaboration,
-          audioBuffer: slot.audioBuffer,
+          audioBuffer: processedBuffer,
         };
-      });
-
-    // synthesisList に追加
-    setSynthesisList((prevList) => [...prevList, ...itemsToAdd]);
-
-    // slots をリセット
-    setSlots((prevSlots) =>
-      prevSlots.map((slot) => ({
-        ...slot,
-        collaborationId: null,
-        audioBuffer: null,
-      }))
+      })
     );
+
+      // synthesisList に追加
+      setSynthesisList((prevList) => [...prevList, ...itemsToAdd]);
+
+      // slots をリセット
+      setSlots((prevSlots) =>
+        prevSlots.map((slot) => ({
+          ...slot,
+          collaborationId: null,
+          audioBuffer: null,
+        }))
+      );
+
+      setOpenSnackbar(true);
+    }catch (e) {
+      console.log("合成リストへの追加に失敗しました");
+    }
+  };
+
+  // Snackbar を閉じる関数
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
   };
 
 
@@ -325,7 +344,7 @@ export function CollaborationManagementStep1({
                     <Box sx={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
                     whiteSpace: "nowrap", }}>
                     {/* コメントを表示するボタン */}
-                      <Button variant="outlined" onClick={() => handleClickOpen(slot.slotId)} sx={{ textTransform: 'none', fontSize: '0.875rem' }}>
+                      <Button variant="outlined" onClick={() => handleClickOpen(slot.slotId)} sx={{ textTransform: 'none', fontSize: '0.725rem' }}>
                         コメント
                       </Button>
 
@@ -335,7 +354,7 @@ export function CollaborationManagementStep1({
                           position: 'relative',
                           paddingRight: '48px',
                         }}
->
+                        >
                           応募者のコメント
                           <IconButton
                             aria-label="close"
@@ -351,9 +370,9 @@ export function CollaborationManagementStep1({
                           </IconButton>
                         </DialogTitle>
                         <DialogContent dividers>
-                          <Typography gutterBottom>
+                          <DialogContentText gutterBottom>
                             {collaboration?.comment || "コメントなし"}
-                          </Typography>
+                          </DialogContentText>
                         </DialogContent>
                       </Dialog>
                     </Box>
@@ -366,6 +385,8 @@ export function CollaborationManagementStep1({
                     onRemove={() => handleRemoveAudio(slot.slotId)}
                     enablePostAudioPreview={enablePostAudioPreview}
                     setEnablePostAudioPreview={setEnablePostAudioPreview}
+                    selectedVolume ={selectedVolume}
+                    setSelectedVolume={setSelectedVolume}
                   />)}
                 </>
               ) : collaborations.length > 0 ? (
@@ -428,6 +449,22 @@ export function CollaborationManagementStep1({
             合成画面へ
           </Button>
         )}
+        <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        message="リストに追加しました"
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        sx={{
+          "& .MuiSnackbarContent-root": {
+            backgroundColor: "grey", // 背景色
+            // color: "#ffffff", // テキスト色
+            // fontWeight: "bold", // 太字
+            // fontSize: "1rem", // フォントサイズ
+            marginBottom: "56px",
+          },
+        }}
+      />
       </Box>
     </Box>
   );

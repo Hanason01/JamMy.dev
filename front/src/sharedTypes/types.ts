@@ -225,6 +225,8 @@ export interface PostSettings {
   export interface CollaborationManagementContextType {
     postAudioData: AudioBuffer | null;
     setPostAudioData: SetState<AudioBuffer | null>;
+    mergedAudioBuffer: AudioBuffer | null;
+    setMergedAudioBuffer:SetState<AudioBuffer | null>;
     globalAudioContextRef: React.MutableRefObject<AudioContext | null>;
     enablePostAudioPreview: boolean;
     setEnablePostAudioPreview: SetState<boolean>;

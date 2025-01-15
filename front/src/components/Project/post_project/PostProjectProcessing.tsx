@@ -22,7 +22,9 @@ export function PostProjectProcessing({
   returnToStep1Mode,
   enablePostAudioPreview,
   setEnablePostAudioPreview,
-  onRemove
+  onRemove,
+  selectedVolume,
+  setSelectedVolume
 } : {
   id?: string; //オプショナル
   mode: "player-only" | "with-effects";
@@ -35,6 +37,8 @@ export function PostProjectProcessing({
   enablePostAudioPreview?: boolean; //オプショナル
   setEnablePostAudioPreview?: SetState<boolean>; //オプショナル
   onRemove?: (id: string) => void; //オプショナル
+  selectedVolume: number;
+  setSelectedVolume: SetState<number>;
   }){
   const audioContextForProcessingRef = useRef<AudioContext | null>(null);
   // const reverbInputGainNodeRef = useRef<GainNode | null>(null); //リバーブ調整node
@@ -45,7 +49,6 @@ export function PostProjectProcessing({
   const mixGainNodeRef = useRef<GainNode | null>(null); //音量調整node
   const [isInitialized, setIsInitialized] = useState<boolean>(false); //初期化フラグ
   const [loading, setLoading] = useState<boolean>(false); // ローディング状態
-  const [selectedVolume, setSelectedVolume] = useState<number>(1); // 音量管理
 
   const { processAudio } = useAudioProcessing({ selectedVolume });
 
