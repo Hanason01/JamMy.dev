@@ -26,6 +26,7 @@ export function PostProjectStep1({onNext,
   const [countIn, setCountIn] = useState<number>(0); //カウントイン
   const [metronomeOn, setMetronomeOn] = useState<boolean>(false); //メトロノームON/OFF
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
+  const [selectedVolume, setSelectedVolume] = useState<number>(1); // 音量管理
 
   //カウントインセレクト用
   const preCounts = [0,1,2,3,4,5,6,7]
@@ -149,6 +150,8 @@ export function PostProjectStep1({onNext,
           setAudioBufferForPost={setAudioBufferForPost}
           onNext = {onNext}
           returnToStep1Mode={returnToStep1Mode}
+          selectedVolume ={selectedVolume}
+          setSelectedVolume={setSelectedVolume}
           />
         ) : (
           <RecordingCore
