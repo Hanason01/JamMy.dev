@@ -66,7 +66,7 @@ DeviseTokenAuth.setup do |config|
   config.cookie_enabled = true
   config.cookie_name = "auth_cookie"
   config.cookie_attributes = {
-    secure: Rails.env.production? ? true : false,
+    secure: true ,
     httponly: true,
     same_site: :none,
     expires: 1.day.from_now,
