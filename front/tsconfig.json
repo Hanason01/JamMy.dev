@@ -28,6 +28,7 @@
       "@components/*": ["src/components/*"],
       "@Collaboration/*": ["src/components/Collaboration/*"],
       "@Project/*": ["src/components/Project/*"],
+      "@CollaborationManagement/*": ["src/components/CollaborationManagement/*"],
       "@TopPage/*": ["src/components/TopPage/*"],
       "@User/*": ["src/components/User/*"],
       "@context/*": ["src/context/*"],
