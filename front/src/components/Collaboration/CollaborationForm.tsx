@@ -10,9 +10,7 @@ import { audioEncoder } from "@utiles/audioEncoder";
 import { useProjectContext } from "@context/useProjectContext";
 
 export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
-  const { currentProject, currentUser } = useProjectContext();
-  const [project, setProject] = useState<Project | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const { currentProject, setCurrentProject, currentUser, setCurrentUser } = useProjectContext();
   const router = useRouter();
   const [formError, setFormError] = useState<string>("");
   const encodedFileRef = useRef<File | null>(null);
@@ -23,26 +21,12 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
 
   //初期化
   useEffect(() => {
-    // contextがあればそのまま変数代入
-    if (currentProject && currentUser) {
-        setProject(currentProject);
-        setUser(currentUser);
-      }
-
     // contextがなければセッションストレージから復元
-    if (!currentProject){
-      const projectFromStorage = sessionStorage.getItem('currentProject');
-      const project = projectFromStorage ? JSON.parse(projectFromStorage) as Project : null;
-      setProject(project);
+    if (!currentProject && !currentUser) {
+      setCurrentProject(JSON.parse(sessionStorage.getItem("currentProject") || "null"));
+      setCurrentUser(JSON.parse(sessionStorage.getItem("currentUser") || "null"));
     }
-
-    if (!currentUser){
-      const userFromStorage = sessionStorage.getItem('currentUser');
-      const user = userFromStorage ? JSON.parse(userFromStorage) as User : null;
-      setUser(user);
-    }
-    }, []);
-
+  }, []);
 
   //応募リクエスト処理
   const { postCollaboration } = usePostCollaborationRequest();
@@ -81,8 +65,8 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         });
         console.log("リクエスト送信前のformData", formData);
 
-        if (project){
-          await postCollaboration(formData, project.id);
+        if (currentProject){
+          await postCollaboration(formData, currentProject.id);
           router.push("/projects?refresh=true");
         }
       } catch (error: any) {
@@ -123,7 +107,7 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         <TextField
         label="応募先ユーザー名"
         variant="standard"
-        defaultValue={user?.attributes.nickname || user?.attributes.username || "不明なユーザー"}
+        defaultValue={currentUser?.attributes.nickname || currentUser?.attributes.username || "不明なユーザー"}
         fullWidth
         slotProps={{
           input: {readOnly: true},
@@ -132,7 +116,7 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         <TextField
         label="応募先タイトル"
         variant="standard"
-        defaultValue={project?.attributes.title || "不明なタイトル"}
+        defaultValue={currentProject?.attributes.title || "不明なタイトル"}
         fullWidth
         slotProps={{
           input: {readOnly: true},
