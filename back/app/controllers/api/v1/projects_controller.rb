@@ -1,5 +1,5 @@
 class Api::V1::ProjectsController < ApplicationController
-  before_action :authenticate_user!, only: [:create, :destroy]
+  before_action :authenticate_user!, only: [:create,:edit, :update, :destroy]
   def index
     projects = Project.includes(:user, :audio_file)
                       .where(status: [:open, :closed] )
@@ -38,6 +38,10 @@ class Api::V1::ProjectsController < ApplicationController
   rescue ActiveRecord::Rollback => e
     #ロールバック時のレスポンス
     render json: { error: e.message }, status: :unprocessable_entity
+  end
+
+  def update
+    render json: { message: "バックがリクエストをキャッチ" }, status: :ok
   end
 
   def destroy;end
