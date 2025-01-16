@@ -33,8 +33,8 @@ export function PlaybackProvider({ children }: WithChildren) {
 
   // console.log("isPlaybackTriggeredの追跡", isPlaybackTriggered);
   // console.log("playbackTriggeredByRefの追��", playbackTriggeredByRef.current);
-  console.log("sharedCurrentTime",sharedCurrentTime);
-  console.log("currentTimeUpdatedByRef",currentTimeUpdatedByRef.current)
+  // console.log("sharedCurrentTime",sharedCurrentTime);
+  // console.log("currentTimeUpdatedByRef",currentTimeUpdatedByRef.current)
 
   return (
     <PlaybackContext.Provider value={{
