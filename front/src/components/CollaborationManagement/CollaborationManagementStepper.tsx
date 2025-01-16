@@ -6,7 +6,7 @@ import { Stepper, Step, StepLabel, Box, Typography, CircularProgress } from "@mu
 import HandymanIcon from '@mui/icons-material/Handyman';
 import { CollaborationManagementStep1 } from "@CollaborationManagement/CollaborationManagementStep1";
 import { CollaborationManagementStep2 } from "@CollaborationManagement/CollaborationManagementStep2";
-// import { CollaborationManagementStep3 } from "@CollaborationManagement/CollaborationManagementStep3";
+import { CollaborationManagementStep3 } from "@CollaborationManagement/CollaborationManagementStep3";
 import { useProjectContext } from "@context/useProjectContext";
 import { collaborationManagementIndexRequest } from "@services/project/collaboration_management/useCollaborationManagementIndexRequest";
 import { PlaybackProvider } from "@context/usePlayBackContext";
@@ -106,10 +106,10 @@ export function CollaborationManagementStepper(){
           onNext={handleNext}
           onBack={handleBack}
           />}
-          {/* {activeStep === 2 &&
+          {activeStep === 2 &&
           <CollaborationManagementStep3
           onBack={handleBack}
-          />} */}
+          />}
         </Box>
       ) : (
         <Box

@@ -159,6 +159,12 @@ export interface PostSettings {
     "collaboration[audio_file]": File;
   }
 
+  //CollaborationManagementRequest
+  export interface CollaborationManagementRequestData {
+    "project[mode]": string;
+    "project[audio_file]": File;
+  }
+
   //LoginForm
   export interface LoginFormData {
     email: string;
