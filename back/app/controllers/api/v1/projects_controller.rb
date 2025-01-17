@@ -41,7 +41,36 @@ class Api::V1::ProjectsController < ApplicationController
   end
 
   def update
-    render json: { message: "バックがリクエストをキャッチ" }, status: :ok
+    ActiveRecord::Base.transaction do
+      #プロジェクト作成
+      project = Project.find(params[:project][:project_id])
+      project.assign_attributes(project_params.except(:audio_file))
+      if(params[:project][:mode].present? && params[:project][:mode] == "terminate")
+        project.status = :closed
+      end
+
+      unless project.save
+        raise ActiveRecord::Rollback, project.errors.full_messages.join(", ")
+      end
+
+      unless params[:project][:audio_file].present?
+        raise ActiveRecord::Rollback, "音声ファイルが必要です"
+      end
+
+        #ファイル保存
+      audio_file = project.build_audio_file(
+        file_path: upload_audio_file_to_s3(params[:project][:audio_file])
+      )
+      unless audio_file.save
+        raise ActiveRecord::Rollback, audio_file.errors.full_messages.join(", ")
+      end
+
+      #全て成功時のレスポンス
+      render json: { message: "Project and audio file created successfully" }, status: :created
+    end
+  rescue ActiveRecord::Rollback => e
+    #ロールバック時のレスポンス
+    render json: { error: e.message }, status: :unprocessable_entity
   end
 
   def destroy;end

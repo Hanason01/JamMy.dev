@@ -1,5 +1,5 @@
 class Api::V1::CollaborationManagementsController < ApplicationController
-  before_action :authenticate_user!, only: [:index]
+  before_action :authenticate_user!, only: [:index, :update]
 
   def index
     project = Project.find(params[:project_id])
@@ -11,5 +11,85 @@ class Api::V1::CollaborationManagementsController < ApplicationController
     else
       render json: { data: []}, status: :ok
     end
+  end
+
+  def update
+    ActiveRecord::Base.transaction do
+      unless params[:project][:audio_file].present?
+        raise ActiveRecord::Rollback, "音声ファイルが必要です"
+      end
+
+      #プロジェクト作成
+      project = Project.find(params[:project][:project_id])
+
+      # プロジェクト終了時
+      if terminate_mode?(params[:project])
+        terminate_project(project)
+      end
+
+
+      # -------------------以下、プロジェクト保存時-------------------
+      update_collaborations(params[:project][:collaboration_ids], project) if params[:project][:collaboration_ids].present?
+
+      # ProjectのAudioFile の削除・保存（S3処理含む）
+      save_audio_file(project, params[:project][:audio_file])
+
+      #全て成功時のレスポンス
+      render json: { message: "Project and audio file updated successfully" }, status: :ok
+    end
+  rescue ActiveRecord::Rollback => e
+    #ロールバック時のレスポンス
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
+  private
+
+  # プロジェクトを終了状態にする
+  def terminate_project(project)
+    project.status = :closed
+    handle_collaborations(project)
+    project.save!
+  end
+
+  # コラボレーションのステータス更新
+  def update_collaborations(collaboration_ids, project)
+    collaborations = Collaboration.where(id: collaboration_ids, project_id: project.id)
+
+    collaborations.each do |collaboration|
+      unless collaboration.update(status: :approved)
+        raise ActiveRecord::Rollback, "Collaboration ID #{collaboration.id} のステータス更新に失敗しました: #{collaboration.errors.full_messages.join(', ')}"
+      end
+    end
+  end
+
+  # コラボレーションと関連ファイルの削除
+  def handle_collaborations(project)
+    project.collaborations.each do |collaboration|
+      if collaboration.status == "pending"
+        collaboration.update!(status: :rejected)
+      end
+
+      if collaboration.audio_file.present?
+        delete_audio_file_from_s3(collaboration.audio_file.file_path)
+        collaboration.audio_file.destroy!
+      end
+    end
+  end
+
+  # AudioFile を保存
+  def save_audio_file(project, audio_file_param)
+    if project.audio_file.present?
+      delete_audio_file_from_s3(project.audio_file.file_path)
+      project.audio_file.destroy!
+    end
+
+    project.build_audio_file(
+      file_path: upload_audio_file_to_s3(audio_file_param)
+    ).save!
+  end
+
+  # モードが terminate か判定
+  def terminate_mode?(project_params)
+    project_params[:mode].present? && project_params[:mode] == "terminate"
   end
 end
