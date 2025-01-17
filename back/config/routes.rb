@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       resources :projects, only: %i[ index create edit update destroy ] do
         resources :collaborations, only: %i[create]
         resources :collaboration_managements, only: %i[index]
+        resource :collaboration_managements, only: %i[update]
       end
     end
   end

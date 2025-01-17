@@ -3,7 +3,7 @@
 import { AudioBuffer, PostCollaborationFormData, CollaborationManagementRequestData, User, Project } from "@sharedTypes/types";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {Typography, Box, TextField, Button, MenuItem, Divider, Alert, CircularProgress } from "@mui/material";
+import {Typography, Box, TextField, Button,Avatar, MenuItem, Divider, Alert, CircularProgress } from "@mui/material";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { useCompleteCollaborationManagementRequest } from "@services/project/collaboration_management/useCompleteCollaborationManagementRequest";
 import { audioEncoder } from "@utiles/audioEncoder";
@@ -20,7 +20,8 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
 
   const {
     globalAudioContextRef,
-    mergedAudioBuffer, setMergedAudioBuffer
+    mergedAudioBuffer, setMergedAudioBuffer,
+    synthesisList
   } = useCollaborationManagementContext();
 
   //状態変数
@@ -64,17 +65,35 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
           throw new Error("エンコードされたオーディオファイルがありません");
         }
 
+        // currentProject の存在確認
+        if (!currentProject || !currentProject.id) {
+          console.error("currentProject が null または ID が存在しません");
+          return;
+        }
+
+        // collaborationIds を synthesisList から抽出
+        const collaborationIds = synthesisList.map((item) => item.id);
+
         // リクエストデータ作成
         const requestData: CollaborationManagementRequestData = {
           //commentが未定義もしくはundefined（未入力）の場合は空文字を代入
           "project[mode]": mode,
           "project[audio_file]": audioFile,
+          "project[project_id]":currentProject.id,
+          "project[collaboration_ids][]":collaborationIds,
         };
 
         // FormData の生成
         const formData = new FormData();
         Object.entries(requestData).forEach(([key, value]) => {
-          formData.append(key, value as string | Blob); // 型をキャストして挿入
+          if (key === "project[collaboration_ids][]") {
+            // 配列の場合、各要素を個別に追加
+            (value as number[]).forEach((id) => {
+              formData.append("project[collaboration_ids][]", id.toString());
+            });
+          } else {
+            formData.append(key, value as string | Blob); // その他の項目を追加
+          }
         });
         console.log("リクエスト送信前のformData", formData);
 
@@ -106,7 +125,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      width: "80%",
+      width: "100%",
       gap: 3,
       my: 3,
     }}>
@@ -117,7 +136,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
         flexDirection: "column",
         alignItems: "center",
         gap: 3,
-        width: "100%"
+        width: "80%"
       }}>
         <TextField
         label="ユーザー名"
@@ -148,35 +167,88 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
         />
 
         {globalAudioContextRef.current && mergedAudioBuffer ? (
-        <Box>
-          <Typography>合成後の音声</Typography>
+        <Box sx={{
+          width:"100%",
+          justifyContent: "center",
+          alignItems: "center",
+          margin: "auto",
+          mt:5
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
+            <Avatar src={currentUser?.attributes.image || "/default-icon.png"}
+                    alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
+                    sx={{ width: 25, height: 25 }} />
+            <Typography variant="body2" component="span" color="textSecondary">
+              { currentUser?.attributes.nickname || currentUser?.attributes.username }
+            </Typography>
+            <Typography variant="body1" component="span" color="textPrimary" sx={{position: "absolute", left: "50%", transform: "translateX(-50%)",
+          whiteSpace: "nowrap", }} >
+            { currentProject?.attributes.title }
+            </Typography>
+          </Box>
           <AudioPlayer
           audioBuffer={mergedAudioBuffer}
           audioContext={globalAudioContextRef.current}/>
         </Box>
         ) : (
-        <Typography>Loading...</Typography>
-      )}
-        {loading ? (
+          <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100px",
+          }}
+        >
           <CircularProgress
-            size={48}
+            size={64}
             sx={{
-              color: "primary",
+              color: "primary.main",
             }}
           />
-        ) : (
-          <Box>
-            <Button onClick={()=>sendDataToAPI("save")} variant="primary" sx={{mt:4}} >
+        </Box>
+      )}
+      </Box>
+      <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 3,
+        width: "100%"
+      }}>
+        <Box sx={{
+          width:"100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          }}>
+          <Box sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap:2,
+            mt: 2,
+            }}>
+            <Button onClick={()=>sendDataToAPI("save")} variant="primary" >
               保存する
             </Button>
-            <Button onClick={handleBackToStep2} variant="primary" sx={{mt:4}} >
+            <Button onClick={handleBackToStep2} variant="primary"  >
               合成リストへ戻る
             </Button>
-            <Button onClick={()=>sendDataToAPI("terminate")} variant="primary" sx={{mt:4}} >
+          </Box>
+
+          <Box sx={{my:3, width:"90%"}}>
+            <Divider/>
+          </Box>
+
+
+          <Box>
+            <Button onClick={()=>sendDataToAPI("terminate")} variant="primary" >
               このプロジェクトを終了にする
             </Button>
           </Box>
-        )}
+        </Box>
       </Box>
     </Box>
   );

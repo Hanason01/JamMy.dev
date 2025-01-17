@@ -200,6 +200,12 @@ export function CollaborationManagementStep1({
       );
 
       setOpenSnackbar(true);
+
+      //各PlayBackContextの初期化
+      setIsPlaybackTriggered(false);
+      playbackTriggeredByRef.current = null;
+      setIsPlaybackReset(true);
+      playbackResetTriggeredByRef.current = "AddToSynthesisList";
     }catch (e) {
       console.log("合成リストへの追加に失敗しました");
     }

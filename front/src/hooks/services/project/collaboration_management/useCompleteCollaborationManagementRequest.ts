@@ -4,7 +4,7 @@ import { handleStatusErrors } from '@services/ErrorHandler';
 export const useCompleteCollaborationManagementRequest = () => {
   const completeCollaborationManagement = async (project_id: string, data: FormData): Promise<any> => {
     try {
-      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${project_id}`, data, { withCredentials: true });
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${project_id}/collaboration_managements`, data, { withCredentials: true });
       return response.data;
     } catch (error: any) {
       const formattedErrors: { [key: string]: string } = {};

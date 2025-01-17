@@ -163,6 +163,8 @@ export interface PostSettings {
   export interface CollaborationManagementRequestData {
     "project[mode]": string;
     "project[audio_file]": File;
+    "project[project_id]":string | null;
+    "project[collaboration_ids][]": number[];
   }
 
   //LoginForm
