@@ -99,10 +99,12 @@ export function ProjectCard({
             </IconButton>
           </Box>
         )}
-        {project.isOwner ? (
-          <Button variant="secondary" onClick={() => handleCollaborationManagementRequest()}>応募管理</Button>
-        ) : (
-          <Button variant="secondary" onClick={() => handleCollaborationRequest()}>応募する</Button>
+        {project.attributes.status === "open" && (
+          project.isOwner ? (
+            <Button variant="secondary" onClick={() => handleCollaborationManagementRequest()}>応募管理</Button>
+          ) : (
+            <Button variant="secondary" onClick={() => handleCollaborationRequest()}>応募する</Button>
+          )
         )}
         <Box
           sx={{
