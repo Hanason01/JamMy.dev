@@ -307,10 +307,12 @@ export function CollaborationManagementStep2({
         <Button onClick={onBack} variant="primary">
           音声選択/編集
         </Button>
+        {synthesisList.length > 0  &&(
         <Button onClick={handleAudioMerge} variant="primary" disabled={loading}
           startIcon={loading && <CircularProgress size={24} />}>
           合成する
         </Button>
+        )}
       </Box>
       {/* 削除確認ダイアログ */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
