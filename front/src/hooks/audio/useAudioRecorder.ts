@@ -55,7 +55,12 @@ export function useAudioRecorder({
         console.log("globalAudioContext を使用します:", audioContext);
       }
 
-      //(2)マイクデバイスリスト取得とデフォルトマイクの設定
+      //(2) 初回のマイクアクセス要求 (必要に応じて仮のstreamを取得)
+      console.log("マイクアクセスの許可をリクエスト中...");
+      const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log("マイクアクセスに成功", tempStream);
+
+      //(3)マイクデバイスリスト取得とデフォルトマイクの設定
       if (!isMounted()) return null;
       console.log("マイクデバイスのリストを取得開始");
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -71,7 +76,7 @@ export function useAudioRecorder({
         return null; // マイクがない場合は初期化を中止
       }
 
-      //(3)デフォルトマイクの音声ストリーム取得
+      //(4)デフォルトマイクの音声ストリーム取得
       if (!isMounted()) return null;
       console.log("マイク入力を取得開始");
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -79,24 +84,24 @@ export function useAudioRecorder({
       });
       console.log("マイク入力の取得に成功",stream);
 
-      //(4)MediaStreamSourceの作成
+      //(5)MediaStreamSourceの作成
       if (!isMounted()) return null;
       console.log("MediaStreamSource の作成");
       const mediaStreamSource = audioContext.createMediaStreamSource(stream);
       console.log("MediaStreamSourceの内容:", mediaStreamSource);
 
-      // (5)AudioWorkletProcessorの登録
+      //(6)AudioWorkletProcessorの登録
       if (!isMounted()) return null;
       console.log("AudioWorkletProcessor の登録を開始");
       await audioContext.audioWorklet.addModule("/scripts/record_processor.js"); //front/public/scripts/record_processor.js
       console.log("AudioWorkletProcessor の登録に成功",audioContext);
 
-      // (6)AudioWorkletNode作成(このタイミングでProcessorが自動で初期化)
+      //(7)AudioWorkletNode作成(このタイミングでProcessorが自動で初期化)
       if (!isMounted()) return null;
       const audioWorkletNode = new AudioWorkletNode(audioContext, "record-processor");
       console.log("AudioWorkletNode の作成に成功",audioWorkletNode);
 
-      // (7) AudioWorkletNodeの初期化完了待ちとメッセージハンドラの初期化
+      //(8) AudioWorkletNodeの初期化完了待ちとメッセージハンドラの初期化
       if (!isMounted()) return null;
       console.log("プロセッサーの準備完了を待機します");
       const processorReady = await new Promise<boolean>((resolve) => {
@@ -131,13 +136,13 @@ export function useAudioRecorder({
         };
       })
 
-      // (8)MediaStreamSourceとAudioWorkletNodeを接続
+      //(9)MediaStreamSourceとAudioWorkletNodeを接続
       if (!processorReady || !isMounted()) return null;
       console.log("MediaStreamSourceとAudioWorkletNodeの接続を開始");
       mediaStreamSource.connect(audioWorkletNode);
       console.log("MediaStreamSourceとAudioWorkletNodeの接続に成功",mediaStreamSource);
 
-      // (9) クリック音をロード
+      //(10) クリック音をロード
       if (!isMounted()) return null;
       console.log("クリック音をロード開始");
       const response = await fetch("/audios/click-sound.mp3");
