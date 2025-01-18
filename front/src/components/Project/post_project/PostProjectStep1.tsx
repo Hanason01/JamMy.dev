@@ -107,7 +107,7 @@ export function PostProjectStep1({onNext,
             {speedSliderValue}BPM
           </Typography>
         </Box>
-        {/* <TextField
+        <TextField
           fullWidth
           variant="standard"
           type="number"
@@ -122,7 +122,7 @@ export function PostProjectStep1({onNext,
               {count}
             </MenuItem>
           ))}
-          </TextField> */}
+          </TextField>
           <FormGroup sx={{my:1,width: "60%"}}>
             <FormControlLabel required control={<Switch checked={metronomeOn} onChange={(e) => setMetronomeOn(e.target.checked)}/> }label="メトロノーム"
             sx={{
