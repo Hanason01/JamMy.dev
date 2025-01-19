@@ -102,6 +102,11 @@ export type IncludedItem = User | AudioFile;
 export interface ProjectIndexResponse {
   data: Project[];
   included: IncludedItem[];
+  meta: Meta;
+}
+
+export interface Meta{
+  total_pages: number;
 }
 
   // CollaborationManagementIndex
