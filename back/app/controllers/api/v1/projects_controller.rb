@@ -5,10 +5,16 @@ class Api::V1::ProjectsController < ApplicationController
                       .where(status: [:open, :closed] )
                       .where(visibility: :is_public)
                       .order(created_at: :desc)
+                      .page(params[:page])
     if projects.any?
-      render json: ProjectSerializer.new(projects, { include: [:user, :audio_file] }).serializable_hash
+      serialized_projects = ProjectSerializer.new(projects, { include: [:user, :audio_file] }).serializable_hash
+      render json: {
+        data: serialized_projects[:data],
+        included: serialized_projects[:included],
+        meta: { total_pages: projects.total_pages }
+      }
     else
-      render json: { data: []}, status: :ok
+      render json: { data: [], meta: { total_pages: 0 }}, status: :ok
     end
   end
 
