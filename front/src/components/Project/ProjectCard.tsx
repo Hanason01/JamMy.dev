@@ -1,7 +1,7 @@
 "use client";
 
 import { Project, User, EnrichedProject} from "@sharedTypes/types";
-import { useState} from "react";
+import { useState, useEffect} from "react";
 import { useRouter } from "next/navigation";
 import { Paper, Box, Avatar, Button, IconButton, Typography } from "@mui/material";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -11,18 +11,21 @@ import PeopleIcon from '@mui/icons-material/People';
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useProjectContext } from "@context/useProjectContext";
+import { AudioController } from "@components/Project/AudioController";
 
 export function ProjectCard({
+  mode,
   project,
   onPlayClick,
 } : {
+  mode:"list" | "detail";
   project: EnrichedProject;
   onPlayClick: (project: EnrichedProject) => void;
 }){
   const [expanded, setExpanded] = useState<boolean>(false); //概要展開
   const toggleExpanded = () => setExpanded(!expanded);
   //コラボレーション、応募管理ページへの遷移に利用
-  const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath } = useProjectContext();
+  const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath, setCurrentProjectForShow } = useProjectContext();
   const router = useRouter();
 
   //プロジェクト概要の短縮
@@ -33,6 +36,18 @@ export function ProjectCard({
   //プロジェクトの作成時間取得
   const createdAt = new Date(project.attributes.created_at);
   const formattedDate = formatDistanceToNow(createdAt, { addSuffix: true, locale: ja })
+
+
+  //スクロール位置復元
+  useEffect(() => {
+    if(mode === "list"){
+      const scrollPosition = localStorage.getItem("scrollPosition");
+      if (scrollPosition) {
+        window.scrollTo(0, Number(scrollPosition));
+        localStorage.removeItem("scrollPosition");
+      }
+    }
+  }, []);
 
   //応募ページ遷移
   const handleCollaborationRequest = () => {
@@ -50,6 +65,14 @@ export function ProjectCard({
     router.push(`/projects/${project.id}/collaboration_management`);
   };
 
+  //詳細ページへ遷移（スクロール位置保存）
+  const handleProjectClick = () => {
+    setCurrentProjectForShow(project);
+    const scrollPosition = window.scrollY;
+    localStorage.setItem("scrollPosition", String(scrollPosition));
+    router.push(`/projects/${project.attributes.id}/project_show`);
+  };
+
   return(
     <Paper
       elevation={3}
@@ -61,8 +84,10 @@ export function ProjectCard({
         position: 'relative',
         maxWidth: 600,
         backgroundColor: 'background.default',
-        mx: 1
+        mx: 1,
+        cursor: mode === "list" ? "pointer" : "default",
       }}
+      onClick={mode === "list" ? handleProjectClick : undefined}
       >
         <Box
           sx={{ display: 'flex', alignItems: 'center'}}
@@ -89,21 +114,41 @@ export function ProjectCard({
         {!isDescriptionShort &&(
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center'}}>
             <Typography
-              onClick={toggleExpanded}
+              onClick={(e) => {
+                e.stopPropagation(); // バブリング防止
+                toggleExpanded();
+              }}
               color="primary"
               variant="body2">
                 {expanded ? "閉じる": "続きを読む"}
               </Typography>
-            <IconButton onClick={toggleExpanded} sx={{ color: 'primary.main', pl: 0 }}>
+            <IconButton
+            onClick={(e)=> {
+              e.stopPropagation(); // バブリング防止
+              toggleExpanded();
+            }}
+            sx={{ color: 'primary.main', pl: 0 }}>
               {expanded ? <ExpandLessIcon/> : <ExpandMoreIcon />}
             </IconButton>
           </Box>
         )}
         {project.attributes.status === "open" && (
           project.isOwner ? (
-            <Button variant="secondary" onClick={() => handleCollaborationManagementRequest()}>応募管理</Button>
+            <Button
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation(); // バブリング防止
+              handleCollaborationManagementRequest();
+            }}
+              >応募管理</Button>
           ) : (
-            <Button variant="secondary" onClick={() => handleCollaborationRequest()}>応募する</Button>
+            <Button
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation(); // バブリング防止
+              handleCollaborationRequest();
+            }}
+            >応募する</Button>
           )
         )}
         <Box
@@ -119,7 +164,11 @@ export function ProjectCard({
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end'}}>
-          <IconButton onClick={() => onPlayClick(project)}
+          <IconButton
+          onClick={(e) => {
+            e.stopPropagation(); // バブリング防止
+            onPlayClick(project);
+          }}
           sx={{
           color: 'primary.main',
           border: '2px solid',

@@ -45,12 +45,31 @@ export function CollaborationManagementStepper(){
     };
   }, []);
 
+  // データ復元（リロード対策）
+  useEffect(() => {
+    if (!currentProject || !currentUser || !currentAudioFilePath) {
+      setCurrentProject(JSON.parse(sessionStorage.getItem("currentProject") || "null"));
+      setCurrentUser(JSON.parse(sessionStorage.getItem("currentUser") || "null"));
+      setCurrentAudioFilePath(sessionStorage.getItem("currentAudioFilePath") || null);
+    }
+  }, []);
+
   //応募コレクションを取得
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     const loadCollaborations = async () => {
+      // アボートされた場合は処理を終了
+      if (signal?.aborted) {
+        console.log("loadCollaborationsが中断されました");
+        return;
+      }
+
       try {
         if (currentProject){
-          const collaborationsData = await collaborationManagementIndexRequest(currentProject.attributes.id);
+          const collaborationsData = await collaborationManagementIndexRequest(currentProject.attributes.id, signal);
+          console.log("CollaborationManagemetsリクエスト終了");
 
           setCollaborations(collaborationsData);
         }
@@ -61,7 +80,12 @@ export function CollaborationManagementStepper(){
       }
     };
     loadCollaborations();
-  }, [JSON.stringify(currentProject)]);
+
+    return () => {
+      console.log("アンマウント");
+      controller.abort(); // 非同期処理を中断
+    }
+  }, []);
 
   //ステップ進行制御
   const handleNext = () => {

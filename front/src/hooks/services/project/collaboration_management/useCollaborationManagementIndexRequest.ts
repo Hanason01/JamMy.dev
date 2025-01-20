@@ -2,9 +2,14 @@ import axios from 'axios';
 import { handleStatusErrors } from "@services/ErrorHandler";
 import { Collaboration} from "@sharedTypes/types";
 
-export const collaborationManagementIndexRequest = async (project_id: number): Promise<Collaboration[]> => {
+export const collaborationManagementIndexRequest = async (project_id: number, signal:AbortSignal): Promise<Collaboration[]> => {
+  // アボートされた場合は処理を終了
+  if (signal?.aborted) {
+    console.log("loadCollaborationsが中断されました");
+    return [];
+  }
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${project_id}/collaboration_managements`, { withCredentials: true });
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${project_id}/collaboration_managements`, { withCredentials: true, signal }); //signal → アンマウント時の中断シグナル
     const { data, included } = response.data;
 
     if (data && included) {

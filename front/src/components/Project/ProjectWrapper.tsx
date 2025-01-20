@@ -2,21 +2,29 @@
 import { Project, User, EnrichedProject, AudioFile } from "@sharedTypes/types";
 import { useState, useEffect, useRef } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import throttle from "lodash/throttle";
 import { useSearchParams } from "next/navigation";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
 import { ProjectCard } from "@Project/ProjectCard";
 import { AudioController } from "@components/Project/AudioController";
 import { projectIndexRequest } from "@services/project/ProjectIndexRequest";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
+import { useClientCacheContext } from "@context/useClientCacheContext";
+import { useProjectContext } from "@context/useProjectContext";
 
 
-export function ProjectWrapper(){
+export function ProjectWrapper({
+  mode,
+}:{
+  mode: "list" | "detail";
+}){
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioData, setAudioData] = useState<ArrayBuffer | null>(null);
   const [projects, setProjects] = useState<EnrichedProject[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  console.log("ProjectWrapperのprojects", projects);
 
   //無限スクロール
   const [page, setPage] = useState<number>(1);
@@ -27,31 +35,57 @@ export function ProjectWrapper(){
   const [projectForController, setProjectForController] = useState<Project | null>(null);
   const [userForController, setUserForController] = useState<User | null>(null);
 
+
+  //フック
   const { fetchAudioData } = useFetchAudioData();
-  console.log("Project IDs:", projects.map((project) => project.attributes.id));
-  console.log("page", page);
-  console.log("hasMore", hasMore);
+
+  //Context
+  const {
+    cachedProject, setCachedProject,
+    cachedPage, setCachedPage,
+    cachedHasMore, setCachedHasMore,
+    scrollPosition,
+  } = useClientCacheContext();
+
+  const { currentProjectForShow } = useProjectContext();
 
   //リクエスト初期化
   useEffect(() => {
-    console.log("ProjectWrapperのuseEffect:projects:", projects);
-
     const controller = new AbortController();
     const { signal } = controller;
 
-    loadProjects(1, { signal });
-    setLoading(false)
+    if (mode === "detail" && currentProjectForShow) {
+      // 詳細モードの場合、受け渡し用Contextから利用
+      console.log("modeがdetailになっています", mode, currentProjectForShow);
+      setProjects([currentProjectForShow]);
+      setLoading(false);
+    } else {
+      if(cachedProject.length > 0) {
+        setProjects(cachedProject);
+        setPage(cachedPage);
+        setHasMore(cachedHasMore);
+
+        // スクロール位置を復元
+        setTimeout(() => {
+          window.scrollTo(0, scrollPosition.current);
+        }, 0); // DOM描画完了後
+
+        setLoading(false);
+      }else{
+        loadProjects(1, { signal });
+        setLoading(false);
+      }
+    }
 
     return () => {
       controller.abort(); // 非同期処理を中断
       setProjects([]);
-      console.log("ProjectWrapperのアンマウント処理", projects);
     }
   }, []);
 
   //プロジェクトデータロード
   const loadProjects = async (page: number, options?: { signal?: AbortSignal }) => {
-    console.log("loadProjectsの発動");
+    console.log("loadProjectsが呼び出し");
 
     const signal = options?.signal;
 
@@ -67,8 +101,11 @@ export function ProjectWrapper(){
       //ページネーションの終了判定
       if(page >= meta.total_pages){
         setHasMore(false);
+        setCachedHasMore(false);
       }else {
-        setPage((prevPage) => prevPage + 1);
+        const nextPage = page + 1;
+        setPage(nextPage);
+        setCachedPage(nextPage);
       }
 
     // ユーザー情報をマッピング
@@ -107,6 +144,7 @@ export function ProjectWrapper(){
 
     if (!signal?.aborted) {
       setProjects((prevProjects) => [...prevProjects, ...enrichedProjects]);
+      setCachedProject((prevProjects) => [...prevProjects, ...enrichedProjects]);
     }
       console.log("setProjects");
     }catch(error: any) {
@@ -115,6 +153,23 @@ export function ProjectWrapper(){
       setLoading(false);
     }
   };
+
+
+  //スクロール保持
+  useEffect(() => {
+    if ( mode === "detail") return;
+    const handleScroll = throttle(() => {
+      scrollPosition.current = window.scrollY;
+    }, 200); // スクロール毎に呼ばれるが実行は200ms間隔
+
+    // スクロールイベント
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      handleScroll.cancel();
+    };
+  }, []);
 
 
   //再生ボタン押下時処理
@@ -172,8 +227,8 @@ export function ProjectWrapper(){
       ) : (
         <InfiniteScroll
           dataLength={projects.length}
-          next={() => loadProjects(page)}
-          hasMore={hasMore}
+          next={() => mode === "list" && loadProjects(page)}
+          hasMore={mode === "list" && hasMore}
           loader={
             <Box sx={{ textAlign: "center", py: 2 }}>
               <CircularProgress />
@@ -182,6 +237,7 @@ export function ProjectWrapper(){
         >
         {projects.map((project) => (
             <ProjectCard
+            mode={mode}
             key={project.attributes.id}
             onPlayClick={handlePlayClick}
             project={project}
