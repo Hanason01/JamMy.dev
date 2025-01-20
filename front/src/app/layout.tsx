@@ -4,6 +4,7 @@ import { AuthProvider } from '@context/useAuthContext';
 // import { AuthModal } from '@User/AuthModal';
 import { ProjectProvider } from '@context/useProjectContext';
 import { CurrentRouteProvider } from "@context/useCurrentRouteContext"
+import { ClientCacheProvider } from "@context/useClientCacheContext";
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -47,11 +48,13 @@ export default function RootLayout({ children }: Readonly<{
       <body>
         <AuthProvider>
           <CurrentRouteProvider>
-            <ProjectProvider>
-              <ThemeProviderWrapper>
-                {children}
-              </ThemeProviderWrapper>
-            </ProjectProvider>
+            <ClientCacheProvider >
+              <ProjectProvider>
+                <ThemeProviderWrapper>
+                  {children}
+                </ThemeProviderWrapper>
+              </ProjectProvider>
+            </ClientCacheProvider>
           </CurrentRouteProvider>
         </AuthProvider>
       </body>
