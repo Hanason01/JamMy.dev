@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import { Project, User, ProjectContextType, WithChildren } from "@sharedTypes/types";
+import { Project, EnrichedProject, User, ProjectContextType, WithChildren } from "@sharedTypes/types";
 
 // context初期値
 const initialContext: ProjectContextType = {
@@ -11,6 +11,8 @@ const initialContext: ProjectContextType = {
   setCurrentUser: () => {},
   currentAudioFilePath: null,
   setCurrentAudioFilePath: () => {},
+  currentProjectForShow: null,
+  setCurrentProjectForShow: () => {},
 };
 
 const ProjectContext = createContext<ProjectContextType>(initialContext);
@@ -19,10 +21,18 @@ export function ProjectProvider({ children }: WithChildren) {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentAudioFilePath, setCurrentAudioFilePath] = useState<string | null>(null);
-  // console.log("ProjectContextで状態変数を追跡", currentProject, currentUser, currentAudioFilePath);
+  const [currentProjectForShow, setCurrentProjectForShow] = useState<EnrichedProject | null>(null);
+  console.log("currentProjectForShow追跡", currentProjectForShow);
+
 
   return (
-    <ProjectContext.Provider value={{ currentProject, setCurrentProject, currentUser, setCurrentUser,currentAudioFilePath, setCurrentAudioFilePath }}>
+    <ProjectContext.Provider value={{
+      currentProject, setCurrentProject,
+      currentUser, setCurrentUser,
+      currentAudioFilePath, setCurrentAudioFilePath,
+      currentProjectForShow,
+      setCurrentProjectForShow,
+      }}>
       {children}
     </ProjectContext.Provider>
   );

@@ -2,7 +2,7 @@
 export type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 
 //Context関係
-import { ReactNode } from "react";
+import { ReactNode, SetStateAction } from "react";
 export interface WithChildren {
   children: ReactNode;
 }
@@ -232,6 +232,8 @@ export interface PostSettings {
     setCurrentUser: SetState<User | null>;
     currentAudioFilePath: string | null;
     setCurrentAudioFilePath: SetState<string | null>;
+    currentProjectForShow: EnrichedProject | null;
+    setCurrentProjectForShow: (project: EnrichedProject | null) => void;
   }
 
   //CollaborationManagement
@@ -245,4 +247,15 @@ export interface PostSettings {
     setEnablePostAudioPreview: SetState<boolean>;
     synthesisList: ExtendedCollaboration[];
     setSynthesisList: SetState<ExtendedCollaboration[]>;
+  }
+
+  //ClientCache
+  export interface ClientCacheContextType {
+    cachedProject: EnrichedProject[];
+    setCachedProject: SetState<EnrichedProject[]>;
+    cachedPage: number;
+    setCachedPage: SetState<number>;
+    cachedHasMore: boolean;
+    setCachedHasMore: SetState<boolean>;
+    scrollPosition: React.MutableRefObject<number>;
   }
