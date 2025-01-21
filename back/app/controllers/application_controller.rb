@@ -3,6 +3,7 @@ class ApplicationController < ActionController::API
         include ActionController::Cookies
 
 
+  #S3へファイル保存
   def upload_audio_file_to_s3(audio_file)
     #S3へアクセスするインスタンスを作成
     s3 = initialize_s3_resource
@@ -24,6 +25,7 @@ class ApplicationController < ActionController::API
     return obj.public_url
   end
 
+  #S3からファイル削除
   def delete_audio_file_from_s3(file_path)
     s3 = initialize_s3_resource
     bucket = s3.bucket('jam-my')
@@ -36,6 +38,39 @@ class ApplicationController < ActionController::API
       Rails.logger.error "S3削除エラー: #{e.message}"
       raise "既存ファイルの削除に失敗しました"
     end
+  end
+
+  # プロジェクトを終了状態にする
+  def terminate_project(project)
+    project.status = :closed
+    handle_collaborations(project)
+    project.save!
+  end
+
+  # 関連するコラボレーションのstatus処理とファイルの削除
+  def handle_collaborations(project)
+    project.collaborations.each do |collaboration|
+      if collaboration.status == "pending"
+        collaboration.update!(status: :rejected)
+      end
+
+      if collaboration.audio_file.present?
+        delete_audio_file_from_s3(collaboration.audio_file.file_path)
+        collaboration.audio_file.destroy!
+      end
+    end
+  end
+
+  # AudioFile を保存
+  def save_audio_file(project, audio_file_param)
+    if project.audio_file.present?
+      delete_audio_file_from_s3(project.audio_file.file_path)
+      project.audio_file.destroy!
+    end
+
+    project.build_audio_file(
+      file_path: upload_audio_file_to_s3(audio_file_param)
+    ).save!
   end
 
   private

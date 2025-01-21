@@ -44,13 +44,6 @@ class Api::V1::CollaborationManagementsController < ApplicationController
 
   private
 
-  # プロジェクトを終了状態にする
-  def terminate_project(project)
-    project.status = :closed
-    handle_collaborations(project)
-    project.save!
-  end
-
   # コラボレーションのステータス更新
   def update_collaborations(collaboration_ids, project)
     collaborations = Collaboration.where(id: collaboration_ids, project_id: project.id)
@@ -60,32 +53,6 @@ class Api::V1::CollaborationManagementsController < ApplicationController
         raise ActiveRecord::Rollback, "Collaboration ID #{collaboration.id} のステータス更新に失敗しました: #{collaboration.errors.full_messages.join(', ')}"
       end
     end
-  end
-
-  # コラボレーションと関連ファイルの削除
-  def handle_collaborations(project)
-    project.collaborations.each do |collaboration|
-      if collaboration.status == "pending"
-        collaboration.update!(status: :rejected)
-      end
-
-      if collaboration.audio_file.present?
-        delete_audio_file_from_s3(collaboration.audio_file.file_path)
-        collaboration.audio_file.destroy!
-      end
-    end
-  end
-
-  # AudioFile を保存
-  def save_audio_file(project, audio_file_param)
-    if project.audio_file.present?
-      delete_audio_file_from_s3(project.audio_file.file_path)
-      project.audio_file.destroy!
-    end
-
-    project.build_audio_file(
-      file_path: upload_audio_file_to_s3(audio_file_param)
-    ).save!
   end
 
   # モードが terminate か判定
