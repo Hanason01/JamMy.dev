@@ -20,7 +20,7 @@ const schema = yup.object().shape({
     .oneOf(["公開", "限定公開"], "無効な公開範囲です"),
 });
 
-export const usePostProjectValidation = () => {
+export const usePostProjectValidation = (initialValues?: PostProjectFormData) => {
   const {
     register,
     handleSubmit,
@@ -29,9 +29,10 @@ export const usePostProjectValidation = () => {
   } = useForm<PostProjectFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      title: "",
-      description: "",
-      visibility: "公開",
+      title: initialValues?.title || "",
+      description: initialValues?.description || "",
+      visibility: initialValues?.visibility || "公開",
+      isClosed: false,
     },
     mode: "onChange"
   });

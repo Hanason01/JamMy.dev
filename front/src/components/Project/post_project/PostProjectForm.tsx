@@ -48,11 +48,19 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
           throw new Error("エンコードされたオーディオファイルがありません");
         }
 
+        //不正な公開範囲パラメータをブロック
+        const visibilityValue = preVisibility.find((option) => option.label === data.visibility)?.value;
+
+        if (!visibilityValue) {
+          console.error("無効な公開範囲が選択されています");
+          return;
+        }
+
         // リクエストデータ作成
         const requestData: PostProjectRequestData = {
           "project[title]": data.title,
           "project[description]": data.description,
-          "project[visibility]": preVisibility.find((option) => option.label === data.visibility)?.value || "is_public",
+          "project[visibility]": visibilityValue,
           "project[tempo]": settings.tempo.toString(),
           "project[duration]": settings.duration.toString(),
           "project[audio_file]": audioFile,

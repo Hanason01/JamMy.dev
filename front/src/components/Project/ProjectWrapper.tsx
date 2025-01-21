@@ -1,13 +1,14 @@
 "use client";
-import { Project, User, EnrichedProject, AudioFile } from "@sharedTypes/types";
+import { Project, User, EnrichedProject, AudioFile, IncludedItem } from "@sharedTypes/types";
 import { useState, useEffect, useRef } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import throttle from "lodash/throttle";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
 import { ProjectCard } from "@Project/ProjectCard";
 import { AudioController } from "@components/Project/AudioController";
-import { projectIndexRequest } from "@services/project/ProjectIndexRequest";
+import { useProjectIndexRequest } from "@services/project/useProjectIndexRequest";
+import { useProjectShowRequest } from "@services/project/useProjectShowRequest";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { useClientCacheContext } from "@context/useClientCacheContext";
 import { useProjectContext } from "@context/useProjectContext";
@@ -38,6 +39,8 @@ export function ProjectWrapper({
 
   //フック
   const { fetchAudioData } = useFetchAudioData();
+  const { projectIndexRequest } = useProjectIndexRequest();
+  const { projectShowRequest } = useProjectShowRequest();
 
   //Context
   const {
@@ -49,15 +52,37 @@ export function ProjectWrapper({
 
   const { currentProjectForShow } = useProjectContext();
 
+  //useParams
+  const params = useParams();
+
   //リクエスト初期化
   useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
 
-    if (mode === "detail" && currentProjectForShow) {
-      // 詳細モードの場合、受け渡し用Contextから利用
-      console.log("modeがdetailになっています", mode, currentProjectForShow);
-      setProjects([currentProjectForShow]);
+    // Showモードの場合
+    if (mode === "detail") {
+      //投稿一覧からの遷移の場合
+      if(currentProjectForShow){
+        setProjects([currentProjectForShow]);
+      } else{
+        const fetchData = async () => {
+          try {
+            if (!signal?.aborted) {
+              const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
+              if (!projectId) {
+                throw new Error("ProjectIdが指定されていません");
+              }
+              const { data, included} = await projectShowRequest(projectId);
+              const enrichedProjects = enrichedProject(data, included);
+              setProjects(enrichedProjects);
+              }
+            } catch (error) {
+              console.error("Projectデータ取得時にエラーが発生しました:", error);
+            }
+        };
+        fetchData();
+      }
       setLoading(false);
     } else {
       if(cachedProject.length > 0) {
@@ -108,6 +133,24 @@ export function ProjectWrapper({
         setCachedPage(nextPage);
       }
 
+      //projectデータ拡張
+      const enrichedProjects = enrichedProject(data, included);
+
+      if (!signal?.aborted) {
+        setProjects((prevProjects) => [...prevProjects, ...enrichedProjects]);
+        setCachedProject((prevProjects) => [...prevProjects, ...enrichedProjects]);
+      }
+      console.log("setProjects");
+    }catch(error: any) {
+      setError(error.message);
+    }finally {
+      setLoading(false);
+    }
+  };
+
+  //projectデータ拡張関数
+  const enrichedProject =  (data: Project[], included: IncludedItem[]): EnrichedProject[] =>{
+
     // ユーザー情報をマッピング
     const userMap: Record<string, User> = included.reduce<Record<string, User>>((map, item) => {
       if (item.type === "user") {
@@ -131,7 +174,7 @@ export function ProjectWrapper({
     const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
     // projects を拡張
-    const enrichedProjects = data.map((project) => {
+    return data.map((project) => {
       const user = userMap[project.relationships.user.data.id];
       const audioFileId = project.relationships.audio_file?.data?.id;
       const audioFilePath = audioFileId ? audioMap[audioFileId] : undefined;
@@ -140,19 +183,7 @@ export function ProjectWrapper({
       const isOwner = parsedUser?.id === user.id;
       return { ...project, user, audioFilePath, isOwner };
     });
-
-
-    if (!signal?.aborted) {
-      setProjects((prevProjects) => [...prevProjects, ...enrichedProjects]);
-      setCachedProject((prevProjects) => [...prevProjects, ...enrichedProjects]);
-    }
-      console.log("setProjects");
-    }catch(error: any) {
-      setError(error.message);
-    }finally {
-      setLoading(false);
-    }
-  };
+  }
 
 
   //スクロール保持
