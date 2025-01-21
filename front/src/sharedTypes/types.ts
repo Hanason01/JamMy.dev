@@ -105,6 +105,11 @@ export interface ProjectIndexResponse {
   meta: Meta;
 }
 
+export interface ProjectShowResponse{
+  data: Project[];
+  included: IncludedItem[];
+}
+
 export interface Meta{
   total_pages: number;
 }
@@ -140,7 +145,8 @@ export interface PostSettings {
   export interface PostProjectFormData {
     title: string;
     description: string;
-    visibility: "公開" | "限定公開"; // リテラル型で定義
+    visibility: "公開" | "限定公開";
+    isClosed?: boolean; //オプショナル
   }
 
   // PostProjectRequest
@@ -151,6 +157,15 @@ export interface PostSettings {
     "project[tempo]": string;
     "project[duration]": string;
     "project[audio_file]": File;
+  }
+
+  //EditProjectRequest
+  export interface EditProjectRequestData {
+    "project[title]": string;
+    "project[description]": string;
+    "project[visibility]": string;
+    "project[status]": string | "null";
+    "project[audio_file]": File | "null";
   }
 
   // PostCollaborationForm
