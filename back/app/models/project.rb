@@ -8,8 +8,8 @@ class Project < ApplicationRecord
 
   validates :title, presence: true, length: { maximum: 50 }
   validates :description, length: { maximum: 255 }, allow_nil: true
-  validates :duration, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 30 }
-  validates :tempo, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 200 }
+  validates :duration, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 30 }, on: :create
+  validates :tempo, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 200 }, on: :create
   # statusの値保証
   validates :status, inclusion: { in: statuses.keys }
   validates :visibility, inclusion: { in: visibilities.keys }
