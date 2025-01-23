@@ -3,7 +3,7 @@
 import { LoginFormData } from "@sharedTypes/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box, TextField, FormControlLabel, Checkbox, Button, Divider, Alert } from "@mui/material";
+import { Box, TextField, FormControlLabel, Checkbox, Button, Divider, Alert, Typography } from "@mui/material";
 import LockIcon from '@mui/icons-material/Lock';
 import GoogleIcon from "@mui/icons-material/Google";
 import { PasswordField } from "@User/PasswordField";
@@ -26,23 +26,14 @@ export function SignInForm({redirectTo} : {redirectTo:string}) {
   const sendDataToAPI = async (data: LoginFormData) => {
     try {
       await signIn(data);
-      // redirectTo の値をログに出力
-      console.log("Redirecting to:", redirectTo);
-      console.log("signInが終わった後のisAuthenticated", isAuthenticated);
 
       sessionStorage.removeItem("redirectTo");
 
-      // router.push の前後でログを追加
       if (redirectTo) {
-        console.log("Navigating to redirectTo:", redirectTo);
         // window.location.href = redirectTo;
         router.push(redirectTo);
-        console.log("Navigation to redirectTo completed successfully:", redirectTo);
       } else {
-        console.log("No redirectTo provided, navigating to default /projects");
         window.location.href = "/projects?refresh=true";
-        // await router.push("/projects?refresh=true");
-        console.log("Navigation to default /projects completed successfully");
       }
 
     } catch (error: any) {
@@ -54,7 +45,6 @@ export function SignInForm({redirectTo} : {redirectTo:string}) {
         // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
         setFormError(error.general);
       }
-      console.log("sendDataToAPIが終わった後のisAuthenticated", isAuthenticated);
     }
   };
 
@@ -93,7 +83,11 @@ export function SignInForm({redirectTo} : {redirectTo:string}) {
       <Button variant="outlined" startIcon={<GoogleIcon />} fullWidth >
       SIGN IN WITH GOOGLE
       </Button>
-      <Divider variant="fullWidth">or</Divider>
+      <Box sx={{width: "100%", display: "flex", alignItems: "center"}}>
+        <Divider sx={{ flex: 1, my: 1 }}/>
+        <Typography sx={{ mx: 2 }}>or</Typography>
+        <Divider sx={{ flex: 1, my: 1 }} />
+      </Box>
 
       <Box
       sx={{

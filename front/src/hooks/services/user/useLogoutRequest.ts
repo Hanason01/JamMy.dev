@@ -15,7 +15,7 @@ export const useLogoutRequest = () => {
       if (response.status === 200) {
         localStorage.removeItem("authenticatedUser");
         handleLogout(); //認証状態リセット
-        router.push("/projects?refresh=true");
+        window.location.href = "/projects?refresh=true";
       }
 
 
