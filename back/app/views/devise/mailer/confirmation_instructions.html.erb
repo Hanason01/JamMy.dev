@@ -1,0 +1,17 @@
+<p>JamMyへようこそ！</p>
+
+<p>以下のボタンもしくはリンクをクリックして、<%= @email %>こちらで登録いただいたアカウントを有効化してください:</p>
+
+<p>
+  <%= link_to 'アカウント有効化', "#{Rails.configuration.x.confirmation_url}?confirmation_token=#{@token}&email=#{@resource.email}",
+      style: 'display: inline-block; padding: 10px 20px; color: white; background-color: #007BFF; text-decoration: none; border-radius: 5px;' %>
+</p>
+
+
+<p><%= link_to 'アカウント有効化リンク',"#{Rails.configuration.x.confirmation_url}?confirmation_token=#{@token}&email=#{@resource.email}" %></p>
+
+<p>デバッグ情報:</p>
+<p>Token: <%= @token %></p>
+<p>Email: <%= @resource&.email %></p>
+<p>@Email: <%= @email %></p>
+<p>パスが正しく取得できているか: <%=Rails.configuration.x.confirmation_url %></p>

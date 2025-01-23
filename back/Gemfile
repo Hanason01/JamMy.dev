@@ -60,3 +60,5 @@ group :development do
   # gem "spring"
 end
 
+
+gem "sendinblue", "~> 2.4"
