@@ -17,6 +17,7 @@ export interface User {
 
 export interface UserAttributes {
   id: number;
+  email: string;
   username: string | null;
   nickname: string;
   image: string | null;

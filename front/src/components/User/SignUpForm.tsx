@@ -3,7 +3,7 @@
 import { SignUpFormData, SignUpRequestData } from "@sharedTypes/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box, TextField, Button, Divider, Alert } from "@mui/material";
+import { Box, TextField, Button, Divider, Alert, Typography } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import GoogleIcon from "@mui/icons-material/Google";
 import { PasswordField } from "@User/PasswordField";
@@ -27,17 +27,12 @@ export function SignUpForm({redirectTo}: {redirectTo:string}) {
     const { confirmPassword, ...filteredData } = data;
     const requestData: SignUpRequestData = filteredData as SignUpRequestData;
     try {
-      await signUp(requestData);
+      const response = await signUp(requestData);
 
       sessionStorage.removeItem("redirectTo");
 
-      if (redirectTo){
-        // router.push(redirectTo);
-        window.location.href = redirectTo;
-      }else{
-        // router.push("/projects?refresh=true");
-        window.location.href = "/projects?refresh=true";
-      }
+      const email = response.data.attributes.email;
+      window.location.href = `/auth/pending?email=${email}`;
     } catch (error: any) {
     if (error.email) {
         setError("email", { type: "manual", message: error.email });
@@ -87,7 +82,12 @@ export function SignUpForm({redirectTo}: {redirectTo:string}) {
       <Button variant="outlined" startIcon={<GoogleIcon />} fullWidth >
       SIGN UP WITH GOOGLE
       </Button>
-      <Divider variant="fullWidth">or</Divider>
+
+      <Box sx={{width: "100%", display: "flex", alignItems: "center"}}>
+        <Divider sx={{ flex: 1, my: 1 }}/>
+        <Typography sx={{ mx: 2 }}>or</Typography>
+        <Divider sx={{ flex: 1, my: 1 }} />
+      </Box>
 
       <Box
       sx={{
@@ -109,7 +109,7 @@ export function SignUpForm({redirectTo}: {redirectTo:string}) {
         <TextField
         label="ユーザーネーム"
         variant="outlined"
-        placeholder="15文字以内"
+        placeholder="英数字15文字以内"
         fullWidth
         {...register("username")}
         error={!!errors.username}

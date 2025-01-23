@@ -1,18 +1,14 @@
 import { SignUpRequestData, User, SignUpError } from "@sharedTypes/types";
 import axios from 'axios';
-import { useAuthContext } from "@context/useAuthContext";
 
 interface SignUpResponse {
   data: User;
 }
 
 export const useSignUpRequest = () => {
-  const { handleLoginSuccess } = useAuthContext();
-
   const signUp = async (data: SignUpRequestData): Promise<SignUpResponse> => {
     try {
       const response = await axios.post<SignUpResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth`, data, { withCredentials: true });
-      handleLoginSuccess(response.data.data);
       return response.data;
     } catch (error: any) {
       const formattedErrors: SignUpError = {};

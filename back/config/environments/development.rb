@@ -74,4 +74,28 @@ Rails.application.configure do
   config.logger = ActiveSupport::Logger.new(STDOUT)
   config.log_level = :debug
 
+  # メール
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: 'smtp-relay.brevo.com',
+    port: 587,
+    user_name: Rails.application.credentials.dig(:brevo, :smtp_login),
+    password: Rails.application.credentials.dig(:brevo, :smtp_password),
+    authentication: 'login',
+    enable_starttls_auto: true
+  }
+
+  config.action_mailer.default_options = {
+    from: 'no-reply@jam-my.com'
+  }
+
+  # エラーをログに出力
+  config.action_mailer.raise_delivery_errors = true
+  # 実際にメールを送信
+  config.action_mailer.perform_deliveries = true
+  # メールのURL設定（Devise用）
+  config.action_mailer.default_url_options = { host: 'localhost', port: 3000, protocol: 'https' }
+  # 認証メールテンプレート用パス
+  config.x.confirmation_url = "https://localhost:8000/auth/confirmed"
+
 end

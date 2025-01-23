@@ -99,6 +99,15 @@ const theme: ThemeOptions = createTheme({
         },
       ],
     },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderBottomWidth: 'thin',
+          borderStyle: 'solid',
+          borderColor: '#BDBDBD',
+        },
+      },
+    },
   },
 });
 export default theme;

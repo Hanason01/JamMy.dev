@@ -91,4 +91,24 @@ Rails.application.configure do
   config.hosts << "www.jam-my.com"     # フロントエンドのサブドメイン
   config.hosts << "api.jam-my.com"     # バックエンドのサブドメイン
   config.hosts << "jammy-dev.onrender.com"
+
+  # メール
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: 'smtp-relay.brevo.com',
+    port: 587,
+    user_name: Rails.application.credentials.dig(:brevo, :smtp_login),
+    password: Rails.application.credentials.dig(:brevo, :smtp_password),
+    authentication: 'login',
+    enable_starttls_auto: true
+  }
+
+  config.action_mailer.default_options = {
+    from: 'no-reply@jam-my.com'
+  }
+  config.action_mailer.default_url_options = {
+    host: 'api.jam-my.com', protocol: 'https'
+  }
+  # 認証メールテンプレート用パス
+  config.x.confirmation_url = "https://www.jam-my.com/auth/confirmed"
 end
