@@ -51,6 +51,9 @@ DeviseTokenAuth.setup do |config|
   #   :'token-type' => 'token-type'
   # }
 
+  #メール認証成功時のリダイレクト先（実質不要であるが、ロジック的に必要になる為）
+  config.default_confirm_success_url = "https://www.jam-my.com/auth/confirmed"
+
   # Makes it possible to use custom uid column
   # config.other_uid = "foo"
 
@@ -72,4 +75,5 @@ DeviseTokenAuth.setup do |config|
     expires: 1.day.from_now,
     domain: ENV.fetch("COOKIE_DOMAIN", "localhost")
   }
+
 end
