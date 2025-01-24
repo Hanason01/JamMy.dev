@@ -97,5 +97,6 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000, protocol: 'https' }
   # 認証メールテンプレート用パス
   config.x.confirmation_url = "https://localhost:8000/auth/confirmed"
-
+  # パスワードリセットテンプレート用パス
+  config.x.reset_password_url = "https://localhost:8000/auth/reset_password"
 end

@@ -111,4 +111,6 @@ Rails.application.configure do
   }
   # 認証メールテンプレート用パス
   config.x.confirmation_url = "https://www.jam-my.com/auth/confirmed"
+  # パスワードリセットテンプレート用パス
+  config.x.reset_password_url = "https://www.jam-my.com/auth/reset_password"
 end
