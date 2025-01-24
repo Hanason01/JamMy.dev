@@ -3,6 +3,7 @@
 import { LoginFormData } from "@sharedTypes/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from 'next/link';
 import { Box, TextField, FormControlLabel, Checkbox, Button, Divider, Alert, Typography } from "@mui/material";
 import LockIcon from '@mui/icons-material/Lock';
 import GoogleIcon from "@mui/icons-material/Google";
@@ -119,9 +120,22 @@ export function SignInForm({redirectTo} : {redirectTo:string}) {
           control={<Checkbox {...register("remember_me")} />}
           label="ログイン状態を保持する"
         />
+        <Typography
+          variant="body2"
+          color="primary"
+          sx={{
+            cursor: "pointer",
+            '&:hover': { textDecoration: 'underline' },
+          }}
+          component={Link}
+          href="/auth/request_reset_password"
+        >
+          パスワードをお忘れですか？
+        </Typography>
         <Button type="submit" variant="contained" color="primary" fullWidth sx={{mt:2}}>
           ログインする
         </Button>
+
       </Box>
     </Box>
   );

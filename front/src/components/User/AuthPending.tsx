@@ -8,7 +8,7 @@ export const AuthPending = () => {
   return (
     <Box textAlign="center" sx={{mt:8, mx:2}}>
       <Typography variant="h5" gutterBottom>
-        ご登録ありがとうございます！
+        JamMyへご登録ありがとうございます！
       </Typography>
       <Typography>
         以下のメールアドレスに認証リンクを送信しました
@@ -17,7 +17,7 @@ export const AuthPending = () => {
         {email}
       </Typography>
       <Typography mt={3}>
-        メールを確認し、リンクをクリックしてアカウントを有効化してください。
+        メールを確認し、アカウントを有効化してください。
       </Typography>
     </Box>
   );
