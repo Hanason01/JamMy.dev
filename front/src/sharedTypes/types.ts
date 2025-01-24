@@ -225,6 +225,12 @@ export interface PostSettings {
     general?: string;
   }
 
+  //ResetPassword
+  export interface ResetPasswordFormData {
+    password: string;
+    confirmPassword: string;
+  }
+
 //Context用
 
   // Context 用の型定義

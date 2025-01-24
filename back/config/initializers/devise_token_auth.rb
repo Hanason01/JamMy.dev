@@ -54,6 +54,12 @@ DeviseTokenAuth.setup do |config|
   #メール認証成功時のリダイレクト先（実質不要であるが、ロジック的に必要になる為）
   config.default_confirm_success_url = "https://www.jam-my.com/auth/confirmed"
 
+  #パスワードリセットを行うフロントのパス
+  config.default_password_reset_url = "https://www.jam-my.com/reset_password"
+
+  #リセットトークンをフロントに管理させる
+  config.require_client_password_reset_token = true
+
   # Makes it possible to use custom uid column
   # config.other_uid = "foo"
 
