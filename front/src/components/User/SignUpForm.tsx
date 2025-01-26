@@ -10,6 +10,7 @@ import { PasswordField } from "@User/PasswordField";
 
 import { useSignUpValidation } from "@validation/useSignUpValidation";
 import { useSignUpRequest } from "@services/user/useSignUpRequest";
+import { useGoogleSignIn } from "@services/user/useGoogleSignIn"
 
 export function SignUpForm({redirectTo}: {redirectTo:string}) {
   const router = useRouter();
@@ -21,6 +22,8 @@ export function SignUpForm({redirectTo}: {redirectTo:string}) {
   const handleToggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
   const { register, handleSubmit, setError, errors } = useSignUpValidation();
+
+  const { signInWithGoogle } = useGoogleSignIn();
 
   const { signUp } = useSignUpRequest();
   const sendDataToAPI = async (data: SignUpFormData) => {
@@ -79,7 +82,12 @@ export function SignUpForm({redirectTo}: {redirectTo:string}) {
           }}
         />
       </Box>
-      <Button variant="outlined" startIcon={<GoogleIcon />} fullWidth >
+      <Button
+      variant="outlined"
+      startIcon={<GoogleIcon />}
+      fullWidth
+      onClick={signInWithGoogle}
+      >
       SIGN UP WITH GOOGLE
       </Button>
 

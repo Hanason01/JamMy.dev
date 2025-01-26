@@ -1,7 +1,11 @@
 class ApplicationController < ActionController::API
         include DeviseTokenAuth::Concerns::SetUserByToken
         include ActionController::Cookies
+        # include ActionController::RequestForgeryProtection
 
+  # protect_from_forgery with: :exception
+
+  # before_action :set_csrf_cookie
 
   #S3へファイル保存
   def upload_audio_file_to_s3(audio_file)
@@ -74,6 +78,10 @@ class ApplicationController < ActionController::API
   end
 
   private
+
+  # def set_csrf_cookie
+  #   cookies["CSRF-TOKEN"] = form_authenticity_token
+  # end
 
   def initialize_s3_resource
     Aws::S3::Resource.new(

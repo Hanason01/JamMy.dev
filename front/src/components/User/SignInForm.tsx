@@ -8,9 +8,9 @@ import { Box, TextField, FormControlLabel, Checkbox, Button, Divider, Alert, Typ
 import LockIcon from '@mui/icons-material/Lock';
 import GoogleIcon from "@mui/icons-material/Google";
 import { PasswordField } from "@User/PasswordField";
-
 import { useSignInValidation } from "@validation/useSignInValidation";
 import { useSignInRequest } from "@services/user/useSignInRequest";
+import { useGoogleSignIn } from "@services/user/useGoogleSignIn"
 import { useAuthContext } from "@context/useAuthContext";
 
 export function SignInForm({redirectTo} : {redirectTo:string}) {
@@ -22,6 +22,7 @@ export function SignInForm({redirectTo} : {redirectTo:string}) {
   const handleTogglePasswordVisibility = () => setShowPassword(!showPassword);
 
   const { register, handleSubmit, setError, errors } = useSignInValidation();
+  const { signInWithGoogle } = useGoogleSignIn();
 
   const { signIn } = useSignInRequest();
   const sendDataToAPI = async (data: LoginFormData) => {
@@ -48,6 +49,7 @@ export function SignInForm({redirectTo} : {redirectTo:string}) {
       }
     }
   };
+
 
   return (
     <Box
@@ -81,7 +83,12 @@ export function SignInForm({redirectTo} : {redirectTo:string}) {
           }}
         />
       </Box>
-      <Button variant="outlined" startIcon={<GoogleIcon />} fullWidth >
+      <Button
+      variant="outlined"
+      startIcon={<GoogleIcon />}
+      fullWidth
+      onClick={signInWithGoogle}
+      >
       SIGN IN WITH GOOGLE
       </Button>
       <Box sx={{width: "100%", display: "flex", alignItems: "center"}}>

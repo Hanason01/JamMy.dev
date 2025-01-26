@@ -3,8 +3,11 @@ Rails.application.routes.draw do
     registrations: 'api/v1/auth/registrations',
     sessions: 'api/v1/auth/sessions',
     confirmations: 'api/v1/auth/confirmations',
-    passwords: 'api/v1/auth/passwords'
+    passwords: 'api/v1/auth/passwords',
+    omniauth_callbacks: 'api/v1/auth/omniauth_callbacks',
   }
+
+
   namespace :api do
     namespace :v1 do
       resources :projects, only: %i[ index show create update destroy ] do
