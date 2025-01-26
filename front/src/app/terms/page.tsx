@@ -14,6 +14,5 @@ export default function MyPage(){
         <BottomNavi />
       </div>
     </Suspense>
-
   );
 }
