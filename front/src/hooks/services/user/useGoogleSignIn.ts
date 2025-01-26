@@ -20,4 +20,3 @@ export const useGoogleSignIn = () => {
 
   return { signInWithGoogle };
 };
-
