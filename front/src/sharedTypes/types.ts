@@ -281,3 +281,26 @@ export interface PostSettings {
     setCachedHasMore: SetState<boolean>;
     scrollPosition: React.MutableRefObject<number>;
   }
+
+  //Feedback
+  export interface FeedbackContextType {
+    feedback: FeedbackState;
+    setFeedbackByKey: (key: string) => void;
+    setFeedbackAndReload: (key: string) => void;
+    clearFeedback: () => void;
+  }
+
+  export interface FeedbackState{
+    open: boolean;
+    message: string;
+    severity: FeedbackSeverity;
+  }
+
+  export type FeedbackSeverity = "success" | "info" | "warning" | "error";
+
+  export type FeedbackMessages = {
+    [key: string]: FeedbackMessages | {
+      message: string;
+      severity: FeedbackSeverity;
+    };
+  };
