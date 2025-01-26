@@ -5,7 +5,7 @@ export const useGoogleSignIn = () => {
         //Google認証開始のエンドポイント
       const backendAuthUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/google_oauth2`;
         //認証終了後の遷移先
-      const originUrl = "https://www.jam-my.com/auth/google_callback";
+      const originUrl = "https://jam-my.com/auth/google_callback";
       if(!originUrl){
         console.error("OriginUrlが見つかりません");
         return;
