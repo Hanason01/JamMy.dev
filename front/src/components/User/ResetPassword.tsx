@@ -29,6 +29,11 @@ export const ResetPassword = () => {
   //devise_token_auth : editアクション
   useEffect(() => {
     const resetPasswordInit = async () => {
+      if (!resetToken) {
+        setError("正しいリンクからの遷移ではありません。");
+        return;
+      }
+
       try {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/auth/password/edit`,

@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
   experimental: {
     nextScriptWorkers: false, // Vercel.liveを無効化
   },
-  webpack: (config) => {
+  webpack: (config: any) => {
     // エイリアスを追加
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
@@ -26,5 +26,6 @@ const nextConfig: NextConfig = {
     return config;
   },
 };
+
 
 export default nextConfig;
