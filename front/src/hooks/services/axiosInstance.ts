@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 // axiosのインスタンス作成
 const axiosInstance = axios.create({
@@ -10,11 +10,11 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use((config) => {
   // ブラウザからCSRFトークンを取得
   const csrfToken = document
-    .querySelector('meta[name="csrf-token"]')
-    ?.getAttribute('content');
+    .querySelector("meta[name="csrf-token"]")
+    ?.getAttribute("content");
 
   if (csrfToken) {
-    config.headers['X-CSRF-Token'] = csrfToken;
+    config.headers["X-CSRF-Token"] = csrfToken;
   }
 
   return config;

@@ -6,12 +6,12 @@ import { PostProjectFormData } from "@sharedTypes/types";
 const schema = yup.object().shape({
   title: yup
     .string()
-    .required('タイトルは必須です')
+    .required("タイトルは必須です")
     .min(1, "最低1文字が必要です")
     .max(50, "最大50文字までです"),
   description: yup
     .string()
-    .required('概要は必須です')
+    .required("概要は必須です")
     .min(1, "最低1文字が必要です")
     .max(255, "最大255文字までです"),
   visibility: yup

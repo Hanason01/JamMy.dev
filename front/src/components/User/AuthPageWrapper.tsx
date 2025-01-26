@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { AuthModal } from '@User/AuthModal';
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { AuthModal } from "@User/AuthModal";
 
 export function AuthPageWrapper() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export function AuthPageWrapper() {
   const handleClose = (): void => {
     setOpenAuthModal(false);
     sessionStorage.removeItem("redirectTo");
-    router.push('/');
+    router.push("/");
   };
 
   return (

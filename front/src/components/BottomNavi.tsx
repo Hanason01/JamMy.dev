@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useCurrentRouteState} from '@context/useCurrentRouteContext';
-import BottomNavigation from '@mui/material/BottomNavigation';
-import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import HomeIcon from '@mui/icons-material/Home';
-import AddIcon from '@mui/icons-material/Add';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import PersonIcon from '@mui/icons-material/Person';
+import { useCurrentRouteState} from "@context/useCurrentRouteContext";
+import BottomNavigation from "@mui/material/BottomNavigation";
+import BottomNavigationAction from "@mui/material/BottomNavigationAction";
+import HomeIcon from "@mui/icons-material/Home";
+import AddIcon from "@mui/icons-material/Add";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import PersonIcon from "@mui/icons-material/Person";
 
 export function BottomNavi() {
   const pathname = usePathname();
@@ -65,39 +65,39 @@ export function BottomNavi() {
       value={value}
       onChange={handleNavigationChange}
       sx={{
-        position: 'fixed',
+        position: "fixed",
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: 'primary.main',
+        backgroundColor: "primary.main",
       }}
     >
       <BottomNavigationAction icon={<HomeIcon />}
         sx={{
-          color: 'primary.contrastText',
-          '&.Mui-selected': {
-            color: 'secondary.main',
+          color: "primary.contrastText",
+          "&.Mui-selected": {
+            color: "secondary.main",
           },
         }} />
       <BottomNavigationAction icon={<AddIcon />}
         sx={{
-          color: 'primary.contrastText',
-          '&.Mui-selected': {
-            color: 'secondary.main',
+          color: "primary.contrastText",
+          "&.Mui-selected": {
+            color: "secondary.main",
           },
         }}/>
       <BottomNavigationAction icon={<NotificationsIcon />}
         sx={{
-          color: 'primary.contrastText',
-          '&.Mui-selected': {
-            color: 'secondary.main',
+          color: "primary.contrastText",
+          "&.Mui-selected": {
+            color: "secondary.main",
           },
         }}/>
       <BottomNavigationAction icon={<PersonIcon />}
         sx={{
-          color: 'primary.contrastText',
-          '&.Mui-selected': {
-            color: 'secondary.main',
+          color: "primary.contrastText",
+          "&.Mui-selected": {
+            color: "secondary.main",
           },
         }}/>
     </BottomNavigation>

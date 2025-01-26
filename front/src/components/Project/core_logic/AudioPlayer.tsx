@@ -3,8 +3,8 @@
 import { AudioBuffer, SetState } from "@sharedTypes/types";
 import { useState, useRef, useEffect } from "react";
 import { Box, IconButton, Typography, Slider } from "@mui/material";
-import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
-import PauseCircleIcon from '@mui/icons-material/PauseCircle';
+import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
+import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 import { useAudioPlayer } from "@audio/useAudioPlayer";
 import { usePlayback } from "@context/usePlayBackContext";
 

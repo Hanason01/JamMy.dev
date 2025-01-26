@@ -1,5 +1,5 @@
-import axios from 'axios'
-import { handleStatusErrors } from '@services/ErrorHandler';
+import axios from "axios"
+import { handleStatusErrors } from "@services/ErrorHandler";
 
 export const usePostCollaborationRequest = () => {
   const postCollaboration = async (data: FormData, project_id: string): Promise<any> => {

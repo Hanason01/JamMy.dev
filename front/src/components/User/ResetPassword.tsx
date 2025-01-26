@@ -1,16 +1,16 @@
 "use client";
 import { ResetPasswordFormData, SignUpRequestData } from "@sharedTypes/types";
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useSearchParams } from 'next/navigation';
-import { TextField, Button, Alert, Typography, Box, Container } from '@mui/material';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useSearchParams } from "next/navigation";
+import { TextField, Button, Alert, Typography, Box, Container } from "@mui/material";
 import { useResetPasswordValidation } from "@validation/useResetPasswordValidation";
 import { PasswordField } from "@User/PasswordField";
 import { useAuthContext } from "@context/useAuthContext";
 
 export const ResetPassword = () => {
   const searchParams = useSearchParams();
-  const resetToken = searchParams.get('reset_password_token');
+  const resetToken = searchParams.get("reset_password_token");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
@@ -60,7 +60,7 @@ export const ResetPassword = () => {
       },{withCredentials: true});
 
       handleLoginSuccess(response.data.data);
-      setMessage('パスワードがリセットされました。');
+      setMessage("パスワードがリセットされました。");
       setError(null);
       window.location.href = "/projects?refresh=true";
     } catch (err: any) {
@@ -102,8 +102,8 @@ export const ResetPassword = () => {
     <Container maxWidth="sm" sx={{ mt: 8 }}>
       <Box
         sx={{
-          textAlign: 'center',
-          bgcolor: 'background.paper',
+          textAlign: "center",
+          bgcolor: "background.paper",
           p: 4,
           borderRadius: 2,
           boxShadow: 3,
@@ -119,8 +119,8 @@ export const ResetPassword = () => {
         )}
         <form onSubmit={handleSubmit(resetPasswordRequest)}
         style={{
-          display: 'flex',
-          flexDirection: 'column',
+          display: "flex",
+          flexDirection: "column",
           gap: 16,
         }}>
           <PasswordField

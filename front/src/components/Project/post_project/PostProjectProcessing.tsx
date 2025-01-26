@@ -3,7 +3,7 @@
 import { AudioBuffer, SetState } from "@sharedTypes/types";
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, IconButton, CircularProgress, FormGroup, FormControlLabel, Switch} from "@mui/material";
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { AudioProcessor } from "@Project/core_logic/AudioProcessor";
 import { useAudioProcessing } from "@audio/useAudioProcessing";

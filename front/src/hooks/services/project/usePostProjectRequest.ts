@@ -1,5 +1,5 @@
-import axios from 'axios'
-import { handleStatusErrors } from '@services/ErrorHandler';
+import axios from "axios"
+import { handleStatusErrors } from "@services/ErrorHandler";
 
 export const usePostProjectRequest = () => {
   const postProject = async (data: FormData): Promise<any> => {

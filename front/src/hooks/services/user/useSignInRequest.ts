@@ -1,5 +1,5 @@
 import { LoginFormData, User, SignInError } from "@sharedTypes/types";
-import axios from 'axios';
+import axios from "axios";
 import { useAuthContext } from "@context/useAuthContext";
 
 interface SignInResponse {

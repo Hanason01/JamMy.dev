@@ -4,7 +4,7 @@ import { AudioBuffer,PostSettings,SetState, Project, User, Collaboration, Extend
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Box, Typography, TextField, InputAdornment, Slider, Button, MenuItem, Switch, FormGroup, FormControlLabel, Divider, CircularProgress, Avatar, Select, Dialog, DialogTitle, DialogContent, DialogContentText,IconButton, Snackbar, } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import { PostProjectProcessing } from "@Project/post_project/PostProjectProcessing";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
@@ -350,15 +350,15 @@ export function CollaborationManagementStep1({
                     <Box sx={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
                     whiteSpace: "nowrap", }}>
                     {/* コメントを表示するボタン */}
-                      <Button variant="outlined" onClick={() => handleClickOpen(slot.slotId)} sx={{ textTransform: 'none', fontSize: '0.725rem' }}>
+                      <Button variant="outlined" onClick={() => handleClickOpen(slot.slotId)} sx={{ textTransform: "none", fontSize: "0.725rem" }}>
                         コメント
                       </Button>
 
                       {/* ダイアログ */}
                       <Dialog onClose={() => handleClose(slot.slotId)} open={!!openSlots[slot.slotId]}>
                         <DialogTitle sx={{
-                          position: 'relative',
-                          paddingRight: '48px',
+                          position: "relative",
+                          paddingRight: "48px",
                         }}
                         >
                           応募者のコメント
@@ -366,7 +366,7 @@ export function CollaborationManagementStep1({
                             aria-label="close"
                             onClick={() => handleClose(slot.slotId)}
                             sx={{
-                              position: 'absolute',
+                              position: "absolute",
                               right: 8,
                               top: 8,
                               color: (theme) => theme.palette.grey[500],

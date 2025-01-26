@@ -5,10 +5,10 @@ import { useState, useEffect } from "react";
 import { useVolumeControl } from "@audio/useVolumeControl";
 // import { useReverbControl } from "@audio/useReverbControl";
 import { Box, Slider, Typography, IconButton } from "@mui/material";
-import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-import VolumeOffIcon from '@mui/icons-material/VolumeOff';
-// import BlurOnIcon from '@mui/icons-material/BlurOn';
-// import BlurOffIcon from '@mui/icons-material/BlurOff';
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import VolumeOffIcon from "@mui/icons-material/VolumeOff";
+// import BlurOnIcon from "@mui/icons-material/BlurOn";
+// import BlurOffIcon from "@mui/icons-material/BlurOff";
 
 export function AudioProcessor({
   mixGainNode,

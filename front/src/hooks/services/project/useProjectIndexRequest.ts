@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 import { handleStatusErrors } from "@services/ErrorHandler";
 import { ProjectIndexResponse } from "@sharedTypes/types";
 
