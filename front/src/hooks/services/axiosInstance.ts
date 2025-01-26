@@ -10,7 +10,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use((config) => {
   // ブラウザからCSRFトークンを取得
   const csrfToken = document
-    .querySelector("meta[name="csrf-token"]")
+    .querySelector("meta[name='csrf-token']")
     ?.getAttribute("content");
 
   if (csrfToken) {
