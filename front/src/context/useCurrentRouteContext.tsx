@@ -1,6 +1,6 @@
 "use client";
 
-import { SetState, WithChildren } from '@sharedTypes/types';
+import { SetState, WithChildren } from "@sharedTypes/types";
 import { useState, createContext, useContext } from "react";
 
 interface CurrentRouteContextType {

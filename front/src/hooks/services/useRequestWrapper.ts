@@ -1,5 +1,5 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { useAuthContext } from '@context/useAuthContext';
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { useAuthContext } from "@context/useAuthContext";
 
 export const useRequest = () => {
   const {handleAuthError, hasAuthenticated} = useAuthContext();
@@ -7,7 +7,7 @@ export const useRequest = () => {
   // 汎用リクエスト関数
   const request = async<T = any> (
     url: string,
-    method = 'GET',
+    method = "GET",
     data:any = null,
     config: AxiosRequestConfig = {}
   ): Promise<AxiosResponse<T>> => {
@@ -33,10 +33,10 @@ export const useRequest = () => {
   };
 
   // ショートカットメソッド
-  const get = <T = any>(url: string, config: AxiosRequestConfig = {}) => request<T>(url, 'GET', null, config);
-  const post = <T = any>(url: string, data: any, config: AxiosRequestConfig = {}) => request<T>(url, 'POST', data, config);
-  const put = <T = any>(url: string, data: any, config: AxiosRequestConfig = {}) => request<T>(url, 'PUT', data, config);
-  const del = <T = any>(url: string, config = {}) => request<T>(url, 'DELETE', null, config);
+  const get = <T = any>(url: string, config: AxiosRequestConfig = {}) => request<T>(url, "GET", null, config);
+  const post = <T = any>(url: string, data: any, config: AxiosRequestConfig = {}) => request<T>(url, "POST", data, config);
+  const put = <T = any>(url: string, data: any, config: AxiosRequestConfig = {}) => request<T>(url, "PUT", data, config);
+  const del = <T = any>(url: string, config = {}) => request<T>(url, "DELETE", null, config);
 
   return { get, post, put, del };
 };

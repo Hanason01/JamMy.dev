@@ -1,5 +1,5 @@
-import axios from 'axios'
-import { handleStatusErrors } from '@services/ErrorHandler';
+import axios from "axios"
+import { handleStatusErrors } from "@services/ErrorHandler";
 
 export const useCompleteCollaborationManagementRequest = () => {
   const completeCollaborationManagement = async (project_id: string, data: FormData): Promise<any> => {

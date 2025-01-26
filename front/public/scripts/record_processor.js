@@ -101,4 +101,4 @@ class AudioProcessor extends AudioWorkletProcessor {
 }
 
 // カスタムプロセッサを登録
-registerProcessor('record-processor', AudioProcessor);
+registerProcessor("record-processor", AudioProcessor);

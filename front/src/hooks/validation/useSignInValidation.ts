@@ -6,10 +6,10 @@ import * as yup from "yup";
 const schema = yup.object().shape({
   email: yup
     .string()
-    .required('メールアドレスは必須です'),
+    .required("メールアドレスは必須です"),
   password: yup
     .string()
-    .required('パスワードは必須です'),
+    .required("パスワードは必須です"),
   remember_me: yup
     .boolean()
     .required(),

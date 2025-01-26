@@ -3,7 +3,7 @@
 import { AudioBuffer,PostSettings } from "@sharedTypes/types";
 import { useState, useEffect } from "react";
 import { Stepper, Step, StepLabel, Box, Typography } from "@mui/material";
-import UploadFileIcon from '@mui/icons-material/UploadFile';
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { CollaborationStep1 } from "@Collaboration/CollaborationStep1";
 import { CollaborationStep2 } from "@Collaboration/CollaborationStep2";
 import { PlaybackProvider } from "@context/usePlayBackContext";

@@ -3,9 +3,9 @@
 import { AudioBuffer, Settings, SetState } from "@sharedTypes/types";
 import { useState, useEffect, useRef } from "react";
 import { Button, Box, IconButton, Typography, CircularProgress, Menu, MenuItem } from "@mui/material";
-import SettingsIcon from '@mui/icons-material/Settings';
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import StopCircleIcon from '@mui/icons-material/StopCircle';
+import SettingsIcon from "@mui/icons-material/Settings";
+import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
+import StopCircleIcon from "@mui/icons-material/StopCircle";
 import { useAudioRecorder } from "@audio/useAudioRecorder";
 import { useAudioAnalyzer } from "@audio/useAudioAnalyzer";
 import { useAudioCountIn } from "@audio/useAudioCountIn";

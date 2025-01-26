@@ -13,8 +13,8 @@ export const useGoogleSignIn = () => {
       const redirectUrl = `${backendAuthUrl}?auth_origin_url=${encodeURIComponent(authOriginUrl)}`;
       window.location.href = redirectUrl;
     } catch (error: any) {
-      console.error('Google認証中にエラーが発生しました:', error);
-      alert('Google認証に失敗しました。再度お試しください。');
+      console.error("Google認証中にエラーが発生しました:", error);
+      alert("Google認証に失敗しました。再度お試しください。");
     }
   };
 

@@ -4,9 +4,9 @@ import { Project, User } from "@sharedTypes/types";
 import { useProjectIndexAudioPlayer } from "@audio/useProjectIndexAudioPlayer";
 import { useEffect } from "react";
 import { Box, Avatar, IconButton, Typography, Slider } from "@mui/material";
-import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
-import PauseCircleIcon from '@mui/icons-material/PauseCircle';
-import CloseIcon from '@mui/icons-material/Close';
+import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
+import PauseCircleIcon from "@mui/icons-material/PauseCircle";
+import CloseIcon from "@mui/icons-material/Close";
 
 export function AudioController({
   onClose,

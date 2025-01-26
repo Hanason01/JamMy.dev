@@ -3,7 +3,7 @@
 import { AudioBuffer, PostCollaborationFormData, CollaborationManagementRequestData, User, Project } from "@sharedTypes/types";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {Typography, Box, TextField, Button,Avatar, MenuItem, Divider, Alert, CircularProgress } from "@mui/material";
+import {Typography, Box, TextField, Button,Avatar, MenuItem, Divider, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,  } from "@mui/material";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { useCompleteCollaborationManagementRequest } from "@services/project/collaboration_management/useCompleteCollaborationManagementRequest";
 import { audioEncoder } from "@utiles/audioEncoder";
@@ -29,6 +29,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
   const [formError, setFormError] = useState<string>("");
   const encodedFileRef = useRef<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false); // ローディング状態
+  const [openTerminateDialog, setOpenTerminateDialog] = useState<boolean>(false); //終了確認ダイアログ
 
 
 
@@ -47,13 +48,16 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
     setLoading(true);
     setTimeout(async () => {
       try {
-        let audioFile = encodedFileRef.current
+        let audioFile = encodedFileRef.current;
+        let urlParams = "";
         //エンコード処理
         if(!encodedFileRef.current){
           console.log("エンコード処理に送るaudioBuffer", mergedAudioBuffer);
           if(mode === "save"){
+            urlParams = "collaboration_management:update:success";
             audioFile = await audioEncoder(mergedAudioBuffer, "FLAC");
           } else if(mode === "terminate"){
+            urlParams = "collaboration_management:terminate:success";
             audioFile = await audioEncoder(mergedAudioBuffer, "MP3");
           }
           encodedFileRef.current = audioFile;
@@ -99,7 +103,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
 
         if (currentProject){
           await completeCollaborationManagement(currentProject.id, formData);
-          router.push("/projects?refresh=true");
+          window.location.href = `/projects/${currentProject.id}/project_show?refresh=true&feedback=${urlParams}`;
         }
       } catch (error: any) {
         if (error.general) {
@@ -111,6 +115,17 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
     }, 100);
   };
 
+  // 終了処理の中間関数
+  const handleTerminateProxy = () => {
+    setOpenTerminateDialog(true);
+  };
+
+  // ダイアログの確認後の処理
+  const handleDialogConfirmTerminate = () => {
+    setLoading(true);
+    sendDataToAPI("terminate");
+    setOpenTerminateDialog(false);
+  };
 
   //合成リストへ戻る
   const handleBackToStep2 = () =>{
@@ -244,10 +259,30 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
 
 
           <Box>
-            <Button onClick={()=>sendDataToAPI("terminate")} variant="primary" >
+            <Button onClick={handleTerminateProxy} variant="primary" >
               このプロジェクトを終了にする
             </Button>
           </Box>
+
+          {/* 終了用ダイアログ */}
+        <Dialog open={openTerminateDialog} onClose={() => setOpenTerminateDialog(false)}>
+          <DialogTitle>プロジェクトを終了しますか？</DialogTitle>
+          <Divider />
+          <DialogContent>
+            <DialogContentText>
+            プロジェクトを終了すると、以降の応募は受けられず、編集する事も再開する事もできません。まだ合成されていない応募中の音声は削除されます。
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{mb:1}} >
+            <Button onClick={() => setOpenTerminateDialog(false)} variant="outlined">
+              キャンセル
+            </Button>
+            <Button onClick={handleDialogConfirmTerminate} variant="contained" color="primary">
+              確認
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         </Box>
       </Box>
     </Box>

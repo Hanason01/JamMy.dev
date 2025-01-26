@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
     // エイリアスを追加
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
-      '@': path.resolve(__dirname, 'src'), // `@`を`src`ディレクトリにマッピング
+      "@": path.resolve(__dirname, "src"), // `@`を`src`ディレクトリにマッピング
     };
     return config;
   },

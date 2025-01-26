@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { User } from '@sharedTypes/types';
-import { useState, useEffect } from 'react';
+import { User } from "@sharedTypes/types";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthContext } from '@context/useAuthContext';
-import { useLogoutRequest } from '@services/user/useLogoutRequest';
+import { useAuthContext } from "@context/useAuthContext";
+import { useLogoutRequest } from "@services/user/useLogoutRequest";
 import Link from "next/link";
-import { AppBar, Box, Toolbar, Typography, Avatar, Menu, MenuItem } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
-import AccountCircle from '@mui/icons-material/AccountCircle';
+import { AppBar, Box, Toolbar, Typography, Avatar, Menu, MenuItem } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 
 
 export function Header() {
@@ -19,7 +19,7 @@ export function Header() {
 
   // ローカルストレージからユーザー情報を取得（リロード対策）
   useEffect(() => {
-    const storedUser = localStorage.getItem('authenticatedUser');
+    const storedUser = localStorage.getItem("authenticatedUser");
     if (storedUser) {
       setLocalUser(JSON.parse(storedUser));
     }
@@ -67,28 +67,28 @@ export function Header() {
   const avatarAlt =
     isAuthenticated && authenticatedUser?.attributes?.nickname
       ? authenticatedUser.attributes?.nickname
-      : localUser?.attributes?.nickname || 'User';
+      : localUser?.attributes?.nickname || "User";
 
   return (
     <Box sx={{
       flexGrow: 1,
-      height: '56px' }}>
+      height: "56px" }}>
       <AppBar position="fixed">
-        <Toolbar sx={{ position: 'relative' }}>
+        <Toolbar sx={{ position: "relative" }}>
           <Typography
           variant="h6"
           component={Link}
           href="/"
           sx={{
-            position:'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            position:"absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
             textDecoration: "none",
               color: "inherit",
             }}>
             JamMy
           </Typography>
-            <Box sx={{ marginLeft: 'auto' }}>
+            <Box sx={{ marginLeft: "auto" }}>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -107,13 +107,13 @@ export function Header() {
                 id="menu-appbar"
                 anchorEl={anchorEl}
                 anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+                  vertical: "top",
+                  horizontal: "right",
                 }}
                 keepMounted
                 transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+                  vertical: "top",
+                  horizontal: "right",
                 }}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}

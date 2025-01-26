@@ -6,7 +6,7 @@ export function handleStatusErrors(status: number): never{
       throw new Error("サーバーエラーが発生しました。");
     case 401:
       // ローカルストレージをクリア
-      localStorage.removeItem('authenticatedUser');
+      localStorage.removeItem("authenticatedUser");
       throw new Error("認証に失敗しました。");
     default:
       throw new Error("エラーが発生しました。");

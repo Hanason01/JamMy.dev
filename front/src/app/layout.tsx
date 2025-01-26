@@ -1,16 +1,17 @@
 import Script from "next/script";
-import { ThemeProviderWrapper } from '@components/ThemeProviderWrapper';
-import { AuthProvider } from '@context/useAuthContext';
-// import { AuthModal } from '@User/AuthModal';
-import { ProjectProvider } from '@context/useProjectContext';
+import { ThemeProviderWrapper } from "@components/ThemeProviderWrapper";
+import { AuthProvider } from "@context/useAuthContext";
+// import { AuthModal } from "@User/AuthModal";
+import { ProjectProvider } from "@context/useProjectContext";
 import { CurrentRouteProvider } from "@context/useCurrentRouteContext"
 import { ClientCacheProvider } from "@context/useClientCacheContext";
+import { FeedbackProvider } from "@context/useFeedbackContext";
 
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
-import './globals.css';
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+import "./globals.css";
 
 export const metadata = {
   title: "JamMy",
@@ -40,23 +41,25 @@ export default function RootLayout({ children }: Readonly<{
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-NTWJ7EGQPC');
+            gtag("js", new Date());
+            gtag("config", "G-NTWJ7EGQPC");
           `}
         </Script>
       </head>
       <body>
-        <AuthProvider>
-          <CurrentRouteProvider>
-            <ClientCacheProvider >
-              <ProjectProvider>
-                <ThemeProviderWrapper>
-                  {children}
-                </ThemeProviderWrapper>
-              </ProjectProvider>
-            </ClientCacheProvider>
-          </CurrentRouteProvider>
-        </AuthProvider>
+        <FeedbackProvider>
+          <AuthProvider>
+            <CurrentRouteProvider>
+              <ClientCacheProvider >
+                <ProjectProvider>
+                  <ThemeProviderWrapper>
+                    {children}
+                  </ThemeProviderWrapper>
+                </ProjectProvider>
+              </ClientCacheProvider>
+            </CurrentRouteProvider>
+          </AuthProvider>
+        </FeedbackProvider>
       </body>
     </html>
   );

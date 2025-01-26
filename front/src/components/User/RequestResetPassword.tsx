@@ -1,20 +1,20 @@
 "use client";
-import React, { useState } from 'react';
-import axios from 'axios';
-import { TextField, Button, Alert, Typography, Box, Container } from '@mui/material';
+import React, { useState } from "react";
+import axios from "axios";
+import { TextField, Button, Alert, Typography, Box, Container } from "@mui/material";
 
 export const RequestResetPassword = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/password`, { email });
-      setMessage('リセットリンクをメールに送信しました。メールをご確認の上、パスワードの変更をしてください');
+      setMessage("リセットリンクをメールに送信しました。メールをご確認の上、パスワードの変更をしてください");
       setError(null);
     } catch (err) {
-      setError('リセットリンクの送信に失敗しました。もう一度お試しください。');
+      setError("リセットリンクの送信に失敗しました。もう一度お試しください。");
       setMessage(null);
     }
   };
@@ -23,8 +23,8 @@ export const RequestResetPassword = () => {
     <Container maxWidth="sm" sx={{ mt: 8 }}>
       <Box
         sx={{
-          textAlign: 'center',
-          bgcolor: 'background.paper',
+          textAlign: "center",
+          bgcolor: "background.paper",
           p: 4,
           borderRadius: 2,
           boxShadow: 3,
@@ -43,8 +43,8 @@ export const RequestResetPassword = () => {
             handleSubmit();
           }}
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
+            display: "flex",
+            flexDirection: "column",
             gap: 2,
             mt: 2,
           }}
@@ -62,8 +62,8 @@ export const RequestResetPassword = () => {
             color="primary"
             fullWidth
             sx={{
-              textTransform: 'none',
-              fontWeight: 'bold',
+              textTransform: "none",
+              fontWeight: "bold",
             }}
           >
             リセットリンクを送信

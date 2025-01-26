@@ -1,7 +1,7 @@
 "use client";
 
 import { User, AuthContextType, WithChildren } from "@sharedTypes/types";
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 // 初期値を設定
 const initialContext: AuthContextType = {
@@ -40,14 +40,14 @@ export const AuthProvider = ({ children }: WithChildren) => {
     setIsAuthenticated(true);
     setAuthenticatedUser(user);
     // ローカルストレージに保存
-    localStorage.setItem('authenticatedUser', JSON.stringify(user));
+    localStorage.setItem("authenticatedUser", JSON.stringify(user));
     closeAuthModal();
   };
 
    // ログアウト処理
   const handleLogout = ():void => {
    // ローカルストレージをクリア
-    localStorage.removeItem('authenticatedUser');
+    localStorage.removeItem("authenticatedUser");
     setIsAuthenticated(false);
     setAuthenticatedUser(null);
   };

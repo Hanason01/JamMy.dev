@@ -3,7 +3,7 @@
 import { AudioBuffer,PostSettings, Collaboration } from "@sharedTypes/types";
 import { useState, useEffect } from "react";
 import { Stepper, Step, StepLabel, Box, Typography, CircularProgress } from "@mui/material";
-import HandymanIcon from '@mui/icons-material/Handyman';
+import HandymanIcon from "@mui/icons-material/Handyman";
 import { CollaborationManagementStep1 } from "@CollaborationManagement/CollaborationManagementStep1";
 import { CollaborationManagementStep2 } from "@CollaborationManagement/CollaborationManagementStep2";
 import { CollaborationManagementStep3 } from "@CollaborationManagement/CollaborationManagementStep3";

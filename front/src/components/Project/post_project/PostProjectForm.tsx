@@ -74,7 +74,7 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
         console.log("リクエスト送信前のformData", formData);
 
         await postProject(formData);
-        router.push("/projects?refresh=true");
+        window.location.href = "/projects?refresh=true&feedback=project:create:success";
       } catch (error: any) {
         if (error.title) {
           setError("title", { type: "manual", message: error.title });
