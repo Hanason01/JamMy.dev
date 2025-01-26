@@ -5,16 +5,17 @@ import { useState, useEffect} from "react";
 import { useRouter } from "next/navigation";
 import { Paper, Box, Avatar, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle,
 DialogContent, DialogContentText, DialogActions,Divider } from "@mui/material";
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import PeopleIcon from '@mui/icons-material/People';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import PeopleIcon from "@mui/icons-material/People";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useProjectContext } from "@context/useProjectContext";
+import { useFeedbackContext } from "@context/useFeedbackContext";
 import { usePostProjectValidation } from "@validation/usePostProjectValidation";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { audioEncoder } from "@utiles/audioEncoder";
@@ -71,6 +72,7 @@ export function ProjectCard({
 
   //Context関係
   const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath, setCurrentProjectForShow } = useProjectContext();
+  const { setFeedbackAndReload } = useFeedbackContext();
   const router = useRouter();
 
 
@@ -196,7 +198,7 @@ export function ProjectCard({
       await editProject(formData, project.id);
       console.log("プロジェクトが正常に更新されました");
       setIsEditing(false);
-      window.location.reload();
+      setFeedbackAndReload("project:edit:success");
     }catch(error: any) {
       if (error.title) {
         setError("title", { type: "manual", message: error.title });
@@ -225,20 +227,20 @@ export function ProjectCard({
   //削除ボタン
   const handleDeleteProject = async () =>{
     await deleteProject(project.id)
-    window.location.reload();
+    window.location.href = "/projects?refresh=true&feedback=project:delete:success";
   }
 
   return(
     <Paper
       elevation={3}
       sx={{
-        border: '1px solid #ddd',
+        border: "1px solid #ddd",
         borderRadius: 2,
         padding: 2,
         marginBottom: 2,
-        position: 'relative',
+        position: "relative",
         maxWidth: 600,
-        backgroundColor: 'background.default',
+        backgroundColor: "background.default",
         mx: 1,
         cursor: mode === "list" && !isEditing ? "pointer" : "default",
       }}
@@ -247,19 +249,19 @@ export function ProjectCard({
         {/* アイコン・ユーザー名 */}
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
             pointerEvents: isEditing ? "none" : "auto",
             opacity: isEditing ? 0.5 : 1,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Avatar
               src={project.user.attributes.image || "/default-icon.png"}
               alt={project.user.attributes.nickname || project.user.attributes.username || undefined }
             />
-            <Box sx={{ ml:2, flex: 1, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ ml:2, flex: 1, display: "flex", alignItems: "center" }}>
               <Typography variant="body1" component="span" color="textPrimary">
                 {project.user.attributes.nickname || project.user.attributes.username }
               </Typography>
@@ -267,7 +269,7 @@ export function ProjectCard({
           </Box>
 
           {/* タイムスタンプ・メニュー */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="body2" color="textPrimary" sx={{ml:5}}>
               {formattedDate}
             </Typography>
@@ -435,7 +437,6 @@ export function ProjectCard({
             </DialogActions>
           </Dialog>
 
-       
         </>
       ) : (
       <>
@@ -447,7 +448,7 @@ export function ProjectCard({
           {expanded ? project.attributes.description : `${previewText}`}
         </Typography>
         {!isDescriptionShort &&(
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center'}}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center"}}>
             <Typography
               onClick={(e) => {
                 e.stopPropagation(); // バブリング防止
@@ -462,7 +463,7 @@ export function ProjectCard({
               e.stopPropagation(); // バブリング防止
               toggleExpanded();
             }}
-            sx={{ color: 'primary.main', pl: 0 }}>
+            sx={{ color: "primary.main", pl: 0 }}>
               {expanded ? <ExpandLessIcon/> : <ExpandMoreIcon />}
             </IconButton>
           </Box>
@@ -494,30 +495,30 @@ export function ProjectCard({
         )}
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
             my: 1,
             pointerEvents: isEditing ? "none" : "auto",
             opacity: isEditing ? 0.5 : 1,
           }}
         >
-          <PeopleIcon sx={{ color: 'text.secondary'}} />
+          <PeopleIcon sx={{ color: "text.secondary"}} />
           <Typography variant="body2" color="textSecondary">
             ユーザーB、ユーザーC他数名が参加（実装中）
           </Typography>
         </Box>
 
         {/* 再生ボタン */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end'}}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end"}}>
           <IconButton
           onClick={(e) => {
             e.stopPropagation(); // バブリング防止
             onPlayClick(project);
           }}
           sx={{
-          color: 'primary.main',
-          border: '2px solid',
-          borderRadius: '14px',
+          color: "primary.main",
+          border: "2px solid",
+          borderRadius: "14px",
           padding: 0,
           mr: 4,
           }}><PlayArrowIcon sx={{ fontSize: 70 }}/></IconButton>

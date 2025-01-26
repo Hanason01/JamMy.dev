@@ -3,9 +3,9 @@
 import { LoginFormData } from "@sharedTypes/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from 'next/link';
+import Link from "next/link";
 import { Box, TextField, FormControlLabel, Checkbox, Button, Divider, Alert, Typography } from "@mui/material";
-import LockIcon from '@mui/icons-material/Lock';
+import LockIcon from "@mui/icons-material/Lock";
 import GoogleIcon from "@mui/icons-material/Google";
 import { PasswordField } from "@User/PasswordField";
 import { useSignInValidation } from "@validation/useSignInValidation";
@@ -35,7 +35,7 @@ export function SignInForm({redirectTo} : {redirectTo:string}) {
         // window.location.href = redirectTo;
         router.push(redirectTo);
       } else {
-        window.location.href = "/projects?refresh=true";
+        window.location.href = "/projects?refresh=true&feedback=signin:success";
       }
 
     } catch (error: any) {
@@ -132,7 +132,7 @@ export function SignInForm({redirectTo} : {redirectTo:string}) {
           color="primary"
           sx={{
             cursor: "pointer",
-            '&:hover': { textDecoration: 'underline' },
+            "&:hover": { textDecoration: "underline" },
           }}
           component={Link}
           href="/auth/request_reset_password"
