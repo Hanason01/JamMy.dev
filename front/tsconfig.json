@@ -34,6 +34,7 @@
       "@context/*": ["src/context/*"],
       "@audio/*": ["src/hooks/audio/*"],
       "@services/*": ["src/hooks/services/*"],
+      "@axiosInstance": ["src/hooks/services/axiosInstance.ts"],
       "@validation/*": ["src/hooks/validation/*"],
       "@theme/*": ["src/theme/*"],
       "@sharedTypes/*": ["src/sharedTypes/*"],
