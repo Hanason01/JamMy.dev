@@ -53,7 +53,7 @@ class Api::V1::Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCall
 
   def render_data_or_redirect(message, data, user_data = {})
     # 許可するホストやURLのホワイトリストを定義
-    allowed_hosts = ["www.jam-my.com", "jam-my.com"]
+    allowed_hosts = ["www.jam-my.com", "jam-my.com", "localhost", "127.0.0.1"]
     allowed_paths = ["/auth/google_callback"]
 
     if ['inAppBrowser', 'newWindow'].include?(omniauth_window_type)

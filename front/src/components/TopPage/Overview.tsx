@@ -13,7 +13,7 @@ export function Overview(){
   };
 
   const handleNavigateToAuth = () => {
-    router.push("/auth");
+    openAuthModal();
   };
 
   return (

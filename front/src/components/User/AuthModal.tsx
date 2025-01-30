@@ -13,8 +13,8 @@ export function AuthModal({
   handleClose,
   redirectTo
 } : {
-  open: boolean;
-  handleClose: () => void;
+  open?: boolean;
+  handleClose?: () => void;
   redirectTo?: string;
 }){
   const { showAuthModal, closeAuthModal } = useAuthContext();
@@ -24,15 +24,14 @@ export function AuthModal({
     setTabIndex(newValue);
   }
 
-  //トップページベースかAuthContextベース
+  //静的ページのAuthベース || Modal単体利用
   const isModalOpen = open || showAuthModal;
+  const onCloseHandler = handleClose ?? closeAuthModal;
 
   return(
     <Modal
       open={isModalOpen}
-      onClose={() => {
-        closeAuthModal();
-        if (open) handleClose()}}>
+      onClose={onCloseHandler}>
         <Box
           sx={{
             display: "flex",

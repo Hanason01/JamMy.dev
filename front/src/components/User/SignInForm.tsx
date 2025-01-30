@@ -11,32 +11,24 @@ import { PasswordField } from "@User/PasswordField";
 import { useSignInValidation } from "@validation/useSignInValidation";
 import { useSignInRequest } from "@services/user/useSignInRequest";
 import { useGoogleSignIn } from "@services/user/useGoogleSignIn"
-import { useAuthContext } from "@context/useAuthContext";
 
-export function SignInForm({redirectTo} : {redirectTo:string}) {
+
+
+export function SignInForm({redirectTo} : {redirectTo?:string}) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [formError, setFormError] = useState<string>("");
-  const { isAuthenticated } = useAuthContext();
 
   const handleTogglePasswordVisibility = () => setShowPassword(!showPassword);
 
   const { register, handleSubmit, setError, errors } = useSignInValidation();
   const { signInWithGoogle } = useGoogleSignIn();
 
-  const { signIn } = useSignInRequest();
+  const { signIn } = useSignInRequest({redirectTo});
   const sendDataToAPI = async (data: LoginFormData) => {
+
     try {
       await signIn(data);
-
-      sessionStorage.removeItem("redirectTo");
-
-      if (redirectTo) {
-        // window.location.href = redirectTo;
-        router.push(redirectTo);
-      } else {
-        window.location.href = "/projects?refresh=true&feedback=signin:success";
-      }
 
     } catch (error: any) {
       if (error.email) {

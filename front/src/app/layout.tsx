@@ -1,7 +1,7 @@
 import Script from "next/script";
 import { ThemeProviderWrapper } from "@components/ThemeProviderWrapper";
+import { AuthModal } from "@User/AuthModal";
 import { AuthProvider } from "@context/useAuthContext";
-// import { AuthModal } from "@User/AuthModal";
 import { ProjectProvider } from "@context/useProjectContext";
 import { CurrentRouteProvider } from "@context/useCurrentRouteContext"
 import { ClientCacheProvider } from "@context/useClientCacheContext";
@@ -12,6 +12,8 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import "./globals.css";
+import "@lib/opentelemetry_client";
+
 
 export const metadata = {
   title: "JamMy",
@@ -53,6 +55,7 @@ export default function RootLayout({ children }: Readonly<{
               <ClientCacheProvider >
                 <ProjectProvider>
                   <ThemeProviderWrapper>
+                    <AuthModal />
                     {children}
                   </ThemeProviderWrapper>
                 </ProjectProvider>

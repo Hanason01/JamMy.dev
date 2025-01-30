@@ -8,12 +8,14 @@ const initialContext: AuthContextType = {
   authenticatedUser: null,
   isAuthenticated: false,
   showAuthModal: false,
-  handleLoginSuccess: () => {},
+  handleLoginSuccess: async () => {},
   handleLogout: () => {},
   hasAuthenticated: () => {},
   handleAuthError: () => {},
   openAuthModal: () => {},
   closeAuthModal: () => {},
+  signIn: () => false,
+  requireAuth: () => false,
 };
 
 const AuthContext = createContext<AuthContextType>(initialContext);
@@ -35,12 +37,10 @@ export const AuthProvider = ({ children }: WithChildren) => {
   }, []);
 
   //ログイン成功時の関数
-  const handleLoginSuccess = (user: User):void => {
-    console.log("handleLoginSuccessが呼ばれました、この時点のisAuthenticated",isAuthenticated);
+  const handleLoginSuccess = async (user: User):Promise<void> => {
+    localStorage.setItem("authenticatedUser", JSON.stringify(user));
     setIsAuthenticated(true);
     setAuthenticatedUser(user);
-    // ローカルストレージに保存
-    localStorage.setItem("authenticatedUser", JSON.stringify(user));
     closeAuthModal();
   };
 
@@ -68,6 +68,20 @@ export const AuthProvider = ({ children }: WithChildren) => {
     openAuthModal();
   };
 
+  // ログイン判定のみ行う関数
+  const signIn = (): boolean => {
+    return localStorage.getItem("authenticatedUser") !== null;
+  };
+
+  // ログインしていなければ認証モーダルを開く関数
+  const requireAuth = (): boolean => {
+    if (!signIn()) {
+      openAuthModal();
+      return false;
+    }
+    return true;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -80,6 +94,8 @@ export const AuthProvider = ({ children }: WithChildren) => {
         handleAuthError,
         openAuthModal,
         closeAuthModal,
+        signIn,
+        requireAuth
       }}
     >
       {children}

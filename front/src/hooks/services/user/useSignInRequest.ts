@@ -1,20 +1,33 @@
 import { LoginFormData, User, SignInError } from "@sharedTypes/types";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useAuthContext } from "@context/useAuthContext";
+import { useFeedbackContext } from "@context/useFeedbackContext";
+
 
 interface SignInResponse {
   data: User;
 }
 
-export const useSignInRequest = () => {
+export const useSignInRequest = ({redirectTo} : {redirectTo?:string}) => {
   const { handleLoginSuccess, isAuthenticated } = useAuthContext();
+  const { setFeedbackByKey } = useFeedbackContext();
+  const router = useRouter();
 
-  const signIn = async (data: LoginFormData): Promise<SignInResponse> => {
+  const signIn = async (data: LoginFormData): Promise<void> => {
     try {
       const response = await axios.post<SignInResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/sign_in`, data, { withCredentials: true });
-      handleLoginSuccess(response.data.data);
-      console.log("handleLoginSuccessが終了した後のisAuthenticated",isAuthenticated);
-      return response.data;
+      await handleLoginSuccess(response.data.data);
+
+      setFeedbackByKey("signin:success");
+
+      if (redirectTo) {
+        sessionStorage.removeItem("redirectTo");
+        router.replace(redirectTo);
+      } else {
+        router.replace("/projects")
+      }
+
     } catch (error: any) {
       const formattedErrors: SignInError = {};
 
