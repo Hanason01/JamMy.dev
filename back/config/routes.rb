@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     confirmations: 'api/v1/auth/confirmations',
     passwords: 'api/v1/auth/passwords',
     omniauth_callbacks: 'api/v1/auth/omniauth_callbacks',
+    token_validations: 'api/v1/auth/token_validations'
   }
 
 
@@ -14,6 +15,7 @@ Rails.application.routes.draw do
         resources :collaborations, only: %i[create]
         resources :collaboration_managements, only: %i[index]
         resource :collaboration_managements, only: %i[update]
+        resources :likes, only: %i[create destroy], module: :projects
       end
     end
   end
