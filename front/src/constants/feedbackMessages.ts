@@ -88,6 +88,25 @@ const feedbackMessages: FeedbackMessages = {
     },
   },
 
+  // like
+  like: {
+    error: {
+      message: "いいねの追加に失敗しました。再度お試しください。",
+      severity: "error",
+    },
+    not_found: {
+      message: "対象が見つかりません。",
+      severity: "info",
+    },
+  },
+  // unlike
+  unlike: {
+    error: {
+      message: "いいねの解除に失敗しました。再度お試しください。",
+      severity: "error",
+    },
+  },
+
   //collaboration
   collaboration: {
     // create

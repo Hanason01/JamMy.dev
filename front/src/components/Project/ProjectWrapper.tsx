@@ -6,7 +6,7 @@ import throttle from "lodash/throttle";
 import { useParams } from "next/navigation";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
 import { ProjectCard } from "@Project/ProjectCard";
-import { AudioController } from "@components/Project/AudioController";
+import { AudioController } from "@components/Project/AudioController"
 import { useProjectIndexRequest } from "@services/project/useProjectIndexRequest";
 import { useProjectShowRequest } from "@services/project/useProjectShowRequest";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
@@ -172,6 +172,7 @@ export function ProjectWrapper({
     // ローカルストレージからユーザーを取得して isOwner を計算
     const storedUser = localStorage.getItem("authenticatedUser");
     const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+    console.log("parsedUser", parsedUser);
 
     // projects を拡張
     return data.map((project) => {
@@ -272,6 +273,8 @@ export function ProjectWrapper({
             key={project.attributes.id}
             onPlayClick={handlePlayClick}
             project={project}
+            projects={projects}
+            setProjects={setProjects}
             />
           ))}
         </InfiniteScroll>
