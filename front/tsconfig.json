@@ -40,6 +40,7 @@
       "@sharedTypes/*": ["src/sharedTypes/*"],
       "@utiles/*": ["src/utiles/*"],
       "@constants/*": ["src/constants/*"],
+      "@lib/*": ["src/lib/*"]
     }
   },
   "include": [
