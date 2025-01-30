@@ -8,6 +8,7 @@ class User < ActiveRecord::Base
 
   has_many :projects, dependent: :destroy
   has_many :collaborations, dependent: :destroy
+  has_many :likes, dependent: :destroy
 
   validates :username,
           uniqueness: { message: "は既に使用されています" },

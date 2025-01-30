@@ -1,6 +1,6 @@
 "use client";
 
-import { Project, User, EnrichedProject, PostProjectFormData, EditProjectRequestData} from "@sharedTypes/types";
+import { Project, User, SetState, EnrichedProject, PostProjectFormData, EditProjectRequestData} from "@sharedTypes/types";
 import { useState, useEffect} from "react";
 import { useRouter } from "next/navigation";
 import { Paper, Box, Avatar, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle,
@@ -12,29 +12,37 @@ import PeopleIcon from "@mui/icons-material/People";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useProjectContext } from "@context/useProjectContext";
 import { useFeedbackContext } from "@context/useFeedbackContext";
+import { useAuthContext } from "@context/useAuthContext";
 import { usePostProjectValidation } from "@validation/usePostProjectValidation";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { audioEncoder } from "@utiles/audioEncoder";
 import { useEditProjectRequest } from "@services/project/useEditProjectRequest";
 import { useDeleteProjectRequest } from "@services/project/useDeleteProjectRequest";
+import { useLikeToggle } from "@services/project/feedback/useLikeToggle";
+
 
 export function ProjectCard({
   mode,
   project,
+  projects,
+  setProjects,
   onPlayClick,
 } : {
   mode:"list" | "detail";
   project: EnrichedProject;
+  projects: EnrichedProject[];
+  setProjects: SetState<EnrichedProject[]>;
   onPlayClick: (project: EnrichedProject) => void;
 }){
   //状態変数・変数
   const [expanded, setExpanded] = useState<boolean>(false); //概要展開
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
 
 
   //編集・削除用途のセット（リクエスト関係は別途定義）
@@ -68,12 +76,14 @@ export function ProjectCard({
     setTempData(null);
   }
 
+  //汎用フック
+  const { handleLike, handleUnlike } = useLikeToggle({projects, setProjects});
 
-
-  //Context関係
+  //汎用Context関係
   const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath, setCurrentProjectForShow } = useProjectContext();
   const { setFeedbackAndReload } = useFeedbackContext();
   const router = useRouter();
+  const { requireAuth } = useAuthContext();
 
 
   //スクロール位置復元
@@ -176,7 +186,7 @@ export function ProjectCard({
 
       if (!visibilityValue) {
         console.error("無効な公開範囲が選択されています");
-        return; // 処理を中断
+        return;
       }
 
       // リクエストデータを作成
@@ -194,7 +204,7 @@ export function ProjectCard({
         formData.append(key, value);
       });
 
-      // APIリクエストの送信（仮実装）
+      // APIリクエストの送信
       await editProject(formData, project.id);
       console.log("プロジェクトが正常に更新されました");
       setIsEditing(false);
@@ -229,6 +239,21 @@ export function ProjectCard({
     await deleteProject(project.id)
     window.location.href = "/projects?refresh=true&feedback=project:delete:success";
   }
+
+   // いいねボタン
+  const handleLikeToggle = async () => {
+    if (!requireAuth()) {
+      return; // 未ログインなら処理を中断
+    }
+
+    if (project.attributes.liked_by_current_user) {
+      // すでに「いいね」されている → いいね解除
+      await handleUnlike(project.id, project.attributes.current_like_id);
+    } else {
+      // まだ「いいね」されていない → いいね追加
+      await handleLike(project.id);
+    }
+  };
 
   return(
     <Paper
@@ -505,6 +530,34 @@ export function ProjectCard({
           <PeopleIcon sx={{ color: "text.secondary"}} />
           <Typography variant="body2" color="textSecondary">
             ユーザーB、ユーザーC他数名が参加（実装中）
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            my: 1,
+            pointerEvents: isEditing? "none" : "auto",
+            opacity: isEditing? 0.5 : 1,
+          }}
+        >
+          <IconButton
+          onClick={(e) => {
+            e.stopPropagation(); // バブリング防止
+            handleLikeToggle();
+          }}
+          sx={{ color: project.attributes.liked_by_current_user ? "secondary.main" : "text.secondary" }}
+        >
+          {project.attributes.liked_by_current_user ? (
+            <FavoriteIcon sx={{ mr: 1 }} />
+          ) : (
+            <FavoriteBorderIcon sx={{ mr: 1 }} />
+          )}
+
+          </IconButton>
+          <Typography variant="body2" color={project.attributes.liked_by_current_user ? "secondary.main" : "textSecondary"}>
+            {project.attributes.like_count}
           </Typography>
         </Box>
 

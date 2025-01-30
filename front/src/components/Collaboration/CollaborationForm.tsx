@@ -8,9 +8,11 @@ import { usePostCollaborationValidation } from "@validation/usePostCollaboration
 import { usePostCollaborationRequest } from "@services/project/collaboration/usePostCollaborationRequest";
 import { audioEncoder } from "@utiles/audioEncoder";
 import { useProjectContext } from "@context/useProjectContext";
+import { useFeedbackContext } from "@context/useFeedbackContext";
 
 export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
   const { currentProject, setCurrentProject, currentUser, setCurrentUser } = useProjectContext();
+  const { setFeedbackByKey } = useFeedbackContext();
   const router = useRouter();
   const [formError, setFormError] = useState<string>("");
   const encodedFileRef = useRef<File | null>(null);
@@ -67,7 +69,8 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
 
         if (currentProject){
           await postCollaboration(formData, currentProject.id);
-          window.location.href = `/projects/${currentProject.id}/project_show?refresh=true&feedback=collaboration:create:success`;
+          setFeedbackByKey("collaboration:create:success");
+          router.replace(`/projects/${currentProject.id}/project_show`);
         }
       } catch (error: any) {
         if (error.comment) {

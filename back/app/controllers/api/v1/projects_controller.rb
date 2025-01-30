@@ -1,13 +1,26 @@
 class Api::V1::ProjectsController < ApplicationController
   before_action :authenticate_user!, only: [:create,:edit, :update, :destroy]
   def index
-    projects = Project.includes(:user, :audio_file)
+    projects = Project.includes(:user, :audio_file, :likes)
                       .where(status: [:open, :closed] )
                       .where(visibility: :is_public)
                       .order(created_at: :desc)
                       .page(params[:page])
     if projects.any?
-      serialized_projects = ProjectSerializer.new(projects, { include: [:user, :audio_file] }).serializable_hash
+      #Serializerでcurrent_userは使用できない為、paramsで受け渡し
+      #認証されている場合はuserオブジェクトが、未認証の場合はnilを返す
+      user_likes_map = if current_user
+        user_likes = current_user.likes.where(likeable_type: "Project")
+        user_likes.pluck(:likeable_id, :id).to_h
+      else
+        {}
+      end
+
+      serialized_projects = ProjectSerializer.new(
+        projects,
+        { include: [:user, :audio_file], params: { current_user: current_user, user_likes_map: user_likes_map} }
+        ).serializable_hash
+
       render json: {
         data: serialized_projects[:data],
         included: serialized_projects[:included],

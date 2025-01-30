@@ -43,6 +43,9 @@ export interface ProjectAttributes {
   visibility: "is_public" | "is_private"; // 公開範囲
   created_at: string;
   updated_at: string;
+  like_count: number;
+  liked_by_current_user: boolean;
+  current_like_id: number | null;
 }
 
 // Project Relationships 型定義
@@ -238,12 +241,14 @@ export interface PostSettings {
     authenticatedUser: User | null;
     isAuthenticated: boolean;
     showAuthModal: boolean;
-    handleLoginSuccess: (user: User) => void;
+    handleLoginSuccess: (user: User) => Promise<void>;
     handleLogout: () => void;
     hasAuthenticated: () => void;
     handleAuthError: () => void;
     openAuthModal: () => void;
     closeAuthModal: () => void;
+    signIn: () => boolean;
+    requireAuth: () => boolean;
   }
 
   //Project

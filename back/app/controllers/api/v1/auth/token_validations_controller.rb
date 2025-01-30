@@ -5,10 +5,6 @@ class Api::V1::Auth::TokenValidationsController < DeviseTokenAuth::TokenValidati
 
 protected
   def render_validate_token_success
-    user_data = UserSerializer.new(@resource).serializable_hash
-    render json: {
-      success: true,
-      data: user_data
-    }
+    render json: UserSerializer.new(@resource).serializable_hash
   end
 end

@@ -12,7 +12,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 
 
 export function Header() {
-  const { isAuthenticated, authenticatedUser, handleAuthError } = useAuthContext();
+  const { isAuthenticated, authenticatedUser, openAuthModal } = useAuthContext();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [localUser, setLocalUser] = useState<User | null>(null);
   const router = useRouter();
@@ -32,17 +32,6 @@ export function Header() {
 
   const handleClose = () => {
     setAnchorEl(null);
-  };
-
-  // //ログイン処理
-  // const handleLogin = ()=>{
-  //   //認証状態をfalseにしshowAuthModalをtrueに
-  //   handleAuthError();
-  //   handleClose();
-  // }
-
-  const handleNavigateToAuth = () => {
-    router.push("/auth");
   };
 
   //ログアウト処理
@@ -123,7 +112,7 @@ export function Header() {
                     <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
                   </div>
                 ) : (
-                  <MenuItem onClick={handleNavigateToAuth}>ログイン</MenuItem>
+                  <MenuItem onClick={openAuthModal}>ログイン</MenuItem>
                 )}
               </Menu>
             </Box>
