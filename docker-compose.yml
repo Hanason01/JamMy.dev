@@ -14,8 +14,12 @@ services:
     build:
       context: ./back
       dockerfile: Dockerfile
+    environment:
+      - NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/ca.crt
+      - RAILS_ENV=development
     volumes:
       - ./back:/app
+      - ./back/ca.crt:/usr/local/share/ca-certificates/ca.crt
       - ./back/localhost.key:/app/localhost.key
       - ./back/localhost.crt:/app/localhost.crt
     ports:
@@ -24,16 +28,17 @@ services:
       - db
     tty: true
     stdin_open: true
-    environment:
-      - RAILS_ENV=development
 
   front:
     build:
       context: ./front/
       dockerfile: Dockerfile
+    environment:
+      - NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/ca.crt
     volumes:
       - ./front:/app
       # - /app/node_modules
+      - ./front/ca.crt:/usr/local/share/ca-certificates/ca.crt
       - ./front/localhost.key:/app/localhost.key
       - ./front/localhost.crt:/app/localhost.crt
     # command: node server.js

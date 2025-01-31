@@ -66,6 +66,7 @@ Rails.application.configure do
   config.hosts << "api"
   config.hosts << "localhost"
   config.hosts << "127.0.0.1"
+  config.hosts << "back"
   config.ssl_options = {
   hsts: false # Strict-Transport-Security ヘッダーを無効化
 }
