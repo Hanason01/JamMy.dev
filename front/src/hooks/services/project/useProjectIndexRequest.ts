@@ -5,7 +5,7 @@ import { ProjectIndexResponse } from "@sharedTypes/types";
 export const useProjectIndexRequest = () => {
   const projectIndexRequest = async (page: number): Promise<ProjectIndexResponse> => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects`, { params: {page}, withCredentials: true,});
+      const response = await axios.get(`/api/projects`, { params: {page}, withCredentials: true,});
       return{
         data: response.data.data, // 投稿データ
         included: response.data.included || [], // 関連データ（存在しない場合は空配列）

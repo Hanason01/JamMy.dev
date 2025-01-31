@@ -38,9 +38,10 @@
       "@validation/*": ["src/hooks/validation/*"],
       "@theme/*": ["src/theme/*"],
       "@sharedTypes/*": ["src/sharedTypes/*"],
-      "@utiles/*": ["src/utiles/*"],
+      "@utils/*": ["src/utils/*"],
       "@constants/*": ["src/constants/*"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["src/lib/*"],
+      "@actions/*": ["src/app/actions/*"]
     }
   },
   "include": [

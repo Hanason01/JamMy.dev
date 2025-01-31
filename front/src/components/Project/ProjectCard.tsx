@@ -21,7 +21,7 @@ import { useFeedbackContext } from "@context/useFeedbackContext";
 import { useAuthContext } from "@context/useAuthContext";
 import { usePostProjectValidation } from "@validation/usePostProjectValidation";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
-import { audioEncoder } from "@utiles/audioEncoder";
+import { audioEncoder } from "@utils/audioEncoder";
 import { useEditProjectRequest } from "@services/project/useEditProjectRequest";
 import { useDeleteProjectRequest } from "@services/project/useDeleteProjectRequest";
 import { useLikeToggle } from "@services/project/feedback/useLikeToggle";
@@ -80,7 +80,7 @@ export function ProjectCard({
   const { handleLike, handleUnlike } = useLikeToggle({projects, setProjects});
 
   //汎用Context関係
-  const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath, setCurrentProjectForShow } = useProjectContext();
+  const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath, } = useProjectContext();
   const { setFeedbackAndReload } = useFeedbackContext();
   const router = useRouter();
   const { requireAuth } = useAuthContext();
@@ -135,7 +135,6 @@ export function ProjectCard({
 
   //詳細ページへ遷移（スクロール位置保存）
   const handleProjectClick = () => {
-    setCurrentProjectForShow(project);
     const scrollPosition = window.scrollY;
     localStorage.setItem("scrollPosition", String(scrollPosition));
     router.push(`/projects/${project.attributes.id}/project_show`);

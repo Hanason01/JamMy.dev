@@ -25,6 +25,23 @@ export interface UserAttributes {
 }
 
 //Project
+// InitialProjectData(一覧、詳細のサーバーアクションベース)
+export interface InitialProjectData extends Project {
+  user: User;
+  audioFilePath?: string;
+}
+//getProjects
+export interface InitialProjectResponse {
+  projects: InitialProjectData[];
+  meta: Meta;
+}
+
+export interface FetchedProjectData extends Project {
+  user: User;
+  audioFilePath?: string;
+  included: IncludedItem[]; // 詳細ページでは `included` をそのまま保持
+}
+
 // EnrichedProject 型定義
 export interface EnrichedProject extends Project {
   user: User;

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Box, TextField, Button, MenuItem, Divider, Alert, CircularProgress } from "@mui/material";
 import { usePostCollaborationValidation } from "@validation/usePostCollaborationValidation";
 import { usePostCollaborationRequest } from "@services/project/collaboration/usePostCollaborationRequest";
-import { audioEncoder } from "@utiles/audioEncoder";
+import { audioEncoder } from "@utils/audioEncoder";
 import { useProjectContext } from "@context/useProjectContext";
 import { useFeedbackContext } from "@context/useFeedbackContext";
 

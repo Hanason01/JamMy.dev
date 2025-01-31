@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {Typography, Box, TextField, Button,Avatar, MenuItem, Divider, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,  } from "@mui/material";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { useCompleteCollaborationManagementRequest } from "@services/project/collaboration_management/useCompleteCollaborationManagementRequest";
-import { audioEncoder } from "@utiles/audioEncoder";
+import { audioEncoder } from "@utils/audioEncoder";
 import { useProjectContext } from "@context/useProjectContext";
 import { useCollaborationManagementContext } from "@context/useCollaborationManagementContext";
 import { Mode } from "@mui/icons-material";

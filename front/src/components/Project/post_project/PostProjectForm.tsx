@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Box, TextField, Button, MenuItem, Divider, Alert, CircularProgress } from "@mui/material";
 import { usePostProjectValidation } from "@validation/usePostProjectValidation";
 import { usePostProjectRequest } from "@services/project/usePostProjectRequest";
-import { audioEncoder } from "@utiles/audioEncoder";
+import { audioEncoder } from "@utils/audioEncoder";
 
 export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffer, settings:PostSettings}) {
   const router = useRouter();
