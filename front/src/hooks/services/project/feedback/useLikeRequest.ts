@@ -1,31 +1,36 @@
 import axios from "axios";
 import { useFeedbackContext } from "@context/useFeedbackContext";
+import { Like } from "@sharedTypes/types";
 
 export const useLikeRequest = () => {
   const { setFeedbackByKey } = useFeedbackContext();
 
   // いいね追加関数
-  const likeProject = async (projectId: string): Promise<void> => {
+  const likeProject = async (projectId: string): Promise<Like> => {
     try {
-      await axios.post(
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectId}/likes`,
         {},
         { withCredentials: true }
       );
+      return response.data.like;
     } catch (error: any) {
       handleLikeError(error, "like:error");
+      throw error;
     }
   };
 
   // いいね解除関数
-  const unlikeProject = async (projectId: string, likeId: string): Promise<void> => {
+  const unlikeProject = async (projectId: string, likeId: string): Promise<Like> => {
     try {
-      await axios.delete(
+      const response = await axios.delete(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectId}/likes/${likeId}`,
         { withCredentials: true }
       );
+      return response.data.like;
     } catch (error: any) {
       handleLikeError(error, "unlike:error");
+      throw error;
     }
   };
 
@@ -40,10 +45,8 @@ export const useLikeRequest = () => {
       }
     } else if (error.request) {
       setFeedbackByKey(defaultMessage);
-      throw new Error("ネットワークエラーが発生しました。");
     } else {
       setFeedbackByKey(defaultMessage);
-      throw new Error("エラーが発生しました。");
     }
   };
 

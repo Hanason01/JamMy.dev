@@ -9,21 +9,13 @@ class Api::V1::ProjectsController < ApplicationController
     if projects.any?
       #Serializerでcurrent_userは使用できない為、paramsで受け渡し
       #認証されている場合はuserオブジェクトが、未認証の場合はnilを返す
-      user_likes_map = if current_user
-        user_likes = current_user.likes.where(likeable_type: "Project")
-        user_likes.pluck(:likeable_id, :id).to_h
-      else
-        {}
-      end
+      user_likes = user_likes_map
 
-      serialized_projects = ProjectSerializer.new(
-        projects,
-        { include: [:user, :audio_file], params: { current_user: current_user, user_likes_map: user_likes_map} }
-        ).serializable_hash
+      serialized = serialized_projects(projects, user_likes)
 
       render json: {
-        data: serialized_projects[:data],
-        included: serialized_projects[:included],
+        data: serialized[:data],
+        included: serialized[:included],
         meta: { total_pages: projects.total_pages }
       }
     else
@@ -32,17 +24,20 @@ class Api::V1::ProjectsController < ApplicationController
   end
 
   def show
-    project = Project.includes(:user, :audio_file)
-                      .find_by(id: params[:id], status: [:open, :closed] )
+    projects = Project.includes(:user, :audio_file, :likes)
+                    .where(id: params[:id], status: [:open, :closed])
 
-    if project
-      serialized_project = ProjectSerializer.new([project], { include: [:user, :audio_file] }).serializable_hash
+    if projects.any?
+      user_likes = user_likes_map
+
+      serialized = serialized_projects(projects, user_likes)
+
       render json: {
-        data: serialized_project[:data],
-        included: serialized_project[:included],
-      }, status: :ok
+        data: serialized[:data],
+        included: serialized[:included],
+      }
     else
-      render json: { error: "プロジェクトが見つかりませんでした" }, status: :not_found
+      render json: { data: [] }, status: :ok
     end
   end
 
@@ -137,6 +132,21 @@ class Api::V1::ProjectsController < ApplicationController
   end
 
   private
+
+  def user_likes_map
+    @user_likes_map ||= if current_user
+      current_user.likes.where(likeable_type: "Project").pluck(:likeable_id, :id).to_h
+    else
+      {}
+    end
+  end
+
+  def serialized_projects(projects, user_likes)
+    ProjectSerializer.new(
+      projects,
+      { include: [:user, :audio_file], params: { current_user: current_user, user_likes_map: user_likes } }
+    ).serializable_hash
+  end
 
   def project_params
     params.require(:project).permit(:title, :description, :duration, :tempo, :status, :visibility, :audio_file)
