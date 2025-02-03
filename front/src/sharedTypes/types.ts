@@ -30,6 +30,7 @@ export interface InitialProjectData extends Project {
   user: User;
   audioFilePath?: string;
 }
+
 //getProjects
 export interface InitialProjectResponse {
   projects: InitialProjectData[];
@@ -159,6 +160,11 @@ export interface PostSettings {
   duration: number;
 }
 
+
+//Feedback
+  export interface Like {
+    id: number | null;
+  }
 
 
 //Form
@@ -294,15 +300,7 @@ export interface PostSettings {
   }
 
   //ClientCache
-  export interface ClientCacheContextType {
-    cachedProject: EnrichedProject[];
-    setCachedProject: SetState<EnrichedProject[]>;
-    cachedPage: number;
-    setCachedPage: SetState<number>;
-    cachedHasMore: boolean;
-    setCachedHasMore: SetState<boolean>;
-    scrollPosition: React.MutableRefObject<number>;
-  }
+  // 直接記述
 
   //Feedback
   export interface FeedbackContextType {
@@ -326,3 +324,10 @@ export interface PostSettings {
       severity: FeedbackSeverity;
     };
   };
+
+  //utils
+  export interface PageKeyResult {
+    mutateKey: string;
+    projectIndex: number;
+    project: EnrichedProject;
+  }
