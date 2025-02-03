@@ -103,7 +103,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
 
         if (currentProject){
           await completeCollaborationManagement(currentProject.id, formData);
-          window.location.href = `/projects/${currentProject.id}/project_show?refresh=true&feedback=${urlParams}`;
+          window.location.href = `/projects/${currentProject.id}/project_show?feedback=${urlParams}`;
         }
       } catch (error: any) {
         if (error.general) {

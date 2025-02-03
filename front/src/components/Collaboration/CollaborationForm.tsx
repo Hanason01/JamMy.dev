@@ -69,8 +69,7 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
 
         if (currentProject){
           await postCollaboration(formData, currentProject.id);
-          setFeedbackByKey("collaboration:create:success");
-          router.replace(`/projects/${currentProject.id}/project_show`);
+          window.location.href = "/projects?feedback=collaboration:create:success";
         }
       } catch (error: any) {
         if (error.comment) {
