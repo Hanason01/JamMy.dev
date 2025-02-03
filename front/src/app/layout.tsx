@@ -1,4 +1,5 @@
 import Script from "next/script";
+import { SWRConfig } from "swr";
 import { ThemeProviderWrapper } from "@components/ThemeProviderWrapper";
 import { AuthModal } from "@User/AuthModal";
 import { AuthProvider } from "@context/useAuthContext";
@@ -49,20 +50,28 @@ export default function RootLayout({ children }: Readonly<{
         </Script>
       </head>
       <body>
-        <FeedbackProvider>
-          <AuthProvider>
-            <CurrentRouteProvider>
-              <ClientCacheProvider >
-                <ProjectProvider>
-                  <ThemeProviderWrapper>
-                    <AuthModal />
-                    {children}
-                  </ThemeProviderWrapper>
-                </ProjectProvider>
-              </ClientCacheProvider>
-            </CurrentRouteProvider>
-          </AuthProvider>
-        </FeedbackProvider>
+        <SWRConfig
+            value={{
+              revalidateOnFocus: true, // タブ切り替え時に最新データを取得
+              dedupingInterval: 5000, // 5秒間は同じリクエストを送らない
+              shouldRetryOnError: false, // エラー時の自動リトライを無効化
+            }}
+            >
+          <FeedbackProvider>
+            <AuthProvider>
+              <CurrentRouteProvider>
+                <ClientCacheProvider >
+                  <ProjectProvider>
+                    <ThemeProviderWrapper>
+                      <AuthModal />
+                      {children}
+                    </ThemeProviderWrapper>
+                  </ProjectProvider>
+                </ClientCacheProvider>
+              </CurrentRouteProvider>
+            </AuthProvider>
+          </FeedbackProvider>
+        </SWRConfig>
       </body>
     </html>
   );

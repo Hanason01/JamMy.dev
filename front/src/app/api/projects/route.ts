@@ -17,13 +17,13 @@ export async function GET(req: NextRequest) {
     });
 
     if (!response.ok) {
-      return NextResponse.json({ error: "フェッチ失敗" }, { status: response.status });
+      return NextResponse.json({ error: "データ取得に失敗しました" }, { status: response.status });
     }
 
     const { data, included, meta }: ProjectIndexResponse = await response.json();
-    const projects = createInitialProjectData(data, included);
+    const projects = data.length > 0 ? createInitialProjectData(data, included) : [];
 
-    const responseData: InitialProjectResponse = { projects, meta };
+    const responseData: InitialProjectResponse = { projects, meta: meta || { total_pages: 0 } };
     return NextResponse.json(responseData);
   } catch (error) {
     console.error("APIエラー:", error);

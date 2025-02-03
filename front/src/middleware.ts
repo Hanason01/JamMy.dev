@@ -25,8 +25,9 @@ export function middleware(req: NextRequest): NextResponse {
 
 // 認証対象のパスを指定
 export const config = {
-  matcher: ["/projects/:path+",
-    "/projects/:id/collaboration",
+  matcher: [
+    "/projects/:projectId/collaboration",
+    "/projects/:projectId/collaboration_management",
     "/post_project/:path*",
     "/mypage/:path*",
     "/notification/:path*"

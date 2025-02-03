@@ -1,6 +1,11 @@
 import { Project, IncludedItem, InitialProjectData, User, AudioFile } from "@sharedTypes/types";
 
 export function createInitialProjectData(data: Project[], included: IncludedItem[]): InitialProjectData[] {
+  //投稿がない場合
+  if (data.length === 0) {
+    return [];
+  }
+
   const userMap: Record<string, User> = included.reduce<Record<string, User>>((map, item) => {
     if (item.type === "user") {
       map[item.id] = item as User;

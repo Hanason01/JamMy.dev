@@ -30,15 +30,15 @@ import { useLikeToggle } from "@services/project/feedback/useLikeToggle";
 export function ProjectCard({
   mode,
   project,
+  onPlayClick,
   projects,
   setProjects,
-  onPlayClick,
 } : {
   mode:"list" | "detail";
   project: EnrichedProject;
-  projects: EnrichedProject[];
-  setProjects: SetState<EnrichedProject[]>;
   onPlayClick: (project: EnrichedProject) => void;
+  projects?: EnrichedProject[];
+  setProjects?: SetState<EnrichedProject[]>;
 }){
   //状態変数・変数
   const [expanded, setExpanded] = useState<boolean>(false); //概要展開
