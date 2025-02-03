@@ -18,7 +18,6 @@ const fetcher = async (url: string): Promise<{ projects: EnrichedProject[], meta
 
 // 投稿一覧 (無限スクロール用)
 export function useProjectList() {
-  console.log("SWR呼び出し");
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
     (index) => `/api/projects?page=${index + 1}`, //ページネーション指定(index = 0)
     fetcher,
@@ -34,7 +33,7 @@ export function useProjectList() {
   const projects: EnrichedProject[] = data
     ? data.flatMap((page) => page.projects as EnrichedProject[])
     : [];//全データ(以下出力例参照)
-  console.log("SWR内でproject監視", projects);
+  // console.log("SWR内でproject監視", projects);
 
   return {
     projects,

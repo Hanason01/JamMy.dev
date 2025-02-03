@@ -1,16 +1,14 @@
 "use client";
-import { Project, User, InitialProjectData,Meta, EnrichedProject, AudioFile, IncludedItem } from "@sharedTypes/types";
-import { useState, useEffect, useRef } from "react";
+import { Project, User, EnrichedProject,} from "@sharedTypes/types";
+import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import throttle from "lodash/throttle";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
 import { ProjectCard } from "@Project/ProjectCard";
 import { AudioController } from "@components/Project/AudioController"
-import { useProjectIndexRequest } from "@services/project/useProjectIndexRequest";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { useClientCacheContext } from "@context/useClientCacheContext";
 import { useProjectList } from "@services/useProjectSWR";
-import { applyIsOwner } from "@utils/applyIsOwner";
 import { useSWRConfig } from "swr";
 
 
@@ -19,10 +17,10 @@ export function ProjectIndexWrapper({}){
 //SWR関連
   // 投稿一覧用
   const { projects, meta: projectMeta, hasMore, loadMore, isLoading, isError, mutate } = useProjectList();
-  console.log("SWRのprojectsキャッシュ", projects);
+  // console.log("SWRのprojectsキャッシュ", projects);
 
-  const { cache } = useSWRConfig();
-  console.log("cache", cache);
+  // const { cache } = useSWRConfig();
+  // console.log("cache", cache);
 
 
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);

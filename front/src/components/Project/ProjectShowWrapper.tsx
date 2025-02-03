@@ -10,14 +10,15 @@ import { applyIsOwner } from "@utils/applyIsOwner";
 
 
 export function ProjectShowWrapper(){
-  const { projectId } = useParams();
+  const { projectId } = useParams<Record<string, string>>();
+
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioData, setAudioData] = useState<ArrayBuffer | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [projects, setProjects] = useState<EnrichedProject[]>([]);
-  console.log("projects追跡",projects);
+  // console.log("projects追跡",projects);
 
   //オーディオコントローラーに使用
   const [projectForController, setProjectForController] = useState<Project | null>(null);

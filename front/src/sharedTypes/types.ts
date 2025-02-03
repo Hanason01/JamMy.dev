@@ -64,6 +64,8 @@ export interface ProjectAttributes {
   like_count: number;
   liked_by_current_user: boolean;
   current_like_id: number | null;
+  bookmarked_by_current_user: boolean;
+  current_bookmark_id: number | null;
 }
 
 // Project Relationships 型定義
@@ -162,7 +164,7 @@ export interface PostSettings {
 
 
 //Feedback
-  export interface Like {
+  export interface Feedback {
     id: number | null;
   }
 
