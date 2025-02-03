@@ -16,7 +16,7 @@ before_action :set_project
     if like&.destroy
       render json: { message: "いいねを削除しました", like: { id: nil } }, status: :ok
     else
-      render json: { message: "いいねが見つかりません" }, status: :not_found
+      render json: { message: "指定されたプロジェクトのいいねが見つかりません" }, status: :not_found
     end
   end
 

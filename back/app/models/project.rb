@@ -3,6 +3,7 @@ class Project < ApplicationRecord
   has_one :audio_file, as: :fileable, dependent: :destroy
   has_many :collaborations, dependent: :destroy
   has_many :likes, as: :likeable, dependent: :destroy
+  has_many :bookmarks, dependent: :destroy
 
   enum status: { open: 0, draft: 1, closed: 2}
   enum visibility: { is_public: 0, is_private: 1 }
