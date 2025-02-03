@@ -19,13 +19,11 @@ export const useSignInRequest = ({redirectTo} : {redirectTo?:string}) => {
       const response = await axios.post<SignInResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/sign_in`, data, { withCredentials: true });
       await handleLoginSuccess(response.data.data);
 
-      setFeedbackByKey("signin:success");
-
       if (redirectTo) {
         sessionStorage.removeItem("redirectTo");
-        router.replace(redirectTo);
+        router.replace(redirectTo + "?feedback=signin:success");
       } else {
-        router.replace("/projects")
+        window.location.href = "/projects?feedback=signin:success";
       }
 
     } catch (error: any) {

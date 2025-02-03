@@ -14,6 +14,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useProjectContext } from "@context/useProjectContext";
@@ -25,6 +27,7 @@ import { audioEncoder } from "@utils/audioEncoder";
 import { useEditProjectRequest } from "@services/project/useEditProjectRequest";
 import { useDeleteProjectRequest } from "@services/project/useDeleteProjectRequest";
 import { useLikeToggle } from "@services/project/feedback/useLikeToggle";
+import { useBookmarkToggle } from "@services/project/feedback/useBookmarkToggle";
 
 
 export function ProjectCard({
@@ -78,6 +81,7 @@ export function ProjectCard({
 
   //汎用フック
   const { handleLike, handleUnlike } = useLikeToggle({projects, setProjects});
+  const { handleBookmark, handleUnBookmark } = useBookmarkToggle({projects, setProjects});
 
   //汎用Context関係
   const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath, } = useProjectContext();
@@ -236,7 +240,7 @@ export function ProjectCard({
   //削除ボタン
   const handleDeleteProject = async () =>{
     await deleteProject(project.id)
-    window.location.href = "/projects?refresh=true&feedback=project:delete:success";
+    window.location.href = "/projects?feedback=project:delete:success";
   }
 
    // いいねボタン
@@ -246,13 +250,28 @@ export function ProjectCard({
     }
 
     if (project.attributes.liked_by_current_user) {
-      // すでに「いいね」されている → いいね解除
+      // すでに「いいね」されている → 解除
       await handleUnlike(project.id, project.attributes.current_like_id);
     } else {
-      // まだ「いいね」されていない → いいね追加
+      // まだ「いいね」されていない → 追加
       await handleLike(project.id);
     }
   };
+
+     // ブックマークボタン
+    const handleBookmarkToggle = async () => {
+      if (!requireAuth()) {
+        return; // 未ログインなら処理を中断
+      }
+
+      if (project.attributes.bookmarked_by_current_user) {
+        // すでに「ブックマーク」されている → 解除
+        await handleUnBookmark(project.id, project.attributes.current_bookmark_id);
+      } else {
+        // まだ「ブックマーク」されていない → 追加
+        await handleBookmark(project.id);
+      }
+    };
 
   return(
     <Paper
@@ -555,9 +574,20 @@ export function ProjectCard({
           )}
 
           </IconButton>
-          <Typography variant="body2" color={project.attributes.liked_by_current_user ? "secondary.main" : "textSecondary"}>
-            {project.attributes.like_count}
-          </Typography>
+          <IconButton
+          onClick={(e) => {
+            e.stopPropagation(); // バブリング防止
+            handleBookmarkToggle();
+          }}
+          sx={{ color: project.attributes.bookmarked_by_current_user ? "secondary.main" : "text.secondary" }}
+        >
+          {project.attributes.bookmarked_by_current_user ? (
+            <BookmarkIcon sx={{ mr: 1 }} />
+          ) : (
+            <BookmarkBorderIcon sx={{ mr: 1 }} />
+          )}
+
+          </IconButton>
         </Box>
 
         {/* 再生ボタン */}

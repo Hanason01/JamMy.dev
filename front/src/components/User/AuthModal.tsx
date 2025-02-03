@@ -65,8 +65,8 @@ export function AuthModal({
             <Tab icon={<LockIcon/>} iconPosition="start" label="ログイン" />
             <Tab icon={<PersonAddIcon/>} iconPosition="start" label="新規登録" />
           </Tabs>
-            {tabIndex === 0 && <SignInForm redirectTo={redirectTo || "/projects"} />}
-            {tabIndex === 1 && <SignUpForm redirectTo={redirectTo || "/projects"} />}
+            {tabIndex === 0 && <SignInForm redirectTo={redirectTo } />}
+            {tabIndex === 1 && <SignUpForm redirectTo={redirectTo } />}
         </Box>
     </Modal>
   );

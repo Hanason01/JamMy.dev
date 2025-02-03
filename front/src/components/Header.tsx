@@ -34,6 +34,11 @@ export function Header() {
     setAnchorEl(null);
   };
 
+  const handleLogin = () => {
+    openAuthModal();
+    handleClose();
+  };
+
   //ログアウト処理
   const { logout } = useLogoutRequest();
   const handleLogout = async () => {
@@ -112,7 +117,7 @@ export function Header() {
                     <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
                   </div>
                 ) : (
-                  <MenuItem onClick={openAuthModal}>ログイン</MenuItem>
+                  <MenuItem onClick={handleLogin}>ログイン</MenuItem>
                 )}
               </Menu>
             </Box>

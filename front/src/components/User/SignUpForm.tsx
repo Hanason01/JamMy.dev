@@ -12,7 +12,7 @@ import { useSignUpValidation } from "@validation/useSignUpValidation";
 import { useSignUpRequest } from "@services/user/useSignUpRequest";
 import { useGoogleSignIn } from "@services/user/useGoogleSignIn"
 
-export function SignUpForm({redirectTo}: {redirectTo:string}) {
+export function SignUpForm({redirectTo}: {redirectTo?:string}) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);

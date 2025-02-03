@@ -67,7 +67,7 @@ export const ResetPassword = () => {
       handleLoginSuccess(response.data.data);
       setMessage("パスワードがリセットされました。");
       setError(null);
-      window.location.href = "/projects?refresh=true";
+      window.location.href = "/projects";
     } catch (err: any) {
       if (err.response?.data?.errors) {
         setValidationError("password", {

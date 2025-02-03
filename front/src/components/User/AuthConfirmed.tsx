@@ -94,7 +94,7 @@ export const AuthConfirmed = () => {
           variant="contained"
           color="primary"
           sx={{ mt: 3 }}
-          onClick={() => (window.location.href = "/projects?refresh=true")}
+          onClick={() => (window.location.href = "/projects")}
         >
           投稿一覧を見る
         </Button>

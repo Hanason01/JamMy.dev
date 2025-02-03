@@ -2,44 +2,44 @@ import axios from "axios";
 import { useFeedbackContext } from "@context/useFeedbackContext";
 import { Feedback } from "@sharedTypes/types";
 
-export const useLikeRequest = () => {
+export const useBookmarkRequest = () => {
   const { setFeedbackByKey } = useFeedbackContext();
 
-  // いいね追加関数
-  const likeProject = async (projectId: string): Promise<Feedback> => {
+  // ブックマーク追加関数
+  const bookmarkProject = async (projectId: string): Promise<Feedback> => {
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectId}/likes`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectId}/bookmarks`,
         {},
         { withCredentials: true }
       );
-      return response.data.like;
+      return response.data.bookmark;
     } catch (error: any) {
-      handleLikeError(error, "like:error");
+      handleBookmarkError(error, "bookmark:error");
       throw error;
     }
   };
 
-  // いいね解除関数
-  const unlikeProject = async (projectId: string, likeId: string): Promise<Feedback> => {
+  // ブックマーク解除関数
+  const unBookmarkProject = async (projectId: string, bookmarkId: string): Promise<Feedback> => {
     try {
       const response = await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectId}/likes/${likeId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectId}/bookmarks/${bookmarkId}`,
         { withCredentials: true }
       );
-      return response.data.like;
+      return response.data.bookmark;
     } catch (error: any) {
-      handleLikeError(error, "unlike:error");
+      handleBookmarkError(error, "unBookmark:error");
       throw error;
     }
   };
 
   // エラーハンドリング
-  const handleLikeError = (error: any, defaultMessage: string) => {
+  const handleBookmarkError = (error: any, defaultMessage: string) => {
     if (error.response) {
       const status = error.response.status;
       if (status === 404) {
-        setFeedbackByKey("like:not_found");
+        setFeedbackByKey("bookmark:not_found");
       } else {
         setFeedbackByKey(defaultMessage);
       }
@@ -50,5 +50,5 @@ export const useLikeRequest = () => {
     }
   };
 
-  return { likeProject, unlikeProject };
+  return { bookmarkProject, unBookmarkProject };
 };

@@ -107,6 +107,25 @@ const feedbackMessages: FeedbackMessages = {
     },
   },
 
+   // bookmark
+  bookmark: {
+    error: {
+      message: "ブックマークの追加に失敗しました。再度お試しください。",
+      severity: "error",
+    },
+    not_found: {
+      message: "対象が見つかりません。",
+      severity: "info",
+    },
+  },
+  // unlike
+  unBookmark: {
+    error: {
+      message: "ブックマークの解除に失敗しました。再度お試しください。",
+      severity: "error",
+    },
+  },
+
   //collaboration
   collaboration: {
     // create

@@ -1,7 +1,7 @@
 class Api::V1::ProjectsController < ApplicationController
   before_action :authenticate_user!, only: [:create,:edit, :update, :destroy]
   def index
-    projects = Project.includes(:user, :audio_file, :likes)
+    projects = Project.includes(:user, :audio_file, :likes, :bookmarks)
                       .where(status: [:open, :closed] )
                       .where(visibility: :is_public)
                       .order(created_at: :desc)
@@ -10,8 +10,9 @@ class Api::V1::ProjectsController < ApplicationController
       #Serializerでcurrent_userは使用できない為、paramsで受け渡し
       #認証されている場合はuserオブジェクトが、未認証の場合はnilを返す
       user_likes = user_likes_map
+      user_bookmarks = user_bookmarks_map
 
-      serialized = serialized_projects(projects, user_likes)
+      serialized = serialized_projects(projects, user_likes, user_bookmarks)
 
       render json: {
         data: serialized[:data],
@@ -24,13 +25,14 @@ class Api::V1::ProjectsController < ApplicationController
   end
 
   def show
-    projects = Project.includes(:user, :audio_file, :likes)
+    projects = Project.includes(:user, :audio_file, :likes, :bookmarks)
                     .where(id: params[:id], status: [:open, :closed])
 
     if projects.any?
       user_likes = user_likes_map
+      user_bookmarks = user_bookmarks_map
 
-      serialized = serialized_projects(projects, user_likes)
+      serialized = serialized_projects(projects, user_likes, user_bookmarks)
 
       render json: {
         data: serialized[:data],
@@ -141,10 +143,25 @@ class Api::V1::ProjectsController < ApplicationController
     end
   end
 
-  def serialized_projects(projects, user_likes)
+  def user_bookmarks_map
+    @user_bookmarks_map ||= if current_user
+      current_user.bookmarks.pluck(:project_id, :id).to_h
+    else
+      {}
+    end
+  end
+
+  def serialized_projects(projects, user_likes, user_bookmarks)
     ProjectSerializer.new(
       projects,
-      { include: [:user, :audio_file], params: { current_user: current_user, user_likes_map: user_likes } }
+      {
+        include: [:user, :audio_file],
+        params: {
+          current_user: current_user,
+          user_likes_map: user_likes,
+          user_bookmarks_map: user_bookmarks
+          }
+        }
     ).serializable_hash
   end
 
