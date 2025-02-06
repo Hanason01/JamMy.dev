@@ -66,7 +66,10 @@ export interface ProjectAttributes {
   current_like_id: number | null;
   bookmarked_by_current_user: boolean;
   current_bookmark_id: number | null;
+  comment_count: number | null;
 }
+
+
 
 // Project Relationships 型定義
 export interface ProjectRelationships {
@@ -119,7 +122,7 @@ export interface ExtendedCollaboration extends Collaboration {
 }
 
 // Included 型定義（Union 型で表現）
-export type IncludedItem = User | AudioFile;
+export type IncludedItem = User | AudioFile | InitialComment;
 
 // API Response 型定義
   //ProjectIndex
@@ -146,6 +149,7 @@ export interface CollaborationManagementIndexResponse {
 
 
 
+
 //Audio
 
 export type AudioBuffer = globalThis.AudioBuffer | null;
@@ -167,6 +171,83 @@ export interface PostSettings {
   export interface Feedback {
     id: number | null;
   }
+
+// Comment Attributes 型定義
+export interface CommentAttributes {
+  id: number;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  children_count: number;
+}
+
+
+// コメント
+
+// Comment Attributes 型定義
+export interface CommentAttributes {
+  id: number;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  children_count: number;
+}
+
+// Initial Comment Response (APIからの受信日でのコメントデータ)
+export interface InitialCommentResponse {
+  id: string;
+  type: "comment";
+  attributes: CommentAttributes;
+  relationships: {
+    user: {
+      data: {
+        id: string;
+        type: "user";
+      };
+    };
+    children: {
+      data: {
+        id: string;
+        type: "comment";
+      }[];
+    };
+  };
+}
+
+// Initial Comment (第一変形型)
+export interface InitialComment {
+  id: string;
+  type: "comment";
+  attributes: CommentAttributes;
+  user: User;
+  replies?: InitialComment[];
+}
+
+// Enriched Comment 最終型)
+export interface EnrichedComment extends InitialComment {
+  isOwner: boolean;
+}
+
+// Project Comments APIレスポンス型
+export interface ProjectCommentsResponse {
+  data: InitialCommentResponse[];
+  included: User[];
+  meta: {
+    total_pages: number;
+  };
+}
+
+// Project Initial Comments APIレスポンス型
+export interface ProjectInitialComments {
+  comments: InitialComment[];
+  meta: Meta;
+}
+
+  // Enriched Comment Collection (最終的に形成されたコメントの集合)
+export interface EnrichedCommentCollection {
+  comments: EnrichedComment[];
+  meta: Meta;
+}
 
 
 //Form
@@ -257,6 +338,11 @@ export interface PostSettings {
   export interface ResetPasswordFormData {
     password: string;
     confirmPassword: string;
+  }
+
+  // PostCommentForm
+  export interface PostCommentFormData {
+    content: string;
   }
 
 //Context用

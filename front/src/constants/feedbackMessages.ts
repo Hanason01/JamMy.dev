@@ -39,6 +39,13 @@ const feedbackMessages: FeedbackMessages = {
     },
   },
 
+  // auth: {
+  //   error: {
+  //     message: "認証エラーが発生しました。再度お試しください。",
+  //     severity: "error",
+  //   }
+  // },
+
   //Project
   project: {
     //create
@@ -122,6 +129,25 @@ const feedbackMessages: FeedbackMessages = {
   unBookmark: {
     error: {
       message: "ブックマークの解除に失敗しました。再度お試しください。",
+      severity: "error",
+    },
+  },
+
+  // comment
+  comment: {
+    error: {
+      message: "コメントに失敗しました。再度お試しください。",
+      severity: "error",
+    },
+    not_found: {
+      message: "コメントの対象が見つかりません。",
+      severity: "info",
+    },
+  },
+  // unlike
+  deleteComment: {
+    error: {
+      message: "コメントの削除に失敗しました。再度お試しください。",
       severity: "error",
     },
   },
