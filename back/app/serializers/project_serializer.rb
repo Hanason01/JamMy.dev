@@ -5,6 +5,10 @@ class ProjectSerializer
   belongs_to :user
   has_one :audio_file
 
+  #以下、未認証の場合は、各Mapが存在しないが&.によりnilもしくはfalseを指定する
+  # 各Mapは次のような形式・・・{project_id => like_id, ...}
+
+
   # いいねの追加
     # projectが保有するいいね数
   attribute :like_count do |project|
@@ -19,7 +23,7 @@ class ProjectSerializer
 
     # current_userがいいねしている場合、そのlike IDを返す
   attribute :current_like_id do |project, params|
-    params[:user_likes_map]&.[](project.id)
+    params[:user_likes_map]&.[](project.id) #.[ハッシュの中身そのもの](検索するkey)→該当keyの値 || nil
   end
 
   # ブックマークの追加属性
@@ -29,5 +33,10 @@ class ProjectSerializer
 
   attribute :current_bookmark_id do |project, params|
     params[:user_bookmarks_map]&.[](project.id)
+  end
+
+  #コメント数の追加属性(projectを親としたcomment数のみ)
+  attribute :comment_count do |project|
+    project.comments.count
   end
 end

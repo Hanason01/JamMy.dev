@@ -1,5 +1,5 @@
 class Api::V1::ProjectsController < ApplicationController
-  before_action :authenticate_user!, only: [:create,:edit, :update, :destroy]
+  before_action :authenticate_user!, only: [:create, :edit, :update, :destroy]
   def index
     projects = Project.includes(:user, :audio_file, :likes, :bookmarks)
                       .where(status: [:open, :closed] )
@@ -20,7 +20,7 @@ class Api::V1::ProjectsController < ApplicationController
         meta: { total_pages: projects.total_pages }
       }
     else
-      render json: { data: [], meta: { total_pages: 0 }}, status: :ok
+      render json: { data: [], included: [], meta: { total_pages: 0 }}, status: :ok
     end
   end
 
@@ -135,9 +135,9 @@ class Api::V1::ProjectsController < ApplicationController
 
   private
 
-  def user_likes_map
-    @user_likes_map ||= if current_user
-      current_user.likes.where(likeable_type: "Project").pluck(:likeable_id, :id).to_h
+  def user_likes_map #current_userが持つlikeの特定
+    @user_likes_map ||= if current_user #条件付き代入、メモ化
+      current_user.likes.where(likeable_type: "Project").pluck(:likeable_id, :id).to_h #{project_id => like_id, ...}
     else
       {}
     end
@@ -156,7 +156,7 @@ class Api::V1::ProjectsController < ApplicationController
       projects,
       {
         include: [:user, :audio_file],
-        params: {
+        params: { #Serializerとの通信用データ
           current_user: current_user,
           user_likes_map: user_likes,
           user_bookmarks_map: user_bookmarks
