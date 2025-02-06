@@ -3,8 +3,7 @@
 import { Project, User, SetState, EnrichedProject, PostProjectFormData, EditProjectRequestData} from "@sharedTypes/types";
 import { useState, useEffect} from "react";
 import { useRouter } from "next/navigation";
-import { Paper, Box, Avatar, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle,
-DialogContent, DialogContentText, DialogActions,Divider } from "@mui/material";
+import { Paper, Box, Avatar, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,Divider, Snackbar, Tooltip } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -48,7 +47,8 @@ export function ProjectCard({
 }){
   //状態変数・変数
   const [expanded, setExpanded] = useState<boolean>(false); //概要展開
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
 
 
   //編集・削除用途のセット（リクエスト関係は別途定義）
@@ -291,6 +291,14 @@ export function ProjectCard({
         // 詳細ページならそのままフォーカス
         setIsCommentRoute(true);
       }
+    };
+
+    //リンク共有ボタン
+    const handleCopyLink = () => {
+      const projectUrl = `${window.location.origin}/projects/${project.id}/project_show`;
+      navigator.clipboard.writeText(projectUrl)
+        .then(() => setOpenSnackbar(true))
+        .catch(err => console.error("リンクのコピーに失敗しました:", err));
     };
 
   return(
@@ -633,17 +641,26 @@ export function ProjectCard({
             </Typography>
 
             {/* 共有ボタン */}
-            <IconButton
-            onClick={(e) => {
-              e.stopPropagation(); // バブリング防止
-              // handleCommentToggle();
-            }}
-            sx={{ color: "text.secondary" }}
-            >
-              <IosShareIcon  />
-            </IconButton>
-            <Typography variant="body2" color="textSecondary" sx={{ mr: 2 }}>
-            </Typography>
+            <>
+              <Tooltip title="リンクをコピー">
+                <IconButton
+                onClick={(e) => {
+                  e.stopPropagation(); // バブリング防止
+                  handleCopyLink();
+                }}
+                sx={{ color: "text.secondary", mr:2 }}
+                >
+                  <IosShareIcon  />
+                </IconButton>
+              </Tooltip>
+              <Snackbar
+                open={openSnackbar}
+                autoHideDuration={2000}
+                onClose={() => setOpenSnackbar(false)}
+                message="リンクをコピーしました"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              />
+            </>
 
             {/* ブックマーク */}
             <IconButton
