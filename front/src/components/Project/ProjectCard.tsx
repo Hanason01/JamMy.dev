@@ -16,11 +16,14 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import IosShareIcon from '@mui/icons-material/IosShare';
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useProjectContext } from "@context/useProjectContext";
 import { useFeedbackContext } from "@context/useFeedbackContext";
 import { useAuthContext } from "@context/useAuthContext";
+import { useClientCacheContext } from "@context/useClientCacheContext";
 import { usePostProjectValidation } from "@validation/usePostProjectValidation";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { audioEncoder } from "@utils/audioEncoder";
@@ -88,6 +91,7 @@ export function ProjectCard({
   const { setFeedbackAndReload } = useFeedbackContext();
   const router = useRouter();
   const { requireAuth } = useAuthContext();
+  const { setIsCommentRoute } = useClientCacheContext();
 
 
   //スクロール位置復元
@@ -273,6 +277,22 @@ export function ProjectCard({
       }
     };
 
+    //コメントボタン
+    const handleCommentToggle = () => {
+      if (!requireAuth()) {
+        return; // 未ログインなら処理を中断
+      }
+
+      if (mode === "list") {
+        // 一覧ページなら詳細ページに遷移
+        setIsCommentRoute(true);
+        router.push(`/projects/${project.attributes.id}/project_show`);
+      } else if (mode === "detail") {
+        // 詳細ページならそのままフォーカス
+        setIsCommentRoute(true);
+      }
+    };
+
   return(
     <Paper
       elevation={3}
@@ -306,7 +326,7 @@ export function ProjectCard({
             />
             <Box sx={{ ml:2, flex: 1, display: "flex", alignItems: "center" }}>
               <Typography variant="body1" component="span" color="textPrimary">
-                {project.user.attributes.nickname || project.user.attributes.username }
+                {project.user.attributes.nickname || project.user.attributes.username || "名無しのユーザー" }
               </Typography>
             </Box>
           </Box>
@@ -513,34 +533,12 @@ export function ProjectCard({
         )}
       </>
     )}
-
-        {/* 応募管理・応募するボタン */}
-        {project.attributes.status === "open" && (
-          project.isOwner ? (
-            <Button
-            variant="secondary"
-            disabled={isEditing}
-            onClick={(e) => {
-              e.stopPropagation(); // バブリング防止
-              handleCollaborationManagementRequest();
-            }}
-              >応募管理</Button>
-          ) : (
-            <Button
-            variant="secondary"
-            disabled={isEditing}
-            onClick={(e) => {
-              e.stopPropagation(); // バブリング防止
-              handleCollaborationRequest();
-            }}
-            >応募する</Button>
-          )
-        )}
+      {/* コラボ状況 */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            my: 1,
+            my: 2.5,
             pointerEvents: isEditing ? "none" : "auto",
             opacity: isEditing ? 0.5 : 1,
           }}
@@ -551,43 +549,118 @@ export function ProjectCard({
           </Typography>
         </Box>
 
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            my: 1,
-            pointerEvents: isEditing? "none" : "auto",
-            opacity: isEditing? 0.5 : 1,
-          }}
-        >
-          <IconButton
-          onClick={(e) => {
-            e.stopPropagation(); // バブリング防止
-            handleLikeToggle();
-          }}
-          sx={{ color: project.attributes.liked_by_current_user ? "secondary.main" : "text.secondary" }}
-        >
-          {project.attributes.liked_by_current_user ? (
-            <FavoriteIcon sx={{ mr: 1 }} />
-          ) : (
-            <FavoriteBorderIcon sx={{ mr: 1 }} />
-          )}
 
-          </IconButton>
-          <IconButton
-          onClick={(e) => {
-            e.stopPropagation(); // バブリング防止
-            handleBookmarkToggle();
-          }}
-          sx={{ color: project.attributes.bookmarked_by_current_user ? "secondary.main" : "text.secondary" }}
-        >
-          {project.attributes.bookmarked_by_current_user ? (
-            <BookmarkIcon sx={{ mr: 1 }} />
-          ) : (
-            <BookmarkBorderIcon sx={{ mr: 1 }} />
-          )}
 
-          </IconButton>
+
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          width: "100%",
+          m: 1,
+          gap:2,
+          pointerEvents: isEditing ? "none" : "auto",
+          opacity: isEditing ? 0.5 : 1,
+        }}
+      >
+        <Box>
+          {/* 応募管理・応募するボタン */}
+          <Box >
+          {project.attributes.status === "open" && (
+            project.isOwner ? (
+              <Button
+              variant="secondary"
+              fullWidth
+              disabled={isEditing}
+              onClick={(e) => {
+                e.stopPropagation(); // バブリング防止
+                handleCollaborationManagementRequest();
+              }}
+                >応募管理</Button>
+            ) : (
+              <Button
+              variant="secondary"
+              fullWidth
+              disabled={isEditing}
+              onClick={(e) => {
+                e.stopPropagation(); // バブリング防止
+                handleCollaborationRequest();
+              }}
+              >応募する</Button>
+            )
+          )}
+          </Box>
+
+          {/* フィードボタン群 */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              mt: 1
+            }}
+          >
+            {/* コメントボタン */}
+            <IconButton
+            onClick={(e) => {
+              e.stopPropagation(); // バブリング防止
+              handleCommentToggle();
+            }}
+            sx={{ color: "text.secondary" }}
+            >
+              <ChatBubbleOutlineIcon  />
+            </IconButton>
+            <Typography variant="body2" color="textSecondary" sx={{ mr: 2 }}>
+              {project.attributes.comment_count}
+            </Typography>
+
+            {/* いいねボタン */}
+            <IconButton
+            onClick={(e) => {
+              e.stopPropagation(); // バブリング防止
+              handleLikeToggle();
+            }}
+            sx={{ color: project.attributes.liked_by_current_user ? "secondary.main" : "text.secondary" }}
+            >
+            {project.attributes.liked_by_current_user ? (
+              <FavoriteIcon  />
+            ) : (
+              <FavoriteBorderIcon />
+            )}
+            </IconButton>
+            <Typography variant="body2" color={project.attributes.liked_by_current_user ? "secondary.main" : "textSecondary"}sx={{ mr: 2 }}>
+              {project.attributes.like_count}
+            </Typography>
+
+            {/* 共有ボタン */}
+            <IconButton
+            onClick={(e) => {
+              e.stopPropagation(); // バブリング防止
+              // handleCommentToggle();
+            }}
+            sx={{ color: "text.secondary" }}
+            >
+              <IosShareIcon  />
+            </IconButton>
+            <Typography variant="body2" color="textSecondary" sx={{ mr: 2 }}>
+            </Typography>
+
+            {/* ブックマーク */}
+            <IconButton
+            onClick={(e) => {
+              e.stopPropagation(); // バブリング防止
+              handleBookmarkToggle();
+            }}
+            sx={{ color: project.attributes.bookmarked_by_current_user ? "secondary.main" : "text.secondary",
+            }}
+            >
+            {project.attributes.bookmarked_by_current_user ? (
+              <BookmarkIcon />
+            ) : (
+              <BookmarkBorderIcon />
+            )}
+            </IconButton>
+          </Box>
         </Box>
 
         {/* 再生ボタン */}
@@ -605,6 +678,7 @@ export function ProjectCard({
           mr: 4,
           }}><PlayArrowIcon sx={{ fontSize: 70 }}/></IconButton>
         </Box>
-      </Paper>
+      </Box>
+    </Paper>
   );
 };

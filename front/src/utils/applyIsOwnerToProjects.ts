@@ -1,7 +1,7 @@
 import { InitialProjectData, EnrichedProject } from "@sharedTypes/types";
 
 // 事前処理関数（isOwnerセット）
-export const applyIsOwner = (projects: InitialProjectData[]): EnrichedProject[] => {
+export const applyIsOwnerToProjects = (projects: InitialProjectData[]): EnrichedProject[] => {
   if (typeof window === "undefined") {
     // サーバーサイドでは `isOwner: false` にしてそのまま返す
     return projects.map((project) => ({

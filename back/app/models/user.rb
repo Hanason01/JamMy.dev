@@ -10,6 +10,7 @@ class User < ActiveRecord::Base
   has_many :collaborations, dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :bookmarks, dependent: :destroy
+  has_many :comments, dependent: :destroy
 
   validates :username,
           uniqueness: { message: "は既に使用されています" },
@@ -20,5 +21,4 @@ class User < ActiveRecord::Base
   validates :nickname, length: { maximum:15 }, on: :create
   validates :bio, length: { maximum: 160 }, on: :create
   validates :provider, presence: true, on: :create
-  # validates :tokens, json: true (JsonValidatorを実装する必要あり)
 end

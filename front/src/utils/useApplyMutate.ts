@@ -32,18 +32,15 @@ export const useApplyMutate = () => {
   }: ApplyMutateProps) => {
     try{
       // マスターキー
-      const masterKey = Array.from((cache as Map<string, any>).keys()).find(key =>
-        key.startsWith('$inf$/api/projects')
-      );
-      console.log("master key: " + masterKey);
+      const masterKey = "$inf$/api/projects?page=1"; //他のfetcherにも対応できるよう将来的に動的にすべき
       // mutate(1.対象キー, 2. Updater関数, 3. オプション)
       await mutate(
-        masterKey,
-        async (currentData: PageData[] | undefined): Promise<PageData[]> => {
+        mutateKey,
+        async (currentData: PageData | undefined): Promise<PageData> => {
           // ==========================
           // 2. Updater関数: キャッシュ更新処理
           // ==========================
-          if (!currentData) return [];
+          if (!currentData) throw new Error("現在のデータが存在しません")
 
           // サーバーリクエスト
           let response;
@@ -57,8 +54,7 @@ export const useApplyMutate = () => {
             // create関連のAPIリクエスト（relatedIdが不要）
             response = await createApiRequest(projectId);
           }else {
-            console.error("APIリクエスト関数が指定されていません");
-            return currentData; // 既存のキャッシュをそのまま返す
+            throw new Error("APIリクエスト関数が指定されていません");
           }
 
           // レスポンスを元に更新されたプロジェクトデータを生成（finalize処理が必要なものは関数実行）
@@ -67,44 +63,30 @@ export const useApplyMutate = () => {
             : updatedProject;
 
           // 更新処理
-          const updatedData = currentData.map((pageData, index) => {
-            const pageIndexFromKey = parseInt(mutateKey.split('=')[1], 10); // mutateKey からページ番号を抽出
+          const updatedProjects = [...currentData.projects];
+          updatedProjects[projectIndex] = finalizedProject;
 
-            if (index + 1 === pageIndexFromKey) { //対象のprojectを特定
-              const updatedProjects = [...pageData.projects];
-              updatedProjects[projectIndex] = finalizedProject;
-              return { ...pageData, projects: updatedProjects };
-            }
-            return pageData;
-          });
-        return updatedData;
-
+          return { ...currentData, projects: updatedProjects };
         },
         {
           // ==========================
           // 3. オプション: (リクエスト終了前の)楽覴的更新処理
           // ==========================
-          optimisticData: (prevData: PageData[] | undefined): PageData[]=> {
-            if (!prevData) return [];
+          optimisticData: (prevData: PageData | undefined): PageData=> {
+            if (!prevData) throw new Error("楽観的更新用のデータが存在しません");
 
-            return prevData.map((pageData, index) => {
-              const pageIndexFromKey = parseInt(mutateKey.split('=')[1], 10);
+            const optimisticProjects = [...prevData.projects];
+            optimisticProjects[projectIndex] = updatedProject;
 
-              if (index + 1 === pageIndexFromKey) {
-                const optimisticProjects = [...pageData.projects];
-                optimisticProjects[projectIndex] = updatedProject;
-                return { ...pageData, projects: optimisticProjects };
-              }
-
-              return pageData;
-            });
+            return { ...prevData, projects: optimisticProjects };
           },
           populateCache: true, // キャッシュ保存(デフォルトはtrue)
           rollbackOnError: true, // リクエストエラー時の自動ロールバック
           revalidate: false, // 更新後の再フェッチを防ぐ
         }
       );
-
+      // マスターキーにmutateを使いUIの再レンダリングをトリガー
+      await mutate(masterKey);
     } catch (error) {
       console.error("キャッシュ更新中にエラーが発生しました:", error);
     }

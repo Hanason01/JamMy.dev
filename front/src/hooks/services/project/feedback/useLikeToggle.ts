@@ -75,7 +75,7 @@ export const useLikeToggle = (
         relatedId,
       });  // 一覧ページを一度でも表示した場合は一覧用キャッシュも更新
     }
-    // Show自身のコレクションの更新
+    // Show自身のコレクションの楽観的更新
     if (setProjects) {
       setProjects([updatedProject]);
     }
@@ -88,40 +88,27 @@ export const useLikeToggle = (
     projectIndex: number,
     setProjects?: SetState<EnrichedProject[]>
   ) => {
-    const masterKey = Array.from((cache as Map<string, any>).keys()).find(key =>
-      key.startsWith('$inf$/api/projects')
-    );
+    const cacheData = cache.get(mutateKey);
+    console.log("詳細ページが終了処理をする為に取得したcacheData: " + cacheData);
 
-    if (!masterKey) {
-      console.error("マスターキーが見つかりませんでした。");
+    if (!cacheData || !Array.isArray(cacheData.data.projects)) {
+      console.error("指定されたmutateKeyからのデータ取得に失敗しました。");
       return;
     }
 
-    const masterData = cache.get(masterKey);
-    console.log("masterData: " + masterData);
-
-    if (!masterData || !Array.isArray(masterData.data)) {
-      console.error("マスターキーからのデータ取得に失敗しました。");
-      return;
-    }
-
-    const pageData = masterData.data[0];
-
-    console.log("targetPageData", pageData);
-
-    if (!pageData || !Array.isArray(pageData.projects)) {
-      console.error("対象ページデータが見つかりません。");
-      return;
-    }
-
-    const updatedCacheProject = pageData.projects[projectIndex];
+    const updatedCacheProject = cacheData.data.projects[projectIndex];
 
     if (!updatedCacheProject) {
       console.error("キャッシュから最新のプロジェクトデータが取得できませんでした。");
       return;
     }
     const realLikeId = updatedCacheProject.attributes.current_like_id;
-    const finalizedProject = createUpdatedProject(updatedProject, 0, updatedCacheProject.attributes.liked_by_current_user, realLikeId || null);
+    const finalizedProject = createUpdatedProject(
+      updatedProject,
+      0,
+      updatedCacheProject.attributes.liked_by_current_user,
+      realLikeId || null
+    );
 
     if (setProjects) {
       setProjects([finalizedProject]);
@@ -131,7 +118,9 @@ export const useLikeToggle = (
 
   //初期化処理
   const initialize = (projectId: string) => {
-    isShowMode =  (cache as Map<any, any>).size === 0 //キャッシュがない場合、つまり初回にShowリンクを踏み、投稿一覧ページにアクセスしていない（SWRを初期化していない）場合
+    const projectListCacheKey = '/api/projects?page=1';
+    const hasProjectListCache = cache.get(projectListCacheKey) !== undefined;
+    isShowMode = !hasProjectListCache; //一覧キャッシュがない場合、つまり初回にShowリンクを踏み、投稿一覧ページにアクセスしていない（SWRを初期化していない）場合
     if (!isShowMode){
       result = findPageKeyByProjectId(projectId);
       mutateKey = result.mutateKey;

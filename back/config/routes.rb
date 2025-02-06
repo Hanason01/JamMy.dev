@@ -17,7 +17,9 @@ Rails.application.routes.draw do
         resource :collaboration_managements, only: %i[update]
         resources :likes, only: %i[create destroy], module: :projects
         resources :bookmarks, only: %i[create destroy], module: :projects
+        resources :comments, only: %i[index], module: :projects
       end
+      resources :comments, only: %i[create destroy]
     end
   end
 end

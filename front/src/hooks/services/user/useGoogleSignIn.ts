@@ -7,8 +7,8 @@ export const useGoogleSignIn = () => {
         //認証終了後の遷移先
       const originUrl =
         process.env.NODE_ENV === "development"
-            ? `${process.env.NEXT_PUBLIC_API_URL}/auth/google_callback`
-            : `${process.env.NEXT_PUBLIC_API_URL}/auth/google_callback`;
+            ? `${process.env.NEXT_PUBLIC_FRONT_URL}/auth/google_callback`
+            : `${process.env.NEXT_PUBLIC_FRONT_URL}/auth/google_callback`;
       if(!originUrl){
         console.error("OriginUrlが見つかりません");
         return;

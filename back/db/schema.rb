@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_02_03_142057) do
+ActiveRecord::Schema[7.0].define(version: 2025_02_04_095116) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -41,6 +41,21 @@ ActiveRecord::Schema[7.0].define(version: 2025_02_03_142057) do
     t.datetime "updated_at", null: false
     t.index ["project_id"], name: "index_collaborations_on_project_id"
     t.index ["user_id"], name: "index_collaborations_on_user_id"
+  end
+
+  create_table "comments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "commentable_type", null: false
+    t.bigint "commentable_id", null: false
+    t.text "content", null: false
+    t.string "ancestry"
+    t.integer "children_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ancestry"], name: "index_comments_on_ancestry"
+    t.index ["children_count"], name: "index_comments_on_children_count"
+    t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
+    t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
   create_table "likes", force: :cascade do |t|
@@ -96,6 +111,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_02_03_142057) do
   add_foreign_key "bookmarks", "users"
   add_foreign_key "collaborations", "projects"
   add_foreign_key "collaborations", "users"
+  add_foreign_key "comments", "users"
   add_foreign_key "likes", "users"
   add_foreign_key "projects", "users"
 end

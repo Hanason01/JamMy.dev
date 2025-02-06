@@ -2,11 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { ProjectShowResponse, InitialProjectData } from "@sharedTypes/types";
 import { createInitialProjectData } from "@utils/createInitialProjectData";
 
-export async function GET(req: NextRequest, context : { params: { projectId: string } }) {
-  const params = await context.params
-  const { projectId } = params
-
-  console.log("projectId", projectId);
+export async function GET(req: NextRequest, context : { params: Promise<Record<string, string>>}) {
+  const resolvedParams = await context.params;
+  const projectId = resolvedParams.projectId;
 
   try {
     const response = await fetch(`${process.env.BACKEND_API_URL}/api/v1/projects/${projectId}`, {
