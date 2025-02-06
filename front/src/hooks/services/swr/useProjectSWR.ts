@@ -1,16 +1,16 @@
 "use client"
 import useSWRInfinite from "swr/infinite";
 import { InitialProjectResponse, InitialProjectData, EnrichedProject, Meta } from "@sharedTypes/types";
-import { applyIsOwner } from "@utils/applyIsOwner";
+import { applyIsOwnerToProjects } from "@utils/applyIsOwnerToProjects";
 
 // 追加フェッチのリクエスト雛形（レスポンスはすべて下記事前処理関数のフィルターを通す）
 const fetcher = async (url: string): Promise<{ projects: EnrichedProject[], meta: Meta }> => {
-  const res = await fetch(url, { credentials: "include" });
-  if (!res.ok) throw new Error("データ取得に失敗しました");
-  const data: InitialProjectResponse = await res.json();
+  const response = await fetch(url, { credentials: "include" });
+  if (!response.ok) throw new Error("データ取得に失敗しました");
+  const data: InitialProjectResponse = await response.json();
 
   return {
-    projects: applyIsOwner(data.projects), // 取得後すぐ isOwner を適用
+    projects: applyIsOwnerToProjects(data.projects), // 取得後すぐ isOwner を適用
     meta: data.meta,
   };
 };
@@ -18,6 +18,7 @@ const fetcher = async (url: string): Promise<{ projects: EnrichedProject[], meta
 
 // 投稿一覧 (無限スクロール用)
 export function useProjectList() {
+  console.log("ProjectSWR呼び出し")
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
     (index) => `/api/projects?page=${index + 1}`, //ページネーション指定(index = 0)
     fetcher,
