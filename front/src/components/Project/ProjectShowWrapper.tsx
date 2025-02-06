@@ -2,15 +2,23 @@
 import { Project, User, InitialProjectData, EnrichedProject } from "@sharedTypes/types";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
 import { ProjectCard } from "@Project/ProjectCard";
-import { AudioController } from "@components/Project/AudioController"
+import { CommentCard } from "@Project/comment/CommentCard";
+import { AudioController } from "@Project/AudioController"
 import { useFetchAudioData } from "@audio/useFetchAudioData";
-import { applyIsOwner } from "@utils/applyIsOwner";
+import { applyIsOwnerToProjects } from "@utils/applyIsOwnerToProjects";
+import { useProjectComments } from "@services/swr/useCommentSWR";
+import { CommentForm } from "@Project/comment/CommentForm";
 
 
 export function ProjectShowWrapper(){
   const { projectId } = useParams<Record<string, string>>();
+
+  //SWR関連
+  const { comments, meta, hasMore, loadMore, isLoading, isError,isValidating,  mutate } = useProjectComments(projectId);
+  console.log("SWRが取得したComments", comments);
 
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -28,6 +36,7 @@ export function ProjectShowWrapper(){
   //フック
   const { fetchAudioData } = useFetchAudioData();
 
+  //context
 
   //初期化処理
   useEffect(() => {
@@ -35,7 +44,7 @@ export function ProjectShowWrapper(){
       try {
         const res = await fetch(`/api/projects/${projectId}`);
         const projects: InitialProjectData[] = await res.json();
-        const enrichedProjects = applyIsOwner(projects);
+        const enrichedProjects = applyIsOwnerToProjects(projects);
         setProjects(enrichedProjects);
       } catch (err) {
         setError("データの取得に失敗しました");
@@ -49,6 +58,18 @@ export function ProjectShowWrapper(){
       setProjects([]);
     }
   }, [projectId]);
+
+  // コメントへの返信処理
+  const handleReply = (commentId: string) => {
+    console.log(`返信先Id: ${commentId}`);
+    // 返信ロジック実装予定
+  };
+
+  // コメントの削除処理
+  const handleDelete = (commentId: string) => {
+    console.log(`削除するId: ${commentId}`);
+    // 削除ロジック実装予定
+  };
 
 
   //再生ボタン押下時処理
@@ -95,7 +116,7 @@ export function ProjectShowWrapper(){
   }
 
   return(
-    <Box sx={{ pb : "56px" }}>
+    <Box sx={{ bottom: 112 }}>
       {projects.length === 0 ?(
         <Box sx={{ textAlign: "center", my: 4 }}>
           <Typography variant="h6" color="textSecondary">
@@ -114,12 +135,43 @@ export function ProjectShowWrapper(){
           />
         ))
       )}
-      {isAudioControllerVisible && audioUrl && audioData &&(
+
+      {/* コメント表示部分（無限スクロール対応） */}
+      <InfiniteScroll
+        dataLength={comments.length}
+        next={loadMore}
+        hasMore={hasMore}
+        loader={
+          <Box sx={{ textAlign: "center", py: 2 }}>
+            <CircularProgress />
+          </Box>
+        }
+      >
+      {comments.map((comment) => (
+          <CommentCard
+            key={comment.attributes.id}
+            comment={comment}
+            onReply={handleReply}
+            projectId={projectId}
+          />
+        ))
+      }
+      </InfiniteScroll>
+
+
+
+      {isAudioControllerVisible ? (
+        audioUrl && audioData ?(
         <AudioController
           onClose={handleCloseClick}
           project={projectForController}
           user={userForController}
           audioData={audioData}
+        />
+        ) : null
+      ) : (
+        <CommentForm
+          projectId={projectId}
         />
       )}
     </Box>

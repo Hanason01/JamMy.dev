@@ -8,7 +8,7 @@ import { ProjectCard } from "@Project/ProjectCard";
 import { AudioController } from "@components/Project/AudioController"
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { useClientCacheContext } from "@context/useClientCacheContext";
-import { useProjectList } from "@services/useProjectSWR";
+import { useProjectList } from "@services/swr/useProjectSWR";
 import { useSWRConfig } from "swr";
 
 
@@ -16,11 +16,11 @@ export function ProjectIndexWrapper({}){
 
 //SWR関連
   // 投稿一覧用
-  const { projects, meta: projectMeta, hasMore, loadMore, isLoading, isError, mutate } = useProjectList();
+  const { projects, meta, hasMore, loadMore, isLoading, isError, isValidating, mutate } = useProjectList();
   // console.log("SWRのprojectsキャッシュ", projects);
 
-  // const { cache } = useSWRConfig();
-  // console.log("cache", cache);
+  const { cache } = useSWRConfig();
+  console.log("Indexのcache", cache);
 
 
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
@@ -120,7 +120,7 @@ export function ProjectIndexWrapper({}){
       ) : (
         <InfiniteScroll
           dataLength={projects.length}
-          next={() => loadMore()}
+          next={loadMore}
           hasMore={hasMore}
           loader={
             <Box sx={{ textAlign: "center", py: 2 }}>
