@@ -9,6 +9,8 @@ import { usePostCommentValidation } from "@validation/usePostCommentValidation";
 import { useClientCacheContext } from "@context/useClientCacheContext";
 import { useAuthContext } from "@context/useAuthContext";
 import { useProjectComments } from "@services/swr/useCommentSWR";
+import { useSWRConfig } from "swr";
+import { useProjectList } from "@services/swr/useProjectSWR";
 
 export function CommentForm({
   projectId
@@ -16,7 +18,10 @@ export function CommentForm({
   projectId: string;
   }) {
   // SWR関連
-  const { mutate } = useProjectComments(projectId);
+  const { mutate } = useProjectComments(projectId); //コメント
+  const { mutate: indexMutate } = useProjectList(); //一覧
+  const { mutate: globalMutate } = useSWRConfig()
+  const detailMutateKey = `/api/projects/${projectId}`;
 
   // フック
   const { postCommentProject } = useCommentRequest();
@@ -72,7 +77,9 @@ export function CommentForm({
     try {
       await postCommentProject(data, projectId);
       reset();
-      mutate(); //再フェッチ指示
+      mutate(); //コメントのSWR
+      globalMutate(detailMutateKey);
+      indexMutate(undefined, {revalidate: true}); //一覧SWR
     } catch (error: any) {
       setError("content", { type: "manual", message: error.content });
       console.error("コメント送信エラー:", error);

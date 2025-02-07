@@ -31,20 +31,17 @@ import { useEditProjectRequest } from "@services/project/useEditProjectRequest";
 import { useDeleteProjectRequest } from "@services/project/useDeleteProjectRequest";
 import { useLikeToggle } from "@services/project/feedback/useLikeToggle";
 import { useBookmarkToggle } from "@services/project/feedback/useBookmarkToggle";
-
+import { useProjectList } from "@services/swr/useProjectSWR";
+import { useSWRConfig } from "swr";
 
 export function ProjectCard({
   mode,
   project,
   onPlayClick,
-  projects,
-  setProjects,
 } : {
   mode:"list" | "detail";
   project: EnrichedProject;
   onPlayClick: (project: EnrichedProject) => void;
-  projects?: EnrichedProject[];
-  setProjects?: SetState<EnrichedProject[]>;
 }){
   //状態変数・変数
   const [expanded, setExpanded] = useState<boolean>(false); //概要展開
@@ -75,6 +72,11 @@ export function ProjectCard({
   const { editProject } = useEditProjectRequest();
   const { deleteProject } = useDeleteProjectRequest();
 
+    // SWR関連
+  const { mutate: indexMutate } = useProjectList(); //一覧
+  const { mutate: globalMutate } = useSWRConfig()
+  const detailMutateKey = `/api/projects/${project.id}`;
+
     //モード切替
   const handleEdit = () => setIsEditing(true);
   const handleCancel = () => {
@@ -83,12 +85,12 @@ export function ProjectCard({
   }
 
   //汎用フック
-  const { handleLike, handleUnlike } = useLikeToggle({projects, setProjects});
-  const { handleBookmark, handleUnBookmark } = useBookmarkToggle({projects, setProjects});
+  const { handleLike, handleUnlike } = useLikeToggle();
+  const { handleBookmark, handleUnBookmark } = useBookmarkToggle();
 
   //汎用Context関係
   const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath, } = useProjectContext();
-  const { setFeedbackAndReload } = useFeedbackContext();
+  const { setFeedbackByKey } = useFeedbackContext();
   const router = useRouter();
   const { requireAuth } = useAuthContext();
   const { setIsCommentRoute } = useClientCacheContext();
@@ -215,7 +217,9 @@ export function ProjectCard({
       await editProject(formData, project.id);
       console.log("プロジェクトが正常に更新されました");
       setIsEditing(false);
-      setFeedbackAndReload("project:edit:success");
+      globalMutate(detailMutateKey);
+      indexMutate(undefined, {revalidate: true}); //一覧SWR
+      setFeedbackByKey("project:edit:success");
     }catch(error: any) {
       if (error.title) {
         setError("title", { type: "manual", message: error.title });
@@ -244,7 +248,11 @@ export function ProjectCard({
   //削除ボタン
   const handleDeleteProject = async () =>{
     await deleteProject(project.id)
-    window.location.href = "/projects?feedback=project:delete:success";
+    indexMutate(undefined, {revalidate: true}); //一覧SWR
+    router.replace("/projects?feedback=project:delete:success");
+    if(mode === "list"){
+      setFeedbackByKey("project:delete:success");
+    }
   }
 
    // いいねボタン
@@ -255,10 +263,10 @@ export function ProjectCard({
 
     if (project.attributes.liked_by_current_user) {
       // すでに「いいね」されている → 解除
-      await handleUnlike(project.id, project.attributes.current_like_id);
+      await handleUnlike(project.id, project.attributes.current_like_id, mode);
     } else {
       // まだ「いいね」されていない → 追加
-      await handleLike(project.id);
+      await handleLike(project.id, mode);
     }
   };
 
@@ -270,10 +278,10 @@ export function ProjectCard({
 
       if (project.attributes.bookmarked_by_current_user) {
         // すでに「ブックマーク」されている → 解除
-        await handleUnBookmark(project.id, project.attributes.current_bookmark_id);
+        await handleUnBookmark(project.id, project.attributes.current_bookmark_id, mode);
       } else {
         // まだ「ブックマーク」されていない → 追加
-        await handleBookmark(project.id);
+        await handleBookmark(project.id, mode);
       }
     };
 
