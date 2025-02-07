@@ -65,6 +65,7 @@ class Api::V1::Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCall
       # ホワイトリスト検証: ホストとパスが一致する場合のみリダイレクトを許可
       if allowed_hosts.include?(uri.host) && allowed_paths.any? { |path| uri.path.start_with?(path) }
         redirect_to DeviseTokenAuth::Url.generate(auth_origin_url, data.merge(blank: true).merge(redirect_options)), allow_other_host: true
+        Rails.logger.info "Redirecting to: #{redirect_url}"
       else
         fallback_render "不正なリダイレクト先です: #{auth_origin_url}"
       end
