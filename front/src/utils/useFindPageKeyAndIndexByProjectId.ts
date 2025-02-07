@@ -1,11 +1,11 @@
 import { useSWRConfig } from "swr";
 import { EnrichedProject, PageKeyResult } from "@sharedTypes/types";
 
-// SWRのキャッシュから特定のプロジェクトIDを持つページキーを探すカスタムフック
+// SWRの一覧キャッシュから特定のプロジェクトIDを持つページキーを探すカスタムフック
 export const useFindPageKeyByProjectId = () => {
   const { cache } = useSWRConfig();
 
-  const findPageKeyByProjectId = (projectId: string): PageKeyResult => {
+  const findPageKeyByProjectId = (projectId: string): PageKeyResult | undefined => {
     // キーを基準に巡回
     for (const key of cache.keys()) {
       // ページネーションのキーかどうか確認
@@ -23,7 +23,7 @@ export const useFindPageKeyByProjectId = () => {
         }
       }
     }
-    throw new Error(`プロジェクトID ${projectId} に対応するキャッシュが見つかりませんでした。`);
+    return undefined;
   };
 
   return findPageKeyByProjectId;

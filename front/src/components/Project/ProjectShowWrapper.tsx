@@ -10,22 +10,34 @@ import { AudioController } from "@Project/AudioController"
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { applyIsOwnerToProjects } from "@utils/applyIsOwnerToProjects";
 import { useProjectComments } from "@services/swr/useCommentSWR";
+import { useShowProject } from "@services/swr/useShowProjectSWR";
 import { CommentForm } from "@Project/comment/CommentForm";
+import { useSWRConfig } from "swr";
 
 
 export function ProjectShowWrapper(){
   const { projectId } = useParams<Record<string, string>>();
 
   //SWR関連
+  const {
+    projects,
+    isLoading: isProjectLoading,
+    isError: isProjectError,
+    mutate: mutateProject
+  } = useShowProject(projectId);
+  console.log("useShowProjectが取得したキャッシュ", projects);
+
   const { comments, meta, hasMore, loadMore, isLoading, isError,isValidating,  mutate } = useProjectComments(projectId);
   console.log("SWRが取得したComments", comments);
+
+  const { cache } = useSWRConfig();
+  console.log("Showのcache", cache);
+
+
 
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioData, setAudioData] = useState<ArrayBuffer | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [projects, setProjects] = useState<EnrichedProject[]>([]);
   // console.log("projects追跡",projects);
 
   //オーディオコントローラーに使用
@@ -38,26 +50,6 @@ export function ProjectShowWrapper(){
 
   //context
 
-  //初期化処理
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const res = await fetch(`/api/projects/${projectId}`);
-        const projects: InitialProjectData[] = await res.json();
-        const enrichedProjects = applyIsOwnerToProjects(projects);
-        setProjects(enrichedProjects);
-      } catch (err) {
-        setError("データの取得に失敗しました");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProject();
-
-    return () => {
-      setProjects([]);
-    }
-  }, [projectId]);
 
   // コメントへの返信処理
   const handleReply = (commentId: string) => {
@@ -99,7 +91,7 @@ export function ProjectShowWrapper(){
   };
 
   // 初期ロード中の表示
-  if (loading) {
+  if (isLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
         <CircularProgress />
@@ -107,10 +99,10 @@ export function ProjectShowWrapper(){
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <Box sx={{ mx: 2, my: 4 }}>
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error">{isError}</Alert>
       </Box>
     );
   }
@@ -130,8 +122,6 @@ export function ProjectShowWrapper(){
           key={project.attributes.id}
           onPlayClick={handlePlayClick}
           project={project}
-          projects={projects}
-          setProjects={setProjects}
           />
         ))
       )}

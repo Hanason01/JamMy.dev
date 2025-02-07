@@ -10,6 +10,8 @@ import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useCommentRequest } from "@services/project/feedback/useCommentRequest";
 import { useProjectComments } from "@services/swr/useCommentSWR";
+import { useProjectList } from "@services/swr/useProjectSWR";
+import { useSWRConfig } from "swr";
 
 export function CommentCard({
   comment,
@@ -21,7 +23,10 @@ export function CommentCard({
   projectId: string;
 }) {
   // SWR関連
-  const { mutate } = useProjectComments(projectId);
+  const { mutate } = useProjectComments(projectId); //コメント
+  const { mutate: indexMutate } = useProjectList(); //一覧
+  const { mutate: globalMutate } = useSWRConfig()
+  const detailMutateKey = `/api/projects/${projectId}`;
 
   // 状態管理
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
@@ -48,7 +53,9 @@ export function CommentCard({
   //削除ボタン
   const handleDeleteComment = async () =>{
     await deleteCommentProject(projectId, comment.id)
-    mutate();
+    mutate(); //コメントのSWR
+    globalMutate(detailMutateKey);
+    indexMutate(undefined, {revalidate: true}); //一覧SWR
   }
 
   return (
