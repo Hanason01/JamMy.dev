@@ -16,7 +16,7 @@ class Api::V1::CollaborationsController < ApplicationController
 
         #ファイル保存
       audio_file = collaboration.build_audio_file(
-        file_path: upload_audio_file_to_s3(params[:collaboration][:audio_file])
+        file_path: upload_file_to_s3(params[:collaboration][:audio_file], "audio_files")
       )
       unless audio_file.save
         raise ActiveRecord::Rollback, audio_file.errors.full_messages.join(", ")

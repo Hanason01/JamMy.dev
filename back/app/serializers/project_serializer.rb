@@ -11,9 +11,9 @@ class ProjectSerializer
 
   # いいねの追加
     # projectが保有するいいね数
-  attribute :like_count do |project|
-    project.likes.size
-  end
+    attribute :like_count do |project, params|
+      params[:project_likes_map]&.[](project.id) || 0
+    end
 
     # current_userがいいねしているかどうか（真偽値）
   attribute :liked_by_current_user do |project, params|
@@ -36,7 +36,7 @@ class ProjectSerializer
   end
 
   #コメント数の追加属性(projectを親としたcomment数のみ)
-  attribute :comment_count do |project|
-    project.comments.count
+  attribute :comment_count do |project, params|
+    params[:project_comments_map]&.[](project.id) || 0
   end
 end

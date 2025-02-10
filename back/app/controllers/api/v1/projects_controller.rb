@@ -11,8 +11,10 @@ class Api::V1::ProjectsController < ApplicationController
       #認証されている場合はuserオブジェクトが、未認証の場合はnilを返す
       user_likes = user_likes_map
       user_bookmarks = user_bookmarks_map
+      project_likes = project_likes_map
+      project_comments = project_comments_map
 
-      serialized = serialized_projects(projects, user_likes, user_bookmarks)
+      serialized = serialized_projects(projects, user_likes, project_likes, user_bookmarks, project_comments)
 
       render json: {
         data: serialized[:data],
@@ -31,8 +33,10 @@ class Api::V1::ProjectsController < ApplicationController
     if projects.any?
       user_likes = user_likes_map
       user_bookmarks = user_bookmarks_map
+      project_likes = project_likes_map
+      project_comments = project_comments_map
 
-      serialized = serialized_projects(projects, user_likes, user_bookmarks)
+      serialized = serialized_projects(projects, user_likes, project_likes, user_bookmarks, project_comments)
 
       render json: {
         data: serialized[:data],
@@ -57,7 +61,7 @@ class Api::V1::ProjectsController < ApplicationController
 
         #ファイル保存
       audio_file = project.build_audio_file(
-        file_path: upload_audio_file_to_s3(params[:project][:audio_file])
+        file_path: upload_file_to_s3(params[:project][:audio_file], "audio_files")
       )
       unless audio_file.save
         raise ActiveRecord::Rollback, audio_file.errors.full_messages.join(", ")
@@ -111,13 +115,13 @@ class Api::V1::ProjectsController < ApplicationController
 
       # projectの音声ファイル削除
       if project.audio_file.present?
-        delete_audio_file_from_s3(project.audio_file.file_path)
+        delete_file_from_s3(project.audio_file.file_path)
       end
 
       # 関連するcollaborationの音声ファイル削除
       project.collaborations.each do |collaboration|
         if collaboration.audio_file.present?
-          delete_audio_file_from_s3(collaboration.audio_file.file_path)
+          delete_file_from_s3(collaboration.audio_file.file_path)
           collaboration.audio_file.destroy!
         end
         collaboration.destroy!
@@ -134,36 +138,6 @@ class Api::V1::ProjectsController < ApplicationController
   end
 
   private
-
-  def user_likes_map #current_userが持つlikeの特定
-    @user_likes_map ||= if current_user #条件付き代入、メモ化
-      current_user.likes.where(likeable_type: "Project").pluck(:likeable_id, :id).to_h #{project_id => like_id, ...}
-    else
-      {}
-    end
-  end
-
-  def user_bookmarks_map
-    @user_bookmarks_map ||= if current_user
-      current_user.bookmarks.pluck(:project_id, :id).to_h
-    else
-      {}
-    end
-  end
-
-  def serialized_projects(projects, user_likes, user_bookmarks)
-    ProjectSerializer.new(
-      projects,
-      {
-        include: [:user, :audio_file],
-        params: { #Serializerとの通信用データ
-          current_user: current_user,
-          user_likes_map: user_likes,
-          user_bookmarks_map: user_bookmarks
-          }
-        }
-    ).serializable_hash
-  end
 
   def project_params
     params.require(:project).permit(:title, :description, :duration, :tempo, :status, :visibility, :audio_file)
