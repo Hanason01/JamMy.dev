@@ -191,7 +191,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-            <Avatar src={currentUser?.attributes.image || "/default-icon.png"}
+            <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
                     alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
                     sx={{ width: 25, height: 25 }} />
             <Typography variant="body2" component="span" color="textSecondary">

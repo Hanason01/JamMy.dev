@@ -20,6 +20,12 @@ Rails.application.routes.draw do
         resources :comments, only: %i[index], module: :projects
       end
       resources :comments, only: %i[create destroy]
+      namespace :users do
+        resource :me, only: [] do
+          get "my_projects", to: "projects#index"
+        end
+        resource :profile, only: %i[show update]
+      end
     end
   end
 end

@@ -258,7 +258,7 @@ export function CollaborationManagementStep1({
           mt:5
           }}>
           <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-            <Avatar src={currentUser?.attributes.image || "/default-icon.png"}
+            <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
                     alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
                     sx={{ width: 25, height: 25 }} />
             <Typography variant="body2" component="span" color="textSecondary">
@@ -341,7 +341,7 @@ export function CollaborationManagementStep1({
               {slot.collaborationId ? (
                 <>
                   <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-                    <Avatar src={collaboration?.user.image || "/default-icon.png"}
+                    <Avatar src={collaboration?.user.avatar_url || "/default-icon.png"}
                             alt={collaboration?.user.nickname || collaboration?.user.username || undefined }
                             sx={{ width: 25, height: 25 }} />
                     <Typography variant="body2" component="span" color="textSecondary">

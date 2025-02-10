@@ -52,7 +52,6 @@ export default function RootLayout({ children }: Readonly<{
       <body>
         <SWRConfig
             value={{
-              revalidateOnFocus: true, // タブ切り替え時に最新データを取得
               dedupingInterval: 5000, // 5秒間は同じリクエストを送らない
               shouldRetryOnError: false, // エラー時の自動リトライを無効化
             }}

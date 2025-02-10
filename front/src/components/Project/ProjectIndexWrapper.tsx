@@ -8,7 +8,7 @@ import { ProjectCard } from "@Project/ProjectCard";
 import { AudioController } from "@components/Project/AudioController"
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { useClientCacheContext } from "@context/useClientCacheContext";
-import { useProjectList } from "@services/swr/useProjectSWR";
+import { useProjectList } from "@swr/useProjectSWR";
 import { useSWRConfig } from "swr";
 
 
@@ -27,7 +27,6 @@ export function ProjectIndexWrapper({}){
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioData, setAudioData] = useState<ArrayBuffer | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   //オーディオコントローラーに使用
   const [projectForController, setProjectForController] = useState<Project | null>(null);
@@ -93,7 +92,7 @@ export function ProjectIndexWrapper({}){
   };
 
   // 初期ロード中の表示
-  if (loading) {
+  if (loading || (isLoading && !projects)) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
         <CircularProgress />
@@ -101,10 +100,10 @@ export function ProjectIndexWrapper({}){
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <Box sx={{ mx: 2, my: 4 }}>
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error">{isError}</Alert>
       </Box>
     );
   }
@@ -131,6 +130,7 @@ export function ProjectIndexWrapper({}){
         {projects.map((project) => (
             <ProjectCard
             mode="list"
+            category="projects"
             key={project.attributes.id}
             onPlayClick={handlePlayClick}
             project={project}

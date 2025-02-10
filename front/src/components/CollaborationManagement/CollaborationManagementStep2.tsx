@@ -147,7 +147,7 @@ export function CollaborationManagementStep2({
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-            <Avatar src={currentUser?.attributes.image || "/default-icon.png"}
+            <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
                     alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
                     sx={{ width: 25, height: 25 }} />
             <Typography variant="body2" component="span" color="textSecondary">
@@ -224,7 +224,7 @@ export function CollaborationManagementStep2({
             <Box key={item.id} sx={{ mt: 2 }}>
               {/* ユーザー情報とコメント */}
                 <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-                  <Avatar src={item.user.image || "/default-icon.png"}
+                  <Avatar src={item.user.avatar_url || "/default-icon.png"}
                           alt={item.user.nickname ||item.user.username || undefined }
                           sx={{ width: 25, height: 25 }} />
                   <Typography variant="body2" component="span" color="textSecondary">

@@ -18,7 +18,8 @@ class User < ActiveRecord::Base
           format: { with: /\A[a-zA-Z0-9._]+\z/, message: "は英数字、アンダースコア(_)、ドット(.)のみが使用できます" },
           allow_nil: true,
           on: :create
-  validates :nickname, length: { maximum:15 }, on: :create
+  validates :nickname, presence: true, length: { maximum:15 }, on: :create
   validates :bio, length: { maximum: 160 }, on: :create
   validates :provider, presence: true, on: :create
+  validates :avatar_url, format: { with: URI::regexp, message: "は正しいURLを指定してください" }, allow_blank: true
 end

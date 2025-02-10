@@ -10,7 +10,7 @@ export const useLikeToggle = () => {
   const { likeProject, unlikeProject } = useLikeRequest();
   const { cache } = useSWRConfig();
   const findPageKeyByProjectId = useFindPageKeyByProjectId();
-  const applyMutate = useApplyMutate();
+  const {applyMutate} = useApplyMutate();
 
   //初期化変数
   let isShowMode: boolean;
@@ -43,8 +43,8 @@ export const useLikeToggle = () => {
 
 
   //初期化処理
-  const initialize = (projectId: string, mode:"list" | "detail" ) => {
-    result = findPageKeyByProjectId(projectId);
+  const initialize = (projectId: string, mode:"list" | "detail", category?: string ) => {
+    result = findPageKeyByProjectId(projectId, category);
     if (result){
       listMutateKey = result.mutateKey;
       projectIndex = result.projectIndex;
@@ -99,8 +99,8 @@ export const useLikeToggle = () => {
 
 
   // いいね追加関数
-  const handleLike = async (projectId: string, mode:"list" | "detail") => {
-    initialize(projectId, mode);
+  const handleLike = async (projectId: string, mode:"list" | "detail", category?: string) => {
+    initialize(projectId, mode, category);
     const isLikeMode = true;
 
     if (!targetProject) {
@@ -126,6 +126,7 @@ export const useLikeToggle = () => {
       destroyApiRequest,
       finalizeData,
       isShowMode,
+      category,
     });
     console.log("追加の楽観的更新後", cache);
   };
@@ -133,13 +134,13 @@ export const useLikeToggle = () => {
 
 
   // いいね解除関数
-  const handleUnlike = async (projectId: string, likeId: number | null, mode: "list" | "detail") => {
+  const handleUnlike = async (projectId: string, likeId: number | null, mode: "list" | "detail", category?: string) => {
     if(!likeId ){
       console.error("不正ないいねIDを検知しました");
       return;
     }
 
-    initialize(projectId, mode);
+    initialize(projectId, mode, category);
     const isLikeMode = false;
 
     if (!targetProject) {
@@ -161,6 +162,7 @@ export const useLikeToggle = () => {
       destroyApiRequest,
       relatedId: likeId.toString(),
       isShowMode,
+      category,
     });
     console.log("解除の楽観的更新後", cache);
   };
