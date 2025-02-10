@@ -58,7 +58,7 @@ export function AudioController({
         <CloseIcon />
       </IconButton>
       <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb: 2}}>
-        <Avatar src={user?.attributes.image || "/default-icon.png"}
+        <Avatar src={user?.attributes.avatar_url || "/default-icon.png"}
                 alt={user?.attributes.nickname || user?.attributes.username || undefined }
                 sx={{ width: 25, height: 25 }} />
         <Typography variant="body2" component="span" color="textSecondary">

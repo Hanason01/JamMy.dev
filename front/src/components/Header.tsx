@@ -54,9 +54,9 @@ export function Header() {
 
   //アバター情報の選定
   const avatarSrc =
-    isAuthenticated && authenticatedUser?.attributes?.image
-      ? authenticatedUser.attributes.image
-      : localUser?.attributes?.image;
+    isAuthenticated && authenticatedUser?.attributes?.avatar_url
+      ? authenticatedUser.attributes.avatar_url
+      : localUser?.attributes?.avatar_url;
 
   const avatarAlt =
     isAuthenticated && authenticatedUser?.attributes?.nickname
