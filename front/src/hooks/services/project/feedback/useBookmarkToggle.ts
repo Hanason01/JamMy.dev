@@ -10,7 +10,7 @@ export const useBookmarkToggle = () => {
   const { bookmarkProject, unBookmarkProject } = useBookmarkRequest();
   const { cache } = useSWRConfig();
   const findPageKeyByProjectId = useFindPageKeyByProjectId();
-  const applyMutate = useApplyMutate();
+  const {applyMutate} = useApplyMutate();
 
   //初期化変数
   let isShowMode: boolean;
@@ -40,8 +40,8 @@ export const useBookmarkToggle = () => {
 
 
   //初期化処理
-  const initialize = (projectId: string, mode:"list" | "detail" ) => {
-    result = findPageKeyByProjectId(projectId);
+  const initialize = (projectId: string, mode:"list" | "detail", category?: string ) => {
+    result = findPageKeyByProjectId(projectId, category);
     if (result){
       listMutateKey = result.mutateKey;
       projectIndex = result.projectIndex;
@@ -54,8 +54,8 @@ export const useBookmarkToggle = () => {
 
     //更新対象オブジェクトの抽出
     if(detailMutateKey){
-      const showCache = cache.get(detailMutateKey) as { projects: EnrichedProject[] } | undefined;
-      showTargetProjects = showCache?.projects?.[0];
+      const showCache = cache.get(detailMutateKey) as { data?: { projects: EnrichedProject[] }} | undefined;
+      showTargetProjects = showCache?.data?.projects?.[0];
     }
     targetProject = isShowMode && showTargetProjects
       ? showTargetProjects
@@ -73,7 +73,7 @@ export const useBookmarkToggle = () => {
     if (!isShowMode && (!listMutateKey || projectIndex === undefined)) {  //一覧ページに一度アクセスしているのに、キャッシュがない異常状態
       console.error("Indexキャッシュキーが存在異常終了しました");
       return;
-    } else if(isShowMode && (!detailMutateKey || projectIndex === undefined)){
+    } else if(isShowMode && (!detailMutateKey)){
       console.error("Showキャッシュキーが存在せず異常終了しました");
       return;
     }
@@ -96,8 +96,8 @@ export const useBookmarkToggle = () => {
 
 
   // ブックマーク追加関数
-  const handleBookmark = async (projectId: string, mode:"list" | "detail") => {
-    initialize(projectId, mode);
+  const handleBookmark = async (projectId: string, mode:"list" | "detail", category?: string) => {
+    initialize(projectId, mode, category);
     const isBookmarkMode = true;
 
     if (!targetProject) {
@@ -122,6 +122,7 @@ export const useBookmarkToggle = () => {
       destroyApiRequest,
       finalizeData,
       isShowMode,
+      category,
     });
     console.log("追加の楽観的更新後", cache);
   };
@@ -129,13 +130,13 @@ export const useBookmarkToggle = () => {
 
 
   // ブックマーク解除関数
-  const handleUnBookmark = async (projectId: string, bookmarkId: number | null, mode: "list" | "detail") => {
+  const handleUnBookmark = async (projectId: string, bookmarkId: number | null, mode: "list" | "detail", category?: string) => {
     if(!bookmarkId ){
       console.error("不正なブックマークIDを検知しました");
       return;
     }
 
-    initialize(projectId, mode);
+    initialize(projectId, mode, category);
     const isBookmarkMode = false;
 
     if (!targetProject) {
@@ -157,6 +158,7 @@ export const useBookmarkToggle = () => {
       destroyApiRequest,
       relatedId: bookmarkId.toString(),
       isShowMode,
+      category
     });
     console.log("解除の楽観的更新後",cache);
   };

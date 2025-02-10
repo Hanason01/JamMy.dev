@@ -9,8 +9,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useCommentRequest } from "@services/project/feedback/useCommentRequest";
-import { useProjectComments } from "@services/swr/useCommentSWR";
-import { useProjectList } from "@services/swr/useProjectSWR";
+import { useProjectComments } from "@swr/useCommentSWR";
+import { useProjectList } from "@swr/useProjectSWR";
 import { useSWRConfig } from "swr";
 
 export function CommentCard({
@@ -71,7 +71,7 @@ export function CommentCard({
       {/* ユーザー情報とタイムスタンプ */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Avatar src={user.attributes.image || "/default-icon.png"} alt={user.attributes.nickname || "名無しのユーザー"} />
+          <Avatar src={user.attributes.avatar_url || "/default-icon.png"} alt={user.attributes.nickname || "名無しのユーザー"} />
           <Box sx={{ ml: 2 }}>
             <Typography variant="body1">
               {user.attributes.nickname || user.attributes.username || "名無しのユーザー"}

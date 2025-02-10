@@ -1,33 +1,20 @@
 "use client"
 import useSWRInfinite from "swr/infinite";
-import { InitialProjectResponse, InitialProjectData, EnrichedProject, Meta } from "@sharedTypes/types";
-import { applyIsOwnerToProjects } from "@utils/applyIsOwnerToProjects";
+import { EnrichedProject } from "@sharedTypes/types";
+import { fetchProjectList } from "@swr/fetcher";
 
-// 追加フェッチのリクエスト雛形（レスポンスはすべて下記事前処理関数のフィルターを通す）
-const fetcher = async (url: string): Promise<{ projects: EnrichedProject[], meta: Meta }> => {
-  const response = await fetch(url, { credentials: "include" });
-  if (!response.ok) throw new Error("データ取得に失敗しました");
-  const data: InitialProjectResponse = await response.json();
-
-  return {
-    projects: applyIsOwnerToProjects(data.projects), // 取得後すぐ isOwner を適用
-    meta: data.meta,
-  };
-};
-
+export const getIndexKey = (index: number) => `/api/projects?page=${index + 1}`;
 
 // 投稿一覧 (無限スクロール用)
 export function useProjectList() {
-  console.log("ProjectSWR呼び出し")
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
-    (index) => `/api/projects?page=${index + 1}`, //ページネーション指定(index = 0)
-    fetcher,
+    getIndexKey, //ページネーション指定(index = 0)
+    fetchProjectList,
     {
-      suspense: true, // suspendモード
-      fallbackData: [{ projects: [], meta: { total_pages: 0 } }],
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
       revalidateFirstPage: false, // 再フェッチ無効化（再マウント時にフェッチしない）
       revalidateOnMount: true, //初回フェッチ有効か（デフォルトtrue）
-      compare: (a, b) => JSON.stringify(a) === JSON.stringify(b), //デフォルトはシャロウコピー、この設定でディープコピー検知を行う
     }
   );
 
@@ -35,11 +22,12 @@ export function useProjectList() {
     ? data.flatMap((page) => page.projects as EnrichedProject[])
     : [];//全データ(以下出力例参照)
   // console.log("SWR内でproject監視", projects);
+  const hasMore = data ? data[data.length - 1]?.meta?.total_pages > size : false;
 
   return {
     projects,
     meta: data?.[0]?.meta, //最初のページのmeta
-    hasMore: data && data.length > 0 ? data[data.length - 1].meta.total_pages > size : false, //追加すべきページがあるか判定
+    hasMore: hasMore, //追加すべきページがあるか判定
     loadMore: () => setSize(size + 1), //次ページの読み込み
     isLoading: !data && !error, //初回ロード中かフラグ
     isError: !!error, //エラー情報
@@ -60,3 +48,7 @@ export function useProjectList() {
 // メソッド等について補足
 // size・・・useSWRInfinite によって現在取得済みのページ数（ setSize() を何回呼んだか)
 // loadMore・・・sizeを増加、つまり取得済みのページ数を進行。setSizeはそれと同時に「(index) => `/api/projects?page=${index + 1}`」こちらをトリガーし、indexにそのsizeを充てる（つまり次ページフェッチ）
+
+
+// ＊/重大な補足/＊
+// useSWRconfigの管轄にあるSWRの初期化ファイル（layout.ts出ればすなわちアプリ全体）はそれを呼び出すコンポーネントがマウントされていなかったとしても、キーの作成は行われる。さらにrevalidateOnMount: trueであれば初回フェッチが行われ、それを全てに設定していたとすれば、結果としてアプリ全ての必要な初期データが初回で準備される事になる

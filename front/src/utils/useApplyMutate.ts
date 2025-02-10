@@ -1,5 +1,10 @@
 import { useSWRConfig } from "swr";
 import { EnrichedProject } from "@sharedTypes/types";
+import { unstable_serialize } from "swr/infinite";
+import { getIndexKey } from "@swr/useProjectSWR";
+import { getMyPageKey } from "@swr/useMyProjectsSWR";
+import { useProjectList } from "@swr/useProjectSWR";
+import { useMyProjects } from "@swr/useMyProjectsSWR";
 
 interface ApplyMutateProps {
   updatedProject: EnrichedProject;
@@ -12,6 +17,7 @@ interface ApplyMutateProps {
   finalizeData?: (response: any, project: EnrichedProject) => EnrichedProject; //リクエスト完了時の適用処理
   relatedId?: string; //削除リクエストに使用
   isShowMode: boolean;
+  category?: string;
 }
 
 interface PageData {
@@ -21,8 +27,87 @@ interface PageData {
 
 export const useApplyMutate = () => {
   const { mutate, cache } = useSWRConfig();
+  const { mutate: indexMutate } = useProjectList()
+  const { mutate: myMutate } = useMyProjects("my_projects")
+  const { mutate: myCollaboratingMutate } = useMyProjects("collaborating")
+  const { mutate: myCollaboratedMutate } = useMyProjects("collaborated")
+  const { mutate: myBookmarksMutate } = useMyProjects("bookmarks")
 
-  const applyMutate = async ({
+  // 動的getKey取得
+  const getKeyByCategory = (category: string | undefined) => {
+    switch (category) {
+      case "projects":
+        return getIndexKey;
+      case "my_projects":
+      case "collaborating":
+      case "collaborated":
+      case "bookmarks":
+        return (index: number) => getMyPageKey(index, category);
+      default:
+        return getIndexKey;
+    }
+  };
+
+  // APIリクエストを共通化
+  const executeApiRequest = async ({
+    projectId,
+    destroyApiRequest,
+    relatedId,
+    createApiRequest,
+  }: {
+    projectId: string;
+    destroyApiRequest?: (projectId: string, relatedId: string) => Promise<any>;
+    relatedId?: string;
+    createApiRequest?: (projectId: string) => Promise<any>;
+  }) => {
+    if (destroyApiRequest && relatedId) {
+      console.log("削除リクエスト開始");
+      return await destroyApiRequest(projectId, relatedId);
+    } else if (createApiRequest) {
+      console.log("新規リクエスト開始");
+      return await createApiRequest(projectId);
+    } else {
+      throw new Error("APIリクエスト関数が指定されていません");
+    }
+  };
+
+    // SWRinfinity全体の再フェッチを強制
+  const revalidateAllLists = async () => {
+    console.log("一覧ページ全体の再フェッチ実行");
+    await Promise.all([
+      indexMutate (undefined, { revalidate: false }),
+      myMutate (undefined, { revalidate: true }),
+      myCollaboratingMutate (undefined, { revalidate: false }),
+      myCollaboratedMutate (undefined, { revalidate: false }),
+      myBookmarksMutate (undefined, { revalidate: false }),
+    ])
+  };
+
+    //処理主体以外のSWRinfinity全体の再フェッチを強制
+    const revalidateOtherLists = async (category: string | undefined) => {
+      const mutateActions = [];
+
+      if (category !== "projects") {
+        mutateActions.push(indexMutate(undefined, { revalidate: false }));
+      }
+      if (category !== "my_projects") {
+        mutateActions.push(myMutate(undefined, { revalidate: false }));
+      }
+      if (category !== "collaborating") {
+        mutateActions.push(myCollaboratingMutate(undefined, { revalidate: false }));
+      }
+      if (category !== "collaborated") {
+        mutateActions.push(myCollaboratedMutate(undefined, { revalidate: false}));
+      }
+      if (category !== "bookmarks") {
+        mutateActions.push(myBookmarksMutate(undefined, { revalidate: false }));
+      }
+      console.log("mutate処理リスト", mutateActions);
+      await Promise.all(mutateActions);
+    };
+
+    //詳細ページ用のmutate
+  const applyMutateForShow = async ({
     updatedProject,
     detailMutateKey, //オプション
     listMutateKey, //オプション
@@ -35,133 +120,117 @@ export const useApplyMutate = () => {
     isShowMode,
   }: ApplyMutateProps) => {
 
-    console.log("=== applyMutate 呼び出し ===");
-    console.log("updatedProject:", updatedProject);
-    console.log("detailMutateKey:", detailMutateKey);
-    console.log("listMutateKey:", listMutateKey);
-    console.log("projectIndex:", projectIndex);
-    console.log("projectId:", projectId);
-    console.log("createApiRequest:", createApiRequest ? "関数がセットされています" : "未定義");
-    console.log("destroyApiRequest:", destroyApiRequest ? "関数がセットされています" : "未定義");
-    console.log("finalizeData:", finalizeData ? "関数がセットされています" : "未定義");
-    console.log("relatedId:", relatedId);
-    console.log("isShowMode:", isShowMode);
-    console.log("===========================");
+      console.log("=== applyMutate 呼び出し ===");
+      console.log("updatedProject:", updatedProject);
+      console.log("detailMutateKey:", detailMutateKey);
+      console.log("listMutateKey:", listMutateKey);
+      console.log("projectIndex:", projectIndex);
+      console.log("projectId:", projectId);
+      console.log("createApiRequest:", createApiRequest ? "関数がセットされています" : "未定義");
+      console.log("destroyApiRequest:", destroyApiRequest ? "関数がセットされています" : "未定義");
+      console.log("finalizeData:", finalizeData ? "関数がセットされています" : "未定義");
+      console.log("relatedId:", relatedId);
+      console.log("isShowMode:", isShowMode);
+      console.log("===========================");
 
-    try{
       // どちらのページも開かれていない場合は異常であり処理を離脱
-      if (!detailMutateKey && !listMutateKey) {
-        console.warn("一覧ページ、詳細ページのどちらのキャッシュも存在しないため、更新処理をスキップしました。");
-        return;
-      }
+      if (!detailMutateKey) return;
 
-      //Mutate処理
-      const updateCache = async (mutateKey: string | undefined, projectIndex: number | undefined ) => {
-        console.log("updateCache発動", mutateKey,projectIndex);
-        console.log("一覧ページのキャッシュ更新前", cache.get(indexMasterKey));
-        if (!mutateKey || projectIndex === undefined) return;
-        await mutate( //キャッシュ更新処理
-          mutateKey,
-          async (currentData: PageData | undefined): Promise<PageData> => {
-            // mutate(1.対象キー, 2. Updater関数, 3. オプション)
-            console.log("mutate関数発動", mutateKey,currentData);
+    //Mutate処理
+      await mutate( //キャッシュ更新処理
+        detailMutateKey,
+        async (currentData: PageData | undefined): Promise<PageData> => {
+          // mutate(1.対象キー, 2. Updater関数, 3. オプション)
+          console.log("mutate関数発動",detailMutateKey,currentData);
 
-            if (!currentData) throw new Error("現在のデータが存在しません")
+          if (!currentData) throw new Error("現在のデータが存在しません")
 
-            // サーバーリクエスト（create/delete双方に対応）
-            let response;
-            if (destroyApiRequest && relatedId) {
-              console.log("削除リクエスト開始", destroyApiRequest, relatedId);
-              // destroy関連のAPIリクエスト（relatedIdが必須）
-              response = await destroyApiRequest(projectId, relatedId);
-            } else if (createApiRequest) {
-              console.log("新規リクエスト開始", createApiRequest);
-              // create関連のAPIリクエスト（relatedIdが不要）
-              response = await createApiRequest(projectId);
-            }else {
-              throw new Error("APIリクエスト関数が指定されていません");
-            }
+          // サーバーリクエスト（create/delete双方に対応）
+          const response = await executeApiRequest({ projectId, destroyApiRequest, relatedId, createApiRequest });
 
-            // レスポンスを元に更新されたプロジェクトデータを生成（finalize処理が必要なものは関数実行）
-            console.log("終了データを保持", response, finalizeData);
-            const finalizedProject = finalizeData
-              ? finalizeData(response, updatedProject)
-              : updatedProject;
+          // レスポンスを元に更新されたプロジェクトデータを生成（finalize処理が必要なものは関数実行）
+          console.log("終了データを保持", response, finalizeData);
+          const finalizedProject = finalizeData
+            ? finalizeData(response, updatedProject)
+            : updatedProject;
 
-            // 一覧ページのキャッシュも更新
-            if(isShowMode && listMutateKey){
-              console.log("詳細更新後、一覧も更新");
-              await mutate(
-                indexMasterKey,
-                (prevData: PageData[] | undefined) => {
-                  if (!prevData) return prevData;
-                  return prevData.map((page) => ({
-                    ...page,
-                    projects: page.projects.map((p) => (p.id === finalizedProject.id ? finalizedProject : p)),
-                  }));
-                },
-                { revalidate: false } // ここでリクエストを発生させない
-              );
-            } else if( !isShowMode && detailMutateKey){
-              await mutate(
-                detailMutateKey,
-                (prevData: PageData | undefined) => {
-                if (!prevData) return prevData;
-                return {
-                  ...prevData,
-                  projects: prevData.projects.map((p) => (p.id === finalizedProject.id ? finalizedProject : p)),
-                };
-              }, { revalidate: false });
-            };
+          return { ...currentData, projects: [finalizedProject] };
+        },
+        {
+          optimisticData: (prevData: PageData | undefined): PageData=> { //楽観的更新
+            if (!prevData) throw new Error("楽観的更新用のデータが存在しません");
+            console.log("楽観的更新発動",prevData)
 
-            return { ...currentData, projects: [finalizedProject] };
+            return { ...prevData, projects: [updatedProject] };
           },
-          {
-            optimisticData: (prevData: PageData | undefined): PageData=> { //楽観的更新
-              if (!prevData) throw new Error("楽観的更新用のデータが存在しません");
-              console.log("楽観的更新発動",prevData)
+          populateCache: true, // キャッシュ保存(デフォルトはtrue)
+          rollbackOnError: true, // リクエストエラー時の自動ロールバック
+          revalidate: false, // 更新後の再フェッチを防ぐ
+        }
+      );
+    };
 
-              const optimisticProjects = [...prevData.projects];
-              optimisticProjects[projectIndex] = updatedProject;
-              console.log("更新後データ", optimisticProjects)
+    // 一覧ページ用のmutate
+  const applyMutateForList = async ({
+    updatedProject,
+    listMutateKey,
+    projectIndex,
+    projectId,
+    createApiRequest,
+    destroyApiRequest,
+    finalizeData,
+    relatedId,
+    detailMutateKey,
+    category,
+  }: ApplyMutateProps) => {
+    if (!listMutateKey || projectIndex === undefined) return;
+    const getKey = getKeyByCategory(category);
+    console.log("gesKeyの値", getKey);
 
-              return { ...prevData, projects: optimisticProjects };
-            },
-            // populateCache: false, // キャッシュ保存(デフォルトはtrue)
-            rollbackOnError: true, // リクエストエラー時の自動ロールバック
-            revalidate: false, // 更新後の再フェッチを防ぐ
-          }
-        );
+    console.log("一覧ページの mutate 処理開始");
+
+    await mutate(
+      unstable_serialize(getKey),
+      async (currentData: PageData[] | undefined): Promise<PageData[]> => {
+        if (!currentData) throw new Error("現在のデータが存在しません");
+
+        const response = await executeApiRequest({ projectId, destroyApiRequest, relatedId, createApiRequest });
+
+        const finalizedProject = finalizeData ? finalizeData(response, updatedProject) : updatedProject;
+
+        return currentData.map((page) => ({
+          ...page,
+          projects: page.projects.map((p) => (p.id === finalizedProject.id ? finalizedProject : p)),
+        }));
+      },
+      {
+        optimisticData: (prevData: PageData[] | undefined) => {
+          if (!prevData) throw new Error("楽観的更新用のデータが存在しません");
+          return prevData.map((page) => ({
+            ...page,
+            projects: page.projects.map((p) => (p.id === updatedProject.id ? updatedProject : p)),
+          }));
+        },
+        populateCache: true,
+        rollbackOnError: true,
+        revalidate: false,
       }
+    );
+  };
 
-      // マスターキー定義（SWRInfinityを使用しないShow側はshowMutateKeyがマスターキーとなる）
-      const indexMasterKey = "$inf$/api/projects?page=1";
-
-      //Showページ処理の場合
-      if (isShowMode) {
-        console.log("Show時の処理開始")
-        if (detailMutateKey) {
-          console.log("詳細処理");
-          await updateCache(detailMutateKey, 0); //Showの楽観的更新
-          console.log("一覧ページのキャッシュ更新後", cache.get(indexMasterKey));
-        }
-        if (listMutateKey) {
-          console.log("一覧処理");
-          await mutate(indexMasterKey);
-        }
-      //Indexページ処理の場合
+    const applyMutate = async (props: ApplyMutateProps) => {
+      if (props.isShowMode) {
+        await applyMutateForShow(props);
+        revalidateAllLists();
       } else {
-        console.log("Index時の処理開始")
-        if (listMutateKey) {
-          console.log("一覧処理");
-          await updateCache(listMutateKey, projectIndex); //Indexの楽観的更新
-          await mutate(indexMasterKey);
+        await applyMutateForList(props);
+        if (props.category !== undefined){
+          console.log("渡されたカテゴリー", props.category);
+          // revalidateOtherLists(props.category);
         }
-      }
 
-      } catch (error) {
-        console.error("キャッシュ更新中にエラーが発生しました:", error);
       }
     };
-  return applyMutate;
-};
+
+    return {applyMutate, revalidateOtherLists, revalidateAllLists};
+  };

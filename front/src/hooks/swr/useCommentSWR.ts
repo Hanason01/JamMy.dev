@@ -17,13 +17,12 @@ const fetcher = async (url: string): Promise<{ comments: EnrichedComment[], meta
 
 // コメント用のSWRフック（無限スクロール対応）
 export function useProjectComments(projectId: string) {
-  console.log("CommentsSWR呼び出し");
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
     (index) => `/api/projects/${projectId}/comments?page=${index + 1}`,
     fetcher,
     {
-      suspense: true,
-      fallbackData: [{ comments: [], meta: { total_pages: 0 } }],
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
       revalidateFirstPage: false,
       revalidateOnMount: true,
       compare: (a, b) => JSON.stringify(a) === JSON.stringify(b),

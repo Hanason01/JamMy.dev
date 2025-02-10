@@ -9,8 +9,8 @@ import { CommentCard } from "@Project/comment/CommentCard";
 import { AudioController } from "@Project/AudioController"
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { applyIsOwnerToProjects } from "@utils/applyIsOwnerToProjects";
-import { useProjectComments } from "@services/swr/useCommentSWR";
-import { useShowProject } from "@services/swr/useShowProjectSWR";
+import { useProjectComments } from "@swr/useCommentSWR";
+import { useShowProject } from "@swr/useShowProjectSWR";
 import { CommentForm } from "@Project/comment/CommentForm";
 import { useSWRConfig } from "swr";
 
