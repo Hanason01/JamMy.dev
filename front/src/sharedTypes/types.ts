@@ -22,6 +22,7 @@ export interface UserAttributes {
   nickname: string;
   image: string | null;
   bio: string | null;
+  avatar_url: string | null;
 }
 
 //Project
@@ -345,6 +346,23 @@ export interface EnrichedCommentCollection {
     content: string;
   }
 
+  // EditUserFormData
+  export interface EditUserFormData {
+    nickname: string;
+    bio?: string | null;
+    avatar?: File | null;
+  }
+
+  // EditUserRequest
+  export interface EditUserRequestData {
+    "project[title]": string;
+    "project[description]": string;
+    "project[visibility]": string;
+    "project[tempo]": string;
+    "project[duration]": string;
+    "project[audio_file]": File;
+  }
+
 //Context用
 
   // Context 用の型定義
@@ -418,4 +436,11 @@ export interface EnrichedCommentCollection {
     mutateKey: string;
     projectIndex: number;
     project: EnrichedProject;
+  }
+
+
+  //SWR
+  export interface PageData {
+    projects: EnrichedProject[];
+    meta?: Meta;
   }

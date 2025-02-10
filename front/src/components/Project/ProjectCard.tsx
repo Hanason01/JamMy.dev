@@ -2,7 +2,7 @@
 
 import { Project, User, SetState, EnrichedProject, PostProjectFormData, EditProjectRequestData} from "@sharedTypes/types";
 import { useState, useEffect} from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Paper, Box, Avatar, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,Divider, Snackbar, Tooltip } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -30,15 +30,18 @@ import { useEditProjectRequest } from "@services/project/useEditProjectRequest";
 import { useDeleteProjectRequest } from "@services/project/useDeleteProjectRequest";
 import { useLikeToggle } from "@services/project/feedback/useLikeToggle";
 import { useBookmarkToggle } from "@services/project/feedback/useBookmarkToggle";
-import { useProjectList } from "@services/swr/useProjectSWR";
+import { useProjectList } from "@swr/useProjectSWR";
 import { useSWRConfig } from "swr";
+import { useApplyMutate } from "@utils/useApplyMutate";
 
 export function ProjectCard({
   mode,
+  category,
   project,
   onPlayClick,
 } : {
   mode:"list" | "detail";
+  category?: string;
   project: EnrichedProject;
   onPlayClick: (project: EnrichedProject) => void;
 }){
@@ -73,6 +76,7 @@ export function ProjectCard({
   const { deleteProject } = useDeleteProjectRequest();
 
     // SWR関連
+  const { revalidateAllLists } = useApplyMutate();
   const { mutate: indexMutate } = useProjectList(); //一覧
   const { mutate: globalMutate } = useSWRConfig()
   const detailMutateKey = `/api/projects/${project.id}`;
@@ -91,10 +95,12 @@ export function ProjectCard({
   //汎用Context関係
   const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath, } = useProjectContext();
   const { setFeedbackByKey } = useFeedbackContext();
-  const router = useRouter();
   const { requireAuth } = useAuthContext();
   const { setIsCommentRoute } = useClientCacheContext();
 
+  //遷移
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   //スクロール位置復元
   useEffect(() => {
@@ -147,7 +153,7 @@ export function ProjectCard({
   const handleProjectClick = () => {
     const scrollPosition = window.scrollY;
     localStorage.setItem("scrollPosition", String(scrollPosition));
-    router.push(`/projects/${project.attributes.id}/project_show`);
+    router.push(`/projects/${project.attributes.id}/project_show?from=${category}`);
   };
 
   // 保存処理の中間関数
@@ -218,7 +224,9 @@ export function ProjectCard({
       console.log("プロジェクトが正常に更新されました");
       setIsEditing(false);
       globalMutate(detailMutateKey);
-      indexMutate(undefined, {revalidate: true}); //一覧SWR
+      if (category){
+        revalidateAllLists();
+      }
       setFeedbackByKey("project:edit:success");
     }catch(error: any) {
       if (error.title) {
@@ -248,10 +256,17 @@ export function ProjectCard({
   //削除ボタン
   const handleDeleteProject = async () =>{
     await deleteProject(project.id)
-    indexMutate(undefined, {revalidate: true}); //一覧SWR
-    router.replace("/projects?feedback=project:delete:success");
-    if(mode === "list"){
+    revalidateAllLists();
+    const fromPage = searchParams.get("from");
+    if (fromPage === "my_projects" || fromPage === "collaborating" || fromPage === "collaborated" || fromPage === "bookmarks") {
+      router.replace(`/mypage?tab=${fromPage}&feedback=project:delete:success`);
+    } else if (fromPage === "projects") {
+      router.replace("/projects?feedback=project:delete:success");
+    } else if (mode === "list"){ //一覧系ページにて削除処理
       setFeedbackByKey("project:delete:success");
+      revalidateAllLists();
+    } else{ //詳細ページにリンクアクセスしている場合
+      router.replace("/projects?feedback=project:delete:success");
     }
   }
 
@@ -263,10 +278,10 @@ export function ProjectCard({
 
     if (project.attributes.liked_by_current_user) {
       // すでに「いいね」されている → 解除
-      await handleUnlike(project.id, project.attributes.current_like_id, mode);
+      await handleUnlike(project.id, project.attributes.current_like_id, mode, category);
     } else {
       // まだ「いいね」されていない → 追加
-      await handleLike(project.id, mode);
+      await handleLike(project.id, mode, category);
     }
   };
 
@@ -278,10 +293,10 @@ export function ProjectCard({
 
       if (project.attributes.bookmarked_by_current_user) {
         // すでに「ブックマーク」されている → 解除
-        await handleUnBookmark(project.id, project.attributes.current_bookmark_id, mode);
+        await handleUnBookmark(project.id, project.attributes.current_bookmark_id, mode, category);
       } else {
         // まだ「ブックマーク」されていない → 追加
-        await handleBookmark(project.id, mode);
+        await handleBookmark(project.id, mode, category);
       }
     };
 
@@ -337,7 +352,7 @@ export function ProjectCard({
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Avatar
-              src={project.user.attributes.image || "/default-icon.png"}
+              src={project.user.attributes.avatar_url || "/default-icon.png"}
               alt={project.user.attributes.nickname || project.user.attributes.username || undefined }
             />
             <Box sx={{ ml:2, flex: 1, display: "flex", alignItems: "center" }}>
@@ -411,10 +426,19 @@ export function ProjectCard({
             </DialogContentText>
           </DialogContent>
           <DialogActions sx={{mb:1}} >
-            <Button onClick={() => setOpenDeleteDialog(false)} variant="outlined">
+            <Button onClick={(e) => {
+                e.stopPropagation(); // バブリング防止
+                setOpenDeleteDialog(false);
+              }}
+              variant="outlined">
               キャンセル
             </Button>
-            <Button onClick={handleDialogConfirmDelete} variant="contained" color="primary">
+            <Button onClick={(e) => {
+                  e.stopPropagation(); // バブリング防止
+                  handleDialogConfirmDelete();
+                }}
+                variant="contained"
+                color="primary">
               確認
             </Button>
           </DialogActions>

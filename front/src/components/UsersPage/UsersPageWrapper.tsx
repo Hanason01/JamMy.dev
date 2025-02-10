@@ -1,0 +1,180 @@
+"use client";
+
+import { Project, User, EnrichedProject,} from "@sharedTypes/types";
+import { useState, useEffect } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
+import throttle from "lodash/throttle";
+import { Box, Alert, Tabs, Tab, Typography, CircularProgress } from "@mui/material";
+import PostAddIcon from "@mui/icons-material/PostAdd";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import { AudioController } from "@components/Project/AudioController"
+import { useFetchAudioData } from "@audio/useFetchAudioData";
+import { useClientCacheContext } from "@context/useClientCacheContext";
+import { ProjectCard } from "@Project/ProjectCard";
+import { MyProfile } from "@UsersPage/MyProfile";
+import { useMyProjects } from "@swr/useMyProjectsSWR";
+import { useSWRConfig } from "swr";
+
+export function MyPageWrapper() {
+  // SWR関連
+  const [tab, setTab] = useState<"my_projects" | "collaborating" | "collaborated" | "bookmarks">("my_projects");
+  const { projects, hasMore, loadMore, isLoading, isError, mutate } = useMyProjects(tab); //SWRフックからのreturnは全てtabに裏付けされた個別のキーに対応する
+
+  const { cache } = useSWRConfig();
+  console.log("Mypageのcache", cache);
+
+  //状態管理
+  const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioData, setAudioData] = useState<ArrayBuffer | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [projectForController, setProjectForController] = useState<Project | null>(null);
+  const [userForController, setUserForController] = useState<User | null>(null);
+
+
+   //フック
+  const { fetchAudioData } = useFetchAudioData();
+
+   //Context
+  const { scrollPosition } = useClientCacheContext();
+
+  // タブ切り替え時の処理
+  const handleTabChange = (_: React.SyntheticEvent, newValue: "my_projects" | "collaborating" | "collaborated" | "bookmarks") => {
+    setTab(newValue);
+    mutate(undefined, { revalidate: true }); // 遷移後のTabのリフレッシュ
+  };
+
+    // スクロール位置を復元
+    useEffect(() => {
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition.current);
+      }, 0); // DOM描画完了後
+      setLoading(false);
+    }, []);
+
+
+    //スクロール保持
+    useEffect(() => {
+      const handleScroll = throttle(() => {
+        scrollPosition.current = window.scrollY;
+      }, 200); // スクロール毎に呼ばれるが実行は200ms間隔
+
+      // スクロールイベント
+      window.addEventListener("scroll", handleScroll);
+
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+        handleScroll.cancel();
+      };
+    }, []);
+
+
+    //再生ボタン押下時処理
+    const handlePlayClick = async (project: EnrichedProject) => {
+      const { user, audioFilePath } = project;
+      try {
+        if (audioFilePath) {
+          const audioData = await fetchAudioData(audioFilePath);
+          setAudioData(audioData);
+          setAudioUrl(audioFilePath);
+          setAudioControllerVisible(true);
+          setProjectForController(project);
+          setUserForController(user);
+        }
+      }catch(e) {
+        console.error("音声データが取得できませんでした");
+      }
+    };
+
+    //AudioController閉じる処理
+    const handleCloseClick = () => {
+      setProjectForController(null);
+      setUserForController(null);
+      setAudioControllerVisible(false);
+      setAudioUrl(null);
+      setAudioData(null);
+    };
+
+    // 初期ロード中の表示
+    if (loading || (isLoading && !projects)) {
+      return (
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    if (isError) {
+      return (
+        <Box sx={{ mx: 2, my: 4 }}>
+          <Alert severity="error">{isError}</Alert>
+        </Box>
+      );
+    }
+
+  return (
+    <Box>
+      {/* プロフィール欄 */}
+      <MyProfile />
+
+      {/* タブ */}
+      <Tabs
+      value={tab}
+      variant="scrollable"
+      onChange={handleTabChange}
+      scrollButtons="auto"
+      sx={{
+        maxWidth: "100%",
+        mb:3,
+        height: 60,
+        }}>
+        <Tab label="投稿" value="my_projects" icon={<PostAddIcon /> } iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }} />
+        <Tab label="応募" value="collaborating" icon={<UploadFileIcon />} iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }}/>
+        <Tab label="コラボ" value="collaborated" icon={<Diversity3Icon />} iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }}/>
+        <Tab label="ブックマーク" value="bookmarks" icon={<BookmarkBorderIcon />} iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }}/>
+      </Tabs>
+
+      {/* 投稿一覧 */}
+      <Box sx={{ pb : "56px" }}>
+        {projects.length === 0 ?(
+          <Box sx={{ textAlign: "center", my: 4 }}>
+            <Typography variant="h6" color="textSecondary">
+              投稿がありません。
+            </Typography>
+          </Box>
+        ) : (
+          <InfiniteScroll
+            dataLength={projects.length}
+            next={loadMore}
+            hasMore={hasMore}
+            loader={
+              <Box sx={{ textAlign: "center", py: 2 }}>
+                <CircularProgress />
+              </Box>
+            }
+          >
+          {projects.map((project) => (
+              <ProjectCard
+              mode="list"
+              category={tab}
+              key={project.attributes.id}
+              onPlayClick={handlePlayClick}
+              project={project}
+              />
+            ))}
+          </InfiniteScroll>
+        )}
+        {isAudioControllerVisible && audioUrl && audioData &&(
+          <AudioController
+            onClose={handleCloseClick}
+            project={projectForController}
+            user={userForController}
+            audioData={audioData}
+          />
+        )}
+      </Box>
+    </Box>
+  );
+}

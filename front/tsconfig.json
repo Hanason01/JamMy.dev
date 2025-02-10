@@ -31,6 +31,7 @@
       "@CollaborationManagement/*": ["src/components/CollaborationManagement/*"],
       "@TopPage/*": ["src/components/TopPage/*"],
       "@User/*": ["src/components/User/*"],
+      "@UsersPage/*": ["src/components/UsersPage/*"],
       "@context/*": ["src/context/*"],
       "@audio/*": ["src/hooks/audio/*"],
       "@services/*": ["src/hooks/services/*"],
@@ -41,7 +42,8 @@
       "@utils/*": ["src/utils/*"],
       "@constants/*": ["src/constants/*"],
       "@lib/*": ["src/lib/*"],
-      "@actions/*": ["src/app/actions/*"]
+      "@actions/*": ["src/app/actions/*"],
+      "@swr/*": ["src/hooks/swr/*"]
     }
   },
   "include": [
