@@ -3,29 +3,6 @@ class Api::V1::Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCall
   # Resource（Userオブジェクト）返却を行わない。リダイレクトのホワイトリストを定義する必要があり、以下をオーバーライド
   # https://github.com/lynndylanhurley/devise_token_auth/blob/master/app/controllers/devise_token_auth/omniauth_callbacks_controller.rb
 
-  # def redirect_callbacks
-  #   # ログを追加してデバッグ
-  #   Rails.logger.debug "=== Redirect Callbacks Debug Info ==="
-  #   Rails.logger.debug "Request parameters: #{params.inspect}"
-  #   Rails.logger.debug "OmniAuth auth hash: #{request.env['omniauth.auth'].inspect}"
-  #   Rails.logger.debug "OmniAuth params: #{request.env['omniauth.params'].inspect}"
-
-  #   # devise_mapping を取得
-  #   devise_mapping = get_devise_mapping
-  #   Rails.logger.debug "Derived devise_mapping: #{devise_mapping.inspect}"
-
-  #   # リダイレクト先を取得
-  #   redirect_route = get_redirect_route(devise_mapping)
-
-  #   # セッションに情報を保存
-  #   session['dta.omniauth.auth'] = request.env['omniauth.auth'].except('extra') if request.env['omniauth.auth']
-  #   session['dta.omniauth.params'] = request.env['omniauth.params']
-
-  #   # リダイレクト
-  #   redirect_to redirect_route, { status: 307 }.merge(redirect_options)
-  # end
-
-
   def omniauth_success
     get_resource_from_auth_hash
     set_token_on_resource
@@ -65,7 +42,6 @@ class Api::V1::Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCall
       # ホワイトリスト検証: ホストとパスが一致する場合のみリダイレクトを許可
       if allowed_hosts.include?(uri.host) && allowed_paths.any? { |path| uri.path.start_with?(path) }
         redirect_to DeviseTokenAuth::Url.generate(auth_origin_url, data.merge(blank: true).merge(redirect_options)), allow_other_host: true
-        Rails.logger.info "Redirecting to: #{redirect_url}"
       else
         fallback_render "不正なリダイレクト先です: #{auth_origin_url}"
       end
