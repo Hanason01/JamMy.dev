@@ -90,14 +90,6 @@ export function ProjectShowWrapper(){
     setAudioData(null);
   };
 
-  // 初期ロード中の表示
-  if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   if (isError) {
     return (
@@ -109,7 +101,11 @@ export function ProjectShowWrapper(){
 
   return(
     <Box sx={{ bottom: 112 }}>
-      {projects.length === 0 ?(
+      {isValidating || isLoading ? (
+        <Box sx={{ textAlign: "center", py: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : projects.length === 0 ?(
         <Box sx={{ textAlign: "center", my: 4 }}>
           <Typography variant="h6" color="textSecondary">
             投稿がありません。

@@ -3,7 +3,7 @@
 import { Project, User, SetState, EnrichedProject, PostProjectFormData, EditProjectRequestData} from "@sharedTypes/types";
 import { useState, useEffect} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Paper, Box, Avatar, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,Divider, Snackbar, Tooltip } from "@mui/material";
+import { Paper, Box, Avatar, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,Divider, Snackbar, Tooltip, ButtonBase } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -132,6 +132,18 @@ export function ProjectCard({
   //プロジェクトの作成時間取得
   const createdAt = new Date(project.attributes.created_at);
   const formattedDate = formatDistanceToNow(createdAt, { addSuffix: true, locale: ja })
+
+  //ユーザーページ遷移
+  const handleClickAvatar = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (project.isOwner) {
+      router.push("/mypage");
+    } else {
+      router.push(`/other_users/${project.user.id}`);
+    }
+  };
+
 
   //応募ページ遷移
   const handleCollaborationRequest = () => {
@@ -351,10 +363,23 @@ export function ProjectCard({
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Avatar
-              src={project.user.attributes.avatar_url || "/default-icon.png"}
-              alt={project.user.attributes.nickname || project.user.attributes.username || undefined }
-            />
+            <ButtonBase
+              onClick={handleClickAvatar}
+              sx={{
+                borderRadius: "50%",
+                overflow: "hidden",
+                transition: "transform 0.2s ease-in-out",
+                "&:active": {
+                  transform: "scale(0.8)",
+                },
+              }}
+            >
+              <Avatar
+                src={project.user.attributes.avatar_url || "/default-icon.png"}
+                alt={project.user.attributes.nickname || project.user.attributes.username || undefined }
+                sx={{ cursor: "pointer" }}
+              />
+            </ButtonBase>
             <Box sx={{ ml:2, flex: 1, display: "flex", alignItems: "center" }}>
               <Typography variant="body1" component="span" color="textPrimary">
                 {project.user.attributes.nickname || project.user.attributes.username || "名無しのユーザー" }

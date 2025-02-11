@@ -3,17 +3,17 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  // async headers() {
-  //   return [
-  //     {
-  //       source: "/:path*", // 全てのパスに適用
-  //       // headers: [
-  //       //   // { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-  //       //   // { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
-  //       // ],
-  //     },
-  //   ];
-  // },
+  async headers() {
+    return [
+      {
+        source: "/:path*", // 全てのパスに適用
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+          { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
+        ],
+      },
+    ];
+  },
   experimental: {
     nextScriptWorkers: false, // Vercel.liveを無効化
   },

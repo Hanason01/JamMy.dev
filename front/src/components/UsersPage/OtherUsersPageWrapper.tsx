@@ -2,28 +2,27 @@
 
 import { Project, User, EnrichedProject,} from "@sharedTypes/types";
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import InfiniteScroll from "react-infinite-scroll-component";
 import throttle from "lodash/throttle";
 import { Box, Alert, Tabs, Tab, Typography, CircularProgress } from "@mui/material";
 import PostAddIcon from "@mui/icons-material/PostAdd";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
 import Diversity3Icon from '@mui/icons-material/Diversity3';
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { AudioController } from "@components/Project/AudioController"
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { useClientCacheContext } from "@context/useClientCacheContext";
 import { ProjectCard } from "@Project/ProjectCard";
-import { MyProfile } from "@UsersPage/MyProfile";
-import { useMyProjects } from "@swr/useMyProjectsSWR";
+import { UserProfile } from "@UsersPage/UserProfile";
+import { useOtherUserProjects } from "@swr/useOtherUsersProjectsSWR";
 import { useSWRConfig } from "swr";
 
-export function MyPageWrapper() {
-  // SWR関連
-  const [tab, setTab] = useState<"my_projects" | "collaborating" | "collaborated" | "bookmarks">("my_projects");
-  const { projects, hasMore, loadMore, isLoading, isValidating, isError, mutate } = useMyProjects(tab); //SWRフックからのreturnは全てtabに裏付けされた個別のキーに対応する
+export function OtherUsersPageWrapper() {
+  // Params
+  const { userId } = useParams<Record<string, string>>();
 
-  const { cache } = useSWRConfig();
-  console.log("Mypageのcache", cache);
+  // SWR関連
+  const [tab, setTab] = useState<"user_projects" | "user_collaborated">("user_projects");
+  const { projects, hasMore, loadMore, isLoading, isValidating,  isError, mutate } = useOtherUserProjects(userId, tab);
 
   //状態管理
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
@@ -41,90 +40,88 @@ export function MyPageWrapper() {
   const { scrollPosition } = useClientCacheContext();
 
   // タブ切り替え時の処理
-  const handleTabChange = (_: React.SyntheticEvent, newValue: "my_projects" | "collaborating" | "collaborated" | "bookmarks") => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: "user_projects" | "user_collaborated") => {
     setTab(newValue);
     mutate(undefined, { revalidate: true }); // 遷移後のTabのリフレッシュ
   };
 
-    // スクロール位置を復元
-    useEffect(() => {
-      setTimeout(() => {
-        window.scrollTo(0, scrollPosition.current);
-      }, 0); // DOM描画完了後
-      setLoading(false);
-    }, []);
+  // スクロール位置を復元
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo(0, scrollPosition.current);
+    }, 0); // DOM描画完了後
+    setLoading(false);
+  }, []);
 
 
-    //スクロール保持
-    useEffect(() => {
-      const handleScroll = throttle(() => {
-        scrollPosition.current = window.scrollY;
-      }, 200); // スクロール毎に呼ばれるが実行は200ms間隔
+  //スクロール保持
+  useEffect(() => {
+    const handleScroll = throttle(() => {
+      scrollPosition.current = window.scrollY;
+    }, 200); // スクロール毎に呼ばれるが実行は200ms間隔
 
-      // スクロールイベント
-      window.addEventListener("scroll", handleScroll);
+    // スクロールイベント
+    window.addEventListener("scroll", handleScroll);
 
-      return () => {
-        window.removeEventListener("scroll", handleScroll);
-        handleScroll.cancel();
-      };
-    }, []);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      handleScroll.cancel();
+    };
+  }, []);
 
 
-    //再生ボタン押下時処理
-    const handlePlayClick = async (project: EnrichedProject) => {
-      const { user, audioFilePath } = project;
-      try {
-        if (audioFilePath) {
-          const audioData = await fetchAudioData(audioFilePath);
-          setAudioData(audioData);
-          setAudioUrl(audioFilePath);
-          setAudioControllerVisible(true);
-          setProjectForController(project);
-          setUserForController(user);
-        }
-      }catch(e) {
-        console.error("音声データが取得できませんでした");
+  //再生ボタン押下時処理
+  const handlePlayClick = async (project: EnrichedProject) => {
+    const { user, audioFilePath } = project;
+    try {
+      if (audioFilePath) {
+        const audioData = await fetchAudioData(audioFilePath);
+        setAudioData(audioData);
+        setAudioUrl(audioFilePath);
+        setAudioControllerVisible(true);
+        setProjectForController(project);
+        setUserForController(user);
       }
-    };
-
-    //AudioController閉じる処理
-    const handleCloseClick = () => {
-      setProjectForController(null);
-      setUserForController(null);
-      setAudioControllerVisible(false);
-      setAudioUrl(null);
-      setAudioData(null);
-    };
-
-    if (isError) {
-      return (
-        <Box sx={{ mx: 2, my: 4 }}>
-          <Alert severity="error">{isError}</Alert>
-        </Box>
-      );
+    }catch(e) {
+      console.error("音声データが取得できませんでした");
     }
+  };
+
+  //AudioController閉じる処理
+  const handleCloseClick = () => {
+    setProjectForController(null);
+    setUserForController(null);
+    setAudioControllerVisible(false);
+    setAudioUrl(null);
+    setAudioData(null);
+  };
+
+  if (isError) {
+    return (
+      <Box sx={{ mx: 2, my: 4 }}>
+        <Alert severity="error">{isError}</Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box>
       {/* プロフィール欄 */}
-      <MyProfile />
+      <UserProfile user_id = {userId}/>
 
       {/* タブ */}
       <Tabs
       value={tab}
-      variant="scrollable"
       onChange={handleTabChange}
       scrollButtons="auto"
+      centered
       sx={{
         maxWidth: "100%",
         mb:3,
         height: 60,
         }}>
-        <Tab label="投稿" value="my_projects" icon={<PostAddIcon /> } iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }} />
-        <Tab label="応募" value="collaborating" icon={<UploadFileIcon />} iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }}/>
-        <Tab label="コラボ" value="collaborated" icon={<Diversity3Icon />} iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }}/>
-        <Tab label="ブックマーク" value="bookmarks" icon={<BookmarkBorderIcon />} iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }}/>
+        <Tab label="投稿" value="user_projects" icon={<PostAddIcon /> } iconPosition="start" sx={{ minWidth: "auto", px: 3 }} />
+        <Tab label="コラボ" value="user_collaborated" icon={<Diversity3Icon />} iconPosition="start" sx={{ minWidth: "auto", px: 3 }}/>
       </Tabs>
 
       {/* 投稿一覧 */}
