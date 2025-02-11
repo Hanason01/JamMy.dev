@@ -4,7 +4,7 @@ import { LoginFormData } from "@sharedTypes/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Box, TextField, FormControlLabel, Checkbox, Button, Divider, Alert, Typography } from "@mui/material";
+import { Box, TextField, FormControlLabel, Checkbox, Button, Divider, Alert, Typography, CircularProgress } from "@mui/material";
 import LockIcon from "@mui/icons-material/Lock";
 import GoogleIcon from "@mui/icons-material/Google";
 import { PasswordField } from "@User/PasswordField";
@@ -16,6 +16,7 @@ import { useGoogleSignIn } from "@services/user/useGoogleSignIn"
 
 export function SignInForm({redirectTo} : {redirectTo?:string}) {
   const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [formError, setFormError] = useState<string>("");
 
@@ -26,7 +27,7 @@ export function SignInForm({redirectTo} : {redirectTo?:string}) {
 
   const { signIn } = useSignInRequest({redirectTo});
   const sendDataToAPI = async (data: LoginFormData) => {
-
+    setLoading(true);
     try {
       await signIn(data);
 
@@ -39,6 +40,8 @@ export function SignInForm({redirectTo} : {redirectTo?:string}) {
         // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
         setFormError(error.general);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,10 +134,23 @@ export function SignInForm({redirectTo} : {redirectTo?:string}) {
         >
           パスワードをお忘れですか？
         </Typography>
-        <Button type="submit" variant="contained" color="primary" fullWidth sx={{mt:2}}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{
+            mt: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1
+          }}
+          disabled={loading}
+        >
           ログインする
+          {loading && <CircularProgress size={24} sx={{ color: "white", ml: 1 }} />}
         </Button>
-
       </Box>
     </Box>
   );
