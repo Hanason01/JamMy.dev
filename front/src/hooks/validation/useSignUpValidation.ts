@@ -8,14 +8,10 @@ const schema = yup.object().shape({
     .string()
     .required("メールアドレスは必須です")
     .email("正しいメールアドレスを入力してください"),
-  username: yup
+  nickname: yup
     .string()
     .required("ユーザーネームは必須です")
-    .min(5, "ユーザーネームは5文字以上で入力してください")
-    .max(15, "ユーザーネームは15文字以下で入力してください")
-    .matches(
-      /^[a-zA-Z0-9._]+$/,
-      "ユーザーネームは半角英数字、アンダースコア(_)、ドット(.)のみ使用できます"),
+    .max(15, "ユーザーネームは15文字以下で入力してください"),
   password: yup
     .string()
     .required("パスワードは必須です")

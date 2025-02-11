@@ -3,7 +3,7 @@
 import { SignUpFormData, SignUpRequestData } from "@sharedTypes/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box, TextField, Button, Divider, Alert, Typography } from "@mui/material";
+import { Box, TextField, Button, Divider, Alert, Typography, CircularProgress } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import GoogleIcon from "@mui/icons-material/Google";
 import { PasswordField } from "@User/PasswordField";
@@ -14,6 +14,7 @@ import { useGoogleSignIn } from "@services/user/useGoogleSignIn"
 
 export function SignUpForm({redirectTo}: {redirectTo?:string}) {
   const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [formError, setFormError] = useState<string>("");
@@ -27,6 +28,7 @@ export function SignUpForm({redirectTo}: {redirectTo?:string}) {
 
   const { signUp } = useSignUpRequest();
   const sendDataToAPI = async (data: SignUpFormData) => {
+    setLoading(true);
     const { confirmPassword, ...filteredData } = data;
     const requestData: SignUpRequestData = filteredData as SignUpRequestData;
     try {
@@ -42,11 +44,13 @@ export function SignUpForm({redirectTo}: {redirectTo?:string}) {
       } else if (error.password) {
         setError("password", { type: "manual", message: error.password });
       } else if (error.username) {
-        setError("username", { type: "manual", message: error.username });
+        setError("nickname", { type: "manual", message: error.nickname });
       } else {
         // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
         setFormError(error.general);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -115,13 +119,13 @@ export function SignUpForm({redirectTo}: {redirectTo?:string}) {
         helperText={errors.email?.message}
         />
         <TextField
-        label="ユーザーネーム"
+        label="ニックネーム"
         variant="outlined"
-        placeholder="英数字15文字以内"
+        placeholder="15文字以内"
         fullWidth
-        {...register("username")}
-        error={!!errors.username}
-        helperText={errors.username?.message}
+        {...register("nickname")}
+        error={!!errors.nickname}
+        helperText={errors.nickname?.message}
         />
         <PasswordField
           label="パスワード"
@@ -141,8 +145,22 @@ export function SignUpForm({redirectTo}: {redirectTo?:string}) {
           error={!!errors.confirmPassword}
           helperText={errors.confirmPassword?.message}
         />
-        <Button type="submit" variant="contained" color="primary" fullWidth sx={{mt:2}}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{
+            mt: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1,
+          }}
+          disabled={loading}
+        >
           登録する
+          {loading && <CircularProgress size={24} sx={{ color: "white", ml: 1 }} />}
         </Button>
       </Box>
     </Box>
