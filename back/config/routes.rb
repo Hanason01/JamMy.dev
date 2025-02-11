@@ -25,6 +25,8 @@ Rails.application.routes.draw do
           get "my_projects", to: "projects#index"
         end
         resource :profile, only: %i[show update]
+        resources :user_profiles, only: %i[show]
+        resources :other_users, only: [:index]
       end
     end
   end

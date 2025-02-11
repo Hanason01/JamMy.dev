@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ProjectShowResponse, InitialProjectData } from "@sharedTypes/types";
+import { InitialProjectResponse, ProjectIndexResponse } from "@sharedTypes/types";
 import { createInitialProjectData } from "@utils/createInitialProjectData";
 
 export async function GET(req: NextRequest, context : { params: Promise<Record<string, string>>}) {
   const resolvedParams = await context.params;
-  const projectId = resolvedParams.projectId;
-  console.log("projectId: " + projectId);
+  const userId = resolvedParams.userId;
+  const page = req.nextUrl.searchParams.get("page") || "1";
+  const filter = req.nextUrl.searchParams.get("filter") || "user_projects";
 
   try {
-    const response = await fetch(`${process.env.BACKEND_API_URL}/api/v1/projects/${projectId}`, {
+    const response = await fetch(`${process.env.BACKEND_API_URL}/api/v1/users/other_users?user_id=${userId}&filter=${filter}&page=${page}`, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -22,10 +23,11 @@ export async function GET(req: NextRequest, context : { params: Promise<Record<s
       return NextResponse.json({ error: "データ取得に失敗しました" }, { status: response.status });
     }
 
-    const { data, included }: ProjectShowResponse = await response.json();
-    const project = data.length > 0 ? createInitialProjectData(data, included) : [];
+    const { data, included, meta }: ProjectIndexResponse = await response.json();
+    const projects = data.length > 0 ? createInitialProjectData(data, included) : [];
 
-    return NextResponse.json(project);
+    const responseData: InitialProjectResponse = { projects, meta: meta || { total_pages: 0 } };
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error("APIエラー:", error);
     return NextResponse.json({ error: "サーバーエラー" }, { status: 500 });
