@@ -317,13 +317,13 @@ export interface EnrichedCommentCollection {
     email: string;
     password: string;
     confirmPassword: string;
-    username: string;
+    nickname: string;
   }
 
   //SignUpRequest
   export interface SignUpRequestData {
     email: string;
-    username: string;
+    nickname: string;
     password: string;
   }
 
@@ -331,7 +331,7 @@ export interface EnrichedCommentCollection {
   export interface SignUpError {
     email?: string;
     password?: string;
-    username?: string;
+    nickname?: string;
     general?: string;
   }
 
