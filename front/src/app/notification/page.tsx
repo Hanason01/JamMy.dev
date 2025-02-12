@@ -1,6 +1,7 @@
 import { Header } from "@components/Header";
 import { FeedbackAlert } from "@components/FeedbackAlert";
 import { BottomNavi } from "@components/BottomNavi";
+import { NotificationListWrapper } from "@Notification/NotificationListWrapper";
 import { Suspense } from"react";
 
 export default function Notification(){
@@ -9,8 +10,7 @@ export default function Notification(){
       <div>
         <Header />
         <FeedbackAlert />
-        <h1>通知画面</h1>
-        <h3>本リリースまでお待ちください...</h3>
+        <NotificationListWrapper />
         <BottomNavi />
       </div>
     </Suspense>
