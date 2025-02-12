@@ -3,17 +3,20 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useCurrentRouteState} from "@context/useCurrentRouteContext";
+import { useNotificationContext } from "@context/useNotificationContext";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import HomeIcon from "@mui/icons-material/Home";
 import AddIcon from "@mui/icons-material/Add";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonIcon from "@mui/icons-material/Person";
+import Badge from "@mui/material/Badge";
 
 export function BottomNavi() {
   const pathname = usePathname();
   const router = useRouter();
   const { currentRoute, setCurrentRoute } = useCurrentRouteState();
+  const { hasUnread } = useNotificationContext();
 
   // `router.pathname` が変更されたら `currentRoute` を更新
   useEffect(() => {
@@ -86,13 +89,19 @@ export function BottomNavi() {
             color: "secondary.main",
           },
         }}/>
-      <BottomNavigationAction icon={<NotificationsIcon />}
+      <BottomNavigationAction
+        icon={
+          <Badge color="error" variant="dot" invisible={!hasUnread}>
+            <NotificationsIcon />
+          </Badge>
+        }
         sx={{
           color: "primary.contrastText",
           "&.Mui-selected": {
             color: "secondary.main",
           },
-        }}/>
+        }}
+      />
       <BottomNavigationAction icon={<PersonIcon />}
         sx={{
           color: "primary.contrastText",
