@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  recipient_id: 
+  sender_id: 
+  project_id: 
+  notification_type: MyString
+  read: false
+  expires_at: 2025-02-12 09:27:36
+
+two:
+  recipient_id: 
+  sender_id: 
+  project_id: 
+  notification_type: MyString
+  read: false
+  expires_at: 2025-02-12 09:27:36

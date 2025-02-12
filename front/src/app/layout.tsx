@@ -7,6 +7,7 @@ import { ProjectProvider } from "@context/useProjectContext";
 import { CurrentRouteProvider } from "@context/useCurrentRouteContext"
 import { ClientCacheProvider } from "@context/useClientCacheContext";
 import { FeedbackProvider } from "@context/useFeedbackContext";
+import { NotificationProvider } from "@context/useNotificationContext";
 
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -58,16 +59,18 @@ export default function RootLayout({ children }: Readonly<{
             >
           <FeedbackProvider>
             <AuthProvider>
-              <CurrentRouteProvider>
-                <ClientCacheProvider >
-                  <ProjectProvider>
-                    <ThemeProviderWrapper>
-                      <AuthModal />
-                      {children}
-                    </ThemeProviderWrapper>
-                  </ProjectProvider>
-                </ClientCacheProvider>
-              </CurrentRouteProvider>
+              <NotificationProvider>
+                <CurrentRouteProvider>
+                  <ClientCacheProvider >
+                    <ProjectProvider>
+                      <ThemeProviderWrapper>
+                        <AuthModal />
+                        {children}
+                      </ThemeProviderWrapper>
+                    </ProjectProvider>
+                  </ClientCacheProvider>
+                </CurrentRouteProvider>
+              </NotificationProvider>
             </AuthProvider>
           </FeedbackProvider>
         </SWRConfig>

@@ -32,6 +32,7 @@
       "@TopPage/*": ["src/components/TopPage/*"],
       "@User/*": ["src/components/User/*"],
       "@UsersPage/*": ["src/components/UsersPage/*"],
+      "@Notification/*": ["src/components/Notification/*"],
       "@context/*": ["src/context/*"],
       "@audio/*": ["src/hooks/audio/*"],
       "@services/*": ["src/hooks/services/*"],

@@ -11,6 +11,8 @@ class User < ActiveRecord::Base
   has_many :likes, dependent: :destroy
   has_many :bookmarks, dependent: :destroy
   has_many :comments, dependent: :destroy
+  has_many :received_notifications, class_name: "Notification", foreign_key: "recipient_id", dependent: :destroy
+  has_many :sent_notifications, class_name: "Notification", foreign_key: "sender_id", dependent: :nullify
 
   validates :username,
           uniqueness: { message: "は既に使用されています" },

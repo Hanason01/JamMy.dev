@@ -27,11 +27,11 @@ interface PageData {
 
 export const useApplyMutate = () => {
   const { mutate, cache } = useSWRConfig();
-  const { mutate: indexMutate } = useProjectList()
-  const { mutate: myMutate } = useMyProjects("my_projects")
-  const { mutate: myCollaboratingMutate } = useMyProjects("collaborating")
-  const { mutate: myCollaboratedMutate } = useMyProjects("collaborated")
-  const { mutate: myBookmarksMutate } = useMyProjects("bookmarks")
+  // const { mutate: indexMutate } = useProjectList()
+  // const { mutate: myMutate } = useMyProjects("my_projects")
+  // const { mutate: myCollaboratingMutate } = useMyProjects("collaborating")
+  // const { mutate: myCollaboratedMutate } = useMyProjects("collaborated")
+  // const { mutate: myBookmarksMutate } = useMyProjects("bookmarks")
 
   // 動的getKey取得
   const getKeyByCategory = (category: string | undefined) => {
@@ -74,37 +74,37 @@ export const useApplyMutate = () => {
     // SWRinfinity全体の再フェッチを強制
   const revalidateAllLists = async () => {
     console.log("一覧ページ全体の再フェッチ実行");
-    await Promise.all([
-      indexMutate (undefined, { revalidate: false }),
-      myMutate (undefined, { revalidate: true }),
-      myCollaboratingMutate (undefined, { revalidate: false }),
-      myCollaboratedMutate (undefined, { revalidate: false }),
-      myBookmarksMutate (undefined, { revalidate: false }),
-    ])
+    // await Promise.all([
+    //   indexMutate (undefined, { revalidate: false }),
+    //   myMutate (undefined, { revalidate: true }),
+    //   myCollaboratingMutate (undefined, { revalidate: false }),
+    //   myCollaboratedMutate (undefined, { revalidate: false }),
+    //   myBookmarksMutate (undefined, { revalidate: false }),
+    // ])
   };
 
-    //処理主体以外のSWRinfinity全体の再フェッチを強制
-    const revalidateOtherLists = async (category: string | undefined) => {
-      const mutateActions = [];
+    // //処理主体以外のSWRinfinity全体の再フェッチを強制
+    // const revalidateOtherLists = async (category: string | undefined) => {
+    //   const mutateActions = [];
 
-      if (category !== "projects") {
-        mutateActions.push(indexMutate(undefined, { revalidate: false }));
-      }
-      if (category !== "my_projects") {
-        mutateActions.push(myMutate(undefined, { revalidate: false }));
-      }
-      if (category !== "collaborating") {
-        mutateActions.push(myCollaboratingMutate(undefined, { revalidate: false }));
-      }
-      if (category !== "collaborated") {
-        mutateActions.push(myCollaboratedMutate(undefined, { revalidate: false}));
-      }
-      if (category !== "bookmarks") {
-        mutateActions.push(myBookmarksMutate(undefined, { revalidate: false }));
-      }
-      console.log("mutate処理リスト", mutateActions);
-      await Promise.all(mutateActions);
-    };
+    //   if (category !== "projects") {
+    //     mutateActions.push(indexMutate(undefined, { revalidate: false }));
+    //   }
+    //   if (category !== "my_projects") {
+    //     mutateActions.push(myMutate(undefined, { revalidate: false }));
+    //   }
+    //   if (category !== "collaborating") {
+    //     mutateActions.push(myCollaboratingMutate(undefined, { revalidate: false }));
+    //   }
+    //   if (category !== "collaborated") {
+    //     mutateActions.push(myCollaboratedMutate(undefined, { revalidate: false}));
+    //   }
+    //   if (category !== "bookmarks") {
+    //     mutateActions.push(myBookmarksMutate(undefined, { revalidate: false }));
+    //   }
+    //   console.log("mutate処理リスト", mutateActions);
+    //   await Promise.all(mutateActions);
+    // };
 
     //詳細ページ用のmutate
   const applyMutateForShow = async ({
@@ -231,6 +231,6 @@ export const useApplyMutate = () => {
 
       }
     };
-
-    return {applyMutate, revalidateOtherLists, revalidateAllLists};
+    // return {applyMutate, revalidateOtherLists, revalidateAllLists};
+    return {applyMutate,  revalidateAllLists};
   };
