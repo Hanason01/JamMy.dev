@@ -122,6 +122,37 @@ export interface ExtendedCollaboration extends Collaboration {
   audioBuffer: AudioBuffer;
 }
 
+//Notifications型定義
+export interface UserSummary {
+  id: number;
+  nickname?: string;
+  username?: string;
+  avatar_url?: string;
+}
+
+export interface Notifiable {
+  id: number;
+  project_id?: number;
+  project_title?: string;
+}
+
+export interface Notification {
+  id: number;
+  notification_type: "like" | "comment" | "collaboration_request" | "collaboration_approved";
+  read: boolean;
+  created_at: string;
+  recipient: UserSummary;
+  sender?: UserSummary;
+  notifiable: Notifiable;
+  message: string;
+}
+
+export interface NotificationResponse {
+  notifications: Notification[];
+}
+
+
+
 // Included 型定義（Union 型で表現）
 export type IncludedItem = User | AudioFile | InitialComment;
 
@@ -147,7 +178,6 @@ export interface CollaborationManagementIndexResponse {
   data: Project[];
   included: IncludedItem[];
 }
-
 
 
 
