@@ -4,7 +4,7 @@ import { PageData } from "@sharedTypes/types";
 import { fetchProjectDetail } from "@swr/fetcher";
 
 export function useShowProject(projectId: string) {
-  const { data, error, isLoading, mutate } = useSWR<PageData>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<PageData>(
     projectId ? `/api/projects/${projectId}` : null,
     fetchProjectDetail,
     {
@@ -22,6 +22,7 @@ export function useShowProject(projectId: string) {
     projects: data?.projects ?? [],
     isLoading,
     isError: !!error,
+    isValidating,
     mutate,
   };
 }

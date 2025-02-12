@@ -23,7 +23,8 @@ export function ProjectShowWrapper(){
     projects,
     isLoading: isProjectLoading,
     isError: isProjectError,
-    mutate: mutateProject
+    mutate: mutateProject,
+    isValidating : isShowValidating,
   } = useShowProject(projectId);
   console.log("useShowProjectが取得したキャッシュ", projects);
 
@@ -101,7 +102,7 @@ export function ProjectShowWrapper(){
 
   return(
     <Box sx={{ bottom: 112 }}>
-      {isValidating || isLoading ? (
+      {isValidating || isShowValidating || isLoading ? (
         <Box sx={{ textAlign: "center", py: 4 }}>
           <CircularProgress />
         </Box>

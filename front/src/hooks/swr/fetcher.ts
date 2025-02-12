@@ -1,4 +1,4 @@
-import { EnrichedProject, InitialProjectData, InitialProjectResponse, Meta, PageData } from "@sharedTypes/types";
+import { EnrichedProject, InitialProjectData, InitialProjectResponse, Meta, PageData, Notification } from "@sharedTypes/types";
 import { applyIsOwnerToProjects } from "@utils/applyIsOwnerToProjects";
 
 
@@ -28,4 +28,15 @@ export const fetchProjectDetail = async (url: string): Promise<PageData> => {
     projects: enrichedProjects,
     meta: { total_pages: 1 }, // ダミーの `meta` を追加（一覧ページと統一）
   };
+};
+
+//通知用
+export const fetchNotifications = async (url: string): Promise<Notification[]> => {
+  const response = await fetch(url, { credentials: "include" });
+
+  if (!response.ok) {
+    throw new Error("通知データの取得に失敗しました");
+  }
+
+  return await response.json();
 };

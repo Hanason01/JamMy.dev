@@ -76,7 +76,7 @@ export function ProjectCard({
   const { deleteProject } = useDeleteProjectRequest();
 
     // SWR関連
-  const { revalidateAllLists } = useApplyMutate();
+  // const { revalidateAllLists } = useApplyMutate();
   const { mutate: indexMutate } = useProjectList(); //一覧
   const { mutate: globalMutate } = useSWRConfig()
   const detailMutateKey = `/api/projects/${project.id}`;
@@ -237,7 +237,7 @@ export function ProjectCard({
       setIsEditing(false);
       globalMutate(detailMutateKey);
       if (category){
-        revalidateAllLists();
+        // revalidateAllLists();
       }
       setFeedbackByKey("project:edit:success");
     }catch(error: any) {
@@ -268,7 +268,7 @@ export function ProjectCard({
   //削除ボタン
   const handleDeleteProject = async () =>{
     await deleteProject(project.id)
-    revalidateAllLists();
+    // revalidateAllLists();
     const fromPage = searchParams.get("from");
     if (fromPage === "my_projects" || fromPage === "collaborating" || fromPage === "collaborated" || fromPage === "bookmarks") {
       router.replace(`/mypage?tab=${fromPage}&feedback=project:delete:success`);
@@ -276,7 +276,7 @@ export function ProjectCard({
       router.replace("/projects?feedback=project:delete:success");
     } else if (mode === "list"){ //一覧系ページにて削除処理
       setFeedbackByKey("project:delete:success");
-      revalidateAllLists();
+      // revalidateAllLists();
     } else{ //詳細ページにリンクアクセスしている場合
       router.replace("/projects?feedback=project:delete:success");
     }
