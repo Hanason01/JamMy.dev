@@ -52,6 +52,14 @@ class Api::V1::CollaborationManagementsController < ApplicationController
       unless collaboration.update(status: :approved)
         raise ActiveRecord::Rollback, "Collaboration ID #{collaboration.id} のステータス更新に失敗しました: #{collaboration.errors.full_messages.join(', ')}"
       end
+
+      # 通知
+      Notification.create!(
+      recipient: collaboration.user,
+      sender: project.user,
+      notifiable: collaboration,
+      notification_type: :collaboration_approved
+    )
     end
   end
 
