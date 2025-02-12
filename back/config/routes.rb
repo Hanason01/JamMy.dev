@@ -28,6 +28,11 @@ Rails.application.routes.draw do
         resources :user_profiles, only: %i[show]
         resources :other_users, only: [:index]
       end
+      resources :notifications, only: %i[index] do
+        collection do
+          get :has_unread
+        end
+      end
     end
   end
 end
