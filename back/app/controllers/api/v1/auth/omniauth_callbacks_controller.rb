@@ -28,6 +28,19 @@ class Api::V1::Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCall
 
   protected
 
+  # Googleからの各々キーを自動的にUserオブジェクトにアサインする処理をカスタマイズ
+  def assign_provider_attrs(user, auth_hash)
+    attrs = auth_hash['info'].to_hash
+
+    # カラム名の追加（カスタマイズ部分）
+    attrs["nickname"] = attrs["name"]
+    attrs["avatar_url"] = attrs["image"]
+    # カスタマイズ部分
+
+    attrs = attrs.slice(*user.attribute_names)
+    user.assign_attributes(attrs)
+  end
+
   def render_data_or_redirect(message, data, user_data = {})
     # 許可するホストやURLのホワイトリストを定義
     allowed_hosts = ["www.jam-my.com", "jam-my.com", "localhost", "127.0.0.1"]
