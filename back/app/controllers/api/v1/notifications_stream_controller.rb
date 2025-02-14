@@ -22,20 +22,18 @@ class Api::V1::NotificationsStreamController < ApplicationController
       sse.write({ event: "connection_established", data: "SSE 接続成功" }.to_json)
       Rails.logger.info "📡 初回メッセージ送信: SSE 接続成功"
 
-      # デバッグ: 5秒ごとに ping を送信
-      loop do
-        break if response.stream.closed?
-        sleep 5
-        begin
-          sse.write({ event: "ping", data: "サーバーは生きている" }.to_json)
-          Rails.logger.info "📡 デバッグ送信: ping"
-        rescue IOError => e
-          Rails.logger.error "🔴 SSE 接続がクローズされました: #{e.message}"
-          break
-        end
-      end
-      
-
+      # # デバッグ: 5秒ごとに ping を送信
+      # loop do
+      #   break if response.stream.closed?
+      #   sleep 5
+      #   begin
+      #     sse.write({ event: "ping", data: "サーバーは生きている" }.to_json)
+      #     Rails.logger.info "📡 デバッグ送信: ping"
+      #   rescue IOError => e
+      #     Rails.logger.error "🔴 SSE 接続がクローズされました: #{e.message}"
+      #     break
+      #   end
+      # end
       # Redis の Pub/Sub をリッスン
       $redis.subscribe("user:#{current_user.id}:has_unread") do |on|
         on.message do |channel, message|
