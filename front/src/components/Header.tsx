@@ -112,6 +112,15 @@ export function Header() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
+                <MenuItem
+                  component="a"
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSf2F2t-i6hRg20p24Qq_en1MhfNxeXD2mDeqqpy2uGuYLDxog/viewform?usp=dialog"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleClose}
+                >
+                  お問い合わせ
+                </MenuItem>
                 {isAuthenticated || localUser ? (
                   <div>
                     <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
