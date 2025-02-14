@@ -10,6 +10,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+
+
   back:
     build:
       context: ./back
@@ -17,6 +24,7 @@ services:
     environment:
       - NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/ca.crt
       - RAILS_ENV=development
+      - REDIS_URL=redis://redis:6379
     volumes:
       - ./back:/app
       - ./back/ca.crt:/usr/local/share/ca-certificates/ca.crt
@@ -26,6 +34,7 @@ services:
       - "3000:3000"
     depends_on:
       - db
+      - redis
     tty: true
     stdin_open: true
 

@@ -26,14 +26,21 @@ module App
     config.session_store :cookie_store, key: '_interslice_session'
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore, config.session_options
+    config.middleware.delete Rack::Lock
+
     config.action_dispatch.cookies_same_site_protection = :none
 
     config.force_ssl = true
 
+    # SSE のための `lib` 読み込み
+    config.eager_load_paths << Rails.root.join('lib')
+
+    # API モードのまま一部ミドルウェアを追加
+    config.api_only = true
+    config.middleware.insert_before 0, Rack::Sendfile
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
-    config.api_only = true
   end
 end

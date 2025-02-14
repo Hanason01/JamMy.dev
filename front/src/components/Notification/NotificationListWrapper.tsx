@@ -1,13 +1,25 @@
 "use client";
 
 import { Box, CircularProgress, Typography, Alert } from "@mui/material";
+import { useEffect } from "react";
 import { NotificationList } from "@Notification/NotificationList";
 import { useNotifications } from "@swr/useNotificationsSWR";
+import { useNotificationContext } from "@context/useNotificationContext";
 
 
 export const NotificationListWrapper = () => {
-  const { notifications, isLoading, isValidating, isError } = useNotifications();
+  const { hasUnread, setHasUnread } = useNotificationContext();
+  const { notifications, isLoading, isValidating, isError, mutate } = useNotifications();
   console.log("notifications", notifications);
+
+  //未読があれば再フェッチ
+  useEffect(() => {
+    if ( hasUnread ) {
+      mutate(undefined, { revalidate: true });
+      setHasUnread(false);
+    }
+  }, []);
+
 
   if (isError) {
     return (

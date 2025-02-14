@@ -33,6 +33,7 @@ Rails.application.routes.draw do
           get :has_unread
         end
       end
+      get "notifications/stream", to: "notifications_stream#stream"
     end
   end
 end

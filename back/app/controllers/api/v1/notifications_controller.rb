@@ -1,16 +1,17 @@
 class Api::V1::NotificationsController < ApplicationController
   before_action :authenticate_user!
 
+
   def index
     notifications = current_user.received_notifications
                                 .includes(:sender, notifiable: [:user, project: :user, commentable: :user])
+                                # .includes(:sender, notifiable: [:user, { project: :user }, { commentable: :user }])
                                 .order(created_at: :desc)
                                 .limit(50)
 
-    #このエンドポイントにアクセスした時点で既読したと言う扱いにし、未読を既読に変更、Redisから一時データを削除
+    #このエンドポイントにアクセスした時点で既読の扱いにする
     unread_notifications = notifications.unread
     unread_notifications.update_all(read: true) if unread_notifications.exists?
-    # Redis.current.del("user:#{current_user.id}:has_unread_notifications")
 
     render json: notifications.map { |notification| format_notification(notification) }
   end
