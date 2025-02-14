@@ -16,10 +16,20 @@ class Notification < ApplicationRecord
   scope :unread, -> {where(read: false)}
 
   before_validation :set_expiration, on: :create
+  after_create :publish_unread_flag #通知作成後にブロードキャスト配信
 
   private
 
   def set_expiration
     self.expires_at ||= 180.days.from_now
+  end
+
+  #下記publishはブロードキャストであり、subscribe側がオフラインであればデータは消失→既存のエンドポイントで対応
+  def publish_unread_flag
+    key = "user:#{recipient.id}:has_unread"
+    #未読がない場合だけ、新たな未読が発生した事を伝える
+    unless recipient.received_notifications.unread.exists?
+      $redis.publish(key, recipient.id)
+    end
   end
 end

@@ -16,7 +16,7 @@ Rails.application.configure do
   config.cache_classes = false
 
   # Do not eager load code on boot.
-  config.eager_load = false
+  config.eager_load = true
 
   # Show full error reports.
   config.consider_all_requests_local = true
@@ -24,21 +24,35 @@ Rails.application.configure do
   # Enable server timing
   config.server_timing = true
 
+  # Redisのキャッシュ設定
+  config.cache_store = :redis_cache_store, { url: ENV['REDIS_URL'] || 'redis://localhost:6379/1' }
+  config.public_file_server.headers = {
+  "Cache-Control" => "public, max-age=#{2.days.to_i}"
+}
+  config.session_store :cache_store, key: "_jammy_session"
+
+  # ActionController::Live を使用するための設定
+  config.allow_concurrency = true
+
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.
-  if Rails.root.join("tmp/caching-dev.txt").exist?
-    config.cache_store = :memory_store
-    config.public_file_server.headers = {
-      "Cache-Control" => "public, max-age=#{2.days.to_i}"
-    }
-  else
-    config.action_controller.perform_caching = false
+  # if Rails.root.join("tmp/caching-dev.txt").exist?
+  #   config.cache_store = :memory_store
+  #   config.public_file_server.headers = {
+  #     "Cache-Control" => "public, max-age=#{2.days.to_i}"
+  #   }
+  # else
+  #   config.action_controller.perform_caching = false
 
-    config.cache_store = :null_store
-  end
+  #   config.cache_store = :null_store
+  # end
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :amazon
+
+  # Resid関係設定
+  config.action_cable.url = "redis://localhost:6379/1"
+  config.action_cable.allowed_request_origins = ["https://localhost:8000", "http://localhost:8000"]
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false

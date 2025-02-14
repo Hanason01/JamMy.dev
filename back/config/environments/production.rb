@@ -2,6 +2,21 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
+  # Redis のキャッシュ設定
+  config.cache_store = :redis_cache_store, { url: ENV['REDIS_URL'] }
+
+  # SSLが必要な場合
+  # config.cache_store = :redis_cache_store, {
+  #   url: ENV['REDIS_URL'],
+  #   ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE }
+  # }
+
+
+  # セッションストアも Redis に設定
+  config.session_store :cache_store, key: "_jammy_session"
+  # ActionCable の Redis 設定
+  config.action_cable.url = ENV['REDIS_URL']
+  config.action_cable.allowed_request_origins = ["https://jam-my.com"]
 
   # Code is not reloaded between requests.
   config.cache_classes = true
