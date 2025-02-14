@@ -38,44 +38,43 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   }, [isAuthenticated]);
 
 
-  // SSE（リアルタイム通知）をリッスン
-  useEffect(() => {
-    console.log("🟡 SSE useEffect 発火: isAuthenticated =", isAuthenticated);
-    if (!isAuthenticated) return;
+  // // SSE（リアルタイム通知）をリッスン
+  // useEffect(() => {
+  //   console.log("🟡 SSE useEffect 発火: isAuthenticated =", isAuthenticated);
+  //   if (!isAuthenticated) return;
 
-    console.log("🔍 SSE 接続開始");
-    const eventSource = new EventSource(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/notifications/stream`, { withCredentials: true });
-    console.log("🛠 EventSource インスタンス:", eventSource);
-    eventSource.onopen = () => {
-      console.log("✅ SSE 接続確立: readyState =", eventSource.readyState);
-    };
+  //   console.log("🔍 SSE 接続開始");
+  //   const eventSource = new EventSource(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/notifications/stream`, { withCredentials: true });
+  //   console.log("🛠 EventSource インスタンス:", eventSource);
+  //   eventSource.onopen = () => {
+  //     console.log("✅ SSE 接続確立: readyState =", eventSource.readyState);
+  //   };
 
-    eventSource.onmessage = (event) => {
-      console.log("📩 フロントが受信:", event.data);
-      try {
-        const parsedData = JSON.parse(event.data);
-        if (parsedData.event === "connection_established") {
-          console.log("✅ SSE 接続成功:", parsedData.data);
-        } else if (parsedData.event === "new_notification") {
-          console.log("📩 新しい通知:", parsedData.data);
-          setHasUnread(true);
-        }
-      } catch (error) {
-        console.error("❌ JSON パースエラー:", error, event.data);
-      }
-    };
+  //   eventSource.onmessage = (event) => {
+  //     console.log("📩 フロントが受信:", event.data);
+  //     try {
+  //       const parsedData = JSON.parse(event.data);
+  //       if (parsedData.event === "connection_established") {
+  //         console.log("✅ SSE 接続成功:", parsedData.data);
+  //       } else if (parsedData.event === "new_notification") {
+  //         console.log("📩 新しい通知:", parsedData.data);
+  //         setHasUnread(true);
+  //       }
+  //     } catch (error) {
+  //       console.error("❌ JSON パースエラー:", error, event.data);
+  //     }
+  //   };
 
-    eventSource.onerror = (error) => {
-      console.error("❌ SSE エラー:", error, "readyState =", eventSource.readyState);
-      eventSource.close();
-    };
+  //   eventSource.onerror = (error) => {
+  //     console.error("❌ SSE エラー:", error, "readyState =", eventSource.readyState);
+  //     eventSource.close();
+  //   };
 
-    return () => {
-      console.log("🔴 SSE 接続終了");
-      eventSource.close();
-    };
-  }, [isAuthenticated]);
-  
+  //   return () => {
+  //     console.log("🔴 SSE 接続終了");
+  //     eventSource.close();
+  //   };
+  // }, [isAuthenticated]);
 
   return (
     <NotificationContext.Provider value={{

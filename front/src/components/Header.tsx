@@ -113,6 +113,20 @@ export function Header() {
                 onClose={handleClose}
               >
                 <MenuItem
+                    component={Link}
+                    href="/terms"
+                    onClick={handleClose}
+                  >
+                    利用規約
+                </MenuItem>
+                <MenuItem
+                    component={Link}
+                    href="/privacy_policy"
+                    onClick={handleClose}
+                  >
+                    プライバシーポリシー
+                </MenuItem>
+                <MenuItem
                   component="a"
                   href="https://docs.google.com/forms/d/e/1FAIpQLSf2F2t-i6hRg20p24Qq_en1MhfNxeXD2mDeqqpy2uGuYLDxog/viewform?usp=dialog"
                   target="_blank"
