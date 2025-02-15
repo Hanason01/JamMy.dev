@@ -2,10 +2,13 @@
 import useSWR from "swr";
 import { fetchNotifications } from "@swr/fetcher";
 import { Notification } from "@sharedTypes/types";
+import { getNotificationsKey } from "@swr/getKeys";
+
 
 export function useNotifications() {
+  const getKey = getNotificationsKey();
   const { data, error, isLoading, isValidating, mutate } = useSWR<Notification[]>(
-    "/api/notifications",
+    getKey,
     fetchNotifications,
     {
       revalidateOnFocus: false,
@@ -14,7 +17,6 @@ export function useNotifications() {
       fallbackData: []
     }
   );
-  console.log("SWR data:", data);
 
   return {
     notifications: data ?? [],
@@ -22,5 +24,6 @@ export function useNotifications() {
     isValidating,
     isError: !!error,
     mutate,
+    getKey
   };
 }

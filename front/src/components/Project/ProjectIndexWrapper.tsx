@@ -16,7 +16,7 @@ export function ProjectIndexWrapper({}){
 
 //SWR関連
   // 投稿一覧用
-  const { projects, meta, hasMore, loadMore, isLoading, isError, isValidating, mutate } = useProjectList();
+  const { projects, meta, hasMore, loadMore, isLoading, isError, isValidating, mutate, getKey } = useProjectList();
   // console.log("SWRのprojectsキャッシュ", projects);
 
   const { cache } = useSWRConfig();
@@ -129,6 +129,7 @@ export function ProjectIndexWrapper({}){
             key={project.attributes.id}
             onPlayClick={handlePlayClick}
             project={project}
+            getKey={getKey}
             />
           ))}
         </InfiniteScroll>

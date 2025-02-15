@@ -2,10 +2,12 @@
 import useSWR from "swr";
 import { PageData } from "@sharedTypes/types";
 import { fetchProjectDetail } from "@swr/fetcher";
+import { getProjectDetailKey } from "@swr/getKeys";
 
 export function useShowProject(projectId: string) {
+  const getKey = () => getProjectDetailKey(projectId);
   const { data, error, isLoading, isValidating, mutate } = useSWR<PageData>(
-    projectId ? `/api/projects/${projectId}` : null,
+    getKey,
     fetchProjectDetail,
     {
       revalidateOnFocus: false,
@@ -24,5 +26,6 @@ export function useShowProject(projectId: string) {
     isError: !!error,
     isValidating,
     mutate,
+    getKey,
   };
 }

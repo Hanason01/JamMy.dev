@@ -2,13 +2,15 @@
 import useSWRInfinite from "swr/infinite";
 import { EnrichedProject } from "@sharedTypes/types";
 import { fetchProjectList } from "@swr/fetcher";
-
-export const getIndexKey = (index: number) => `/api/projects?page=${index + 1}`;
+import { getAllProjectsKey  } from "@swr/getKeys";
+import { useSWRContext } from "@context/useSWRContext";
 
 // 投稿一覧 (無限スクロール用)
 export function useProjectList() {
+  const { setProjectListMutate, projectListMutate } = useSWRContext();
+  const getKey = (index: number) => getAllProjectsKey(index);
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
-    getIndexKey, //ページネーション指定(index = 0)
+    getKey, //ページネーション指定(index = 0)
     fetchProjectList,
     {
       revalidateOnFocus: false,
@@ -24,6 +26,10 @@ export function useProjectList() {
   // console.log("SWR内でproject監視", projects);
   const hasMore = data ? data[data.length - 1]?.meta?.total_pages > size : false;
 
+  if (!projectListMutate || projectListMutate !== mutate) {
+    setProjectListMutate(mutate);
+  }
+
   return {
     projects,
     meta: data?.[0]?.meta, //最初のページのmeta
@@ -33,6 +39,7 @@ export function useProjectList() {
     isError: !!error, //エラー情報
     isValidating, //追加取得中かフラグ
     mutate, // 楽観的更新用
+    getKey
   };
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Project, User, SetState, EnrichedProject, PostProjectFormData, EditProjectRequestData} from "@sharedTypes/types";
+import { Project, User, SetState, EnrichedProject, PostProjectFormData, EditProjectRequestData, GetKeyType} from "@sharedTypes/types";
 import { useState, useEffect} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Paper, Box, Avatar, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,Divider, Snackbar, Tooltip, ButtonBase } from "@mui/material";
@@ -23,6 +23,7 @@ import { useProjectContext } from "@context/useProjectContext";
 import { useFeedbackContext } from "@context/useFeedbackContext";
 import { useAuthContext } from "@context/useAuthContext";
 import { useClientCacheContext } from "@context/useClientCacheContext";
+import { useSWRContext } from "@context/useSWRContext";
 import { usePostProjectValidation } from "@validation/usePostProjectValidation";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { audioEncoder } from "@utils/audioEncoder";
@@ -30,20 +31,23 @@ import { useEditProjectRequest } from "@services/project/useEditProjectRequest";
 import { useDeleteProjectRequest } from "@services/project/useDeleteProjectRequest";
 import { useLikeToggle } from "@services/project/feedback/useLikeToggle";
 import { useBookmarkToggle } from "@services/project/feedback/useBookmarkToggle";
-import { useProjectList } from "@swr/useProjectSWR";
 import { useSWRConfig } from "swr";
 import { useApplyMutate } from "@utils/useApplyMutate";
+import { getMyProjectsKey, getProjectDetailKey, getAllProjectsKey } from "@swr/getKeys";
+import { unstable_serialize } from "swr/infinite";
 
 export function ProjectCard({
   mode,
   category,
   project,
   onPlayClick,
+  getKey
 } : {
   mode:"list" | "detail";
   category?: string;
   project: EnrichedProject;
   onPlayClick: (project: EnrichedProject) => void;
+  getKey: GetKeyType;
 }){
   //状態変数・変数
   const [expanded, setExpanded] = useState<boolean>(false); //概要展開
@@ -76,10 +80,35 @@ export function ProjectCard({
   const { deleteProject } = useDeleteProjectRequest();
 
     // SWR関連
-  // const { revalidateAllLists } = useApplyMutate();
-  const { mutate: indexMutate } = useProjectList(); //一覧
-  const { mutate: globalMutate } = useSWRConfig()
-  const detailMutateKey = `/api/projects/${project.id}`;
+  const { mutate, cache } = useSWRConfig()
+  const { myProjectsMutate, projectListMutate } = useSWRContext();
+  const handleMutate = async () => {
+    // **詳細ページの更新**
+    const detailKey = getProjectDetailKey(project.id);
+    if (detailKey) {
+      console.log("詳細ページの再フェッチ:", detailKey);
+      await mutate(detailKey, undefined, { revalidate: true });
+    }
+
+    // **マイページのプロジェクト一覧の更新**
+    if (myProjectsMutate) {
+      const myProjectsKeys = [
+        getMyProjectsKey(0, "my_projects"),
+        getMyProjectsKey(0, "collaborating"),
+        getMyProjectsKey(0, "collaborated"),
+        getMyProjectsKey(0, "bookmarks")
+      ];
+      console.log("🔄 マイページの再フェッチ:", myProjectsKeys);
+      await Promise.all(myProjectsKeys.map((key) => myProjectsMutate(key)));
+    }
+
+    // **全体のプロジェクト一覧の更新**
+    if (projectListMutate) {
+      const allProjectsKey = getAllProjectsKey(0);
+      console.log(" 全体のプロジェクト一覧の再フェッチ");
+      await projectListMutate(allProjectsKey);
+    }
+  };
 
     //モード切替
   const handleEdit = () => setIsEditing(true);
@@ -235,10 +264,7 @@ export function ProjectCard({
       await editProject(formData, project.id);
       console.log("プロジェクトが正常に更新されました");
       setIsEditing(false);
-      globalMutate(detailMutateKey);
-      if (category){
-        // revalidateAllLists();
-      }
+      await handleMutate()
       setFeedbackByKey("project:edit:success");
     }catch(error: any) {
       if (error.title) {
@@ -268,15 +294,15 @@ export function ProjectCard({
   //削除ボタン
   const handleDeleteProject = async () =>{
     await deleteProject(project.id)
-    // revalidateAllLists();
+    await handleMutate()
     const fromPage = searchParams.get("from");
     if (fromPage === "my_projects" || fromPage === "collaborating" || fromPage === "collaborated" || fromPage === "bookmarks") {
       router.replace(`/mypage?tab=${fromPage}&feedback=project:delete:success`);
     } else if (fromPage === "projects") {
       router.replace("/projects?feedback=project:delete:success");
     } else if (mode === "list"){ //一覧系ページにて削除処理
+      await handleMutate()
       setFeedbackByKey("project:delete:success");
-      // revalidateAllLists();
     } else{ //詳細ページにリンクアクセスしている場合
       router.replace("/projects?feedback=project:delete:success");
     }
@@ -290,10 +316,10 @@ export function ProjectCard({
 
     if (project.attributes.liked_by_current_user) {
       // すでに「いいね」されている → 解除
-      await handleUnlike(project.id, project.attributes.current_like_id, mode, category);
+      await handleUnlike(project.id, project.attributes.current_like_id, mode, getKey);
     } else {
       // まだ「いいね」されていない → 追加
-      await handleLike(project.id, mode, category);
+      await handleLike(project.id, mode, getKey);
     }
   };
 
@@ -305,10 +331,10 @@ export function ProjectCard({
 
       if (project.attributes.bookmarked_by_current_user) {
         // すでに「ブックマーク」されている → 解除
-        await handleUnBookmark(project.id, project.attributes.current_bookmark_id, mode, category);
+        await handleUnBookmark(project.id, project.attributes.current_bookmark_id, mode, getKey);
       } else {
         // まだ「ブックマーク」されていない → 追加
-        await handleBookmark(project.id, mode, category);
+        await handleBookmark(project.id, mode, getKey);
       }
     };
 

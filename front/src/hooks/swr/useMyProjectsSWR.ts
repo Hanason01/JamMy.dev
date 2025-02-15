@@ -2,15 +2,14 @@
 import useSWRInfinite from "swr/infinite";
 import { EnrichedProject } from "@sharedTypes/types";
 import { fetchProjectList } from "@swr/fetcher";
-
-// 取得キーを生成
-export const getMyPageKey = (index: number, filter: string) =>
-  `/api/projects/my_projects?filter=${filter}&page=${index + 1}`;
-
+import { getMyProjectsKey } from "@swr/getKeys";
+import { useSWRContext } from "@context/useSWRContext";
 
 export function useMyProjects(filter: "my_projects" | "collaborating" | "collaborated" | "bookmarks") {
+  const { setMyProjectsMutate, myProjectsMutate } = useSWRContext();
+  const getKey = (index: number) => getMyProjectsKey(index, filter);
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
-    (index) => getMyPageKey(index, filter),
+    getKey,
     fetchProjectList,
     {
       revalidateOnFocus: false,
@@ -25,6 +24,9 @@ export function useMyProjects(filter: "my_projects" | "collaborating" | "collabo
     : [];
   const hasMore = data ? data[data.length - 1]?.meta?.total_pages > size : false;
 
+  if (!myProjectsMutate || myProjectsMutate !== mutate) {
+    setMyProjectsMutate(mutate);
+  }
 
   return {
     projects,
@@ -35,5 +37,6 @@ export function useMyProjects(filter: "my_projects" | "collaborating" | "collabo
     isError: !!error,
     isValidating,
     mutate,
+    getKey
   };
 }

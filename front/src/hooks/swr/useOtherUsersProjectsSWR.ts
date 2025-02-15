@@ -2,16 +2,16 @@
 import useSWRInfinite from "swr/infinite";
 import { EnrichedProject } from "@sharedTypes/types";
 import { fetchProjectList } from "@swr/fetcher";
-
-// 取得キーを生成
-export const getOtherUserProjectsKey = (index: number, user_id: string, filter: string
-) => `/api/users/${user_id}/other_users?filter=${filter}&page=${index + 1}`;
+import { getOtherUserProjectsKey  } from "@swr/getKeys";
+import { useSWRContext } from "@context/useSWRContext";
 
 
 
 export function useOtherUserProjects(user_id: string, filter: "user_projects" | "user_collaborated") {
+  const { setOtherUserProjectsMutate, otherUserProjectsMutate } = useSWRContext();
+  const getKey = (index: number) => getOtherUserProjectsKey(index, user_id, filter);
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
-    (index) => getOtherUserProjectsKey(index, user_id, filter),
+    getKey,
     fetchProjectList,
     {
       revalidateOnFocus: false,
@@ -26,6 +26,9 @@ export function useOtherUserProjects(user_id: string, filter: "user_projects" | 
     : [];
   const hasMore = data ? data[data.length - 1]?.meta?.total_pages > size : false;
 
+  if (!otherUserProjectsMutate || otherUserProjectsMutate !== mutate) {
+    setOtherUserProjectsMutate(mutate);
+  }
 
   return {
     projects,
@@ -36,5 +39,6 @@ export function useOtherUserProjects(user_id: string, filter: "user_projects" | 
     isError: !!error,
     isValidating,
     mutate,
+    getKey
   };
 }
