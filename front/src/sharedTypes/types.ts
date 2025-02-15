@@ -474,3 +474,5 @@ export interface EnrichedCommentCollection {
     projects: EnrichedProject[];
     meta?: Meta;
   }
+
+  export type GetKeyType = (() => string | null) | ((index: number) => string);

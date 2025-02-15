@@ -1,30 +1,28 @@
 "use client";
 
-import { PostCommentFormData} from "@sharedTypes/types";
+import { PostCommentFormData, GetKeyType} from "@sharedTypes/types";
 import { Box, TextField, IconButton, Paper, CircularProgress } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useState, useRef, useEffect } from "react";
-import { useCommentRequest } from "@services/project/feedback/useCommentRequest";
 import { usePostCommentValidation } from "@validation/usePostCommentValidation";
 import { useClientCacheContext } from "@context/useClientCacheContext";
 import { useAuthContext } from "@context/useAuthContext";
+import { useCommentToggle } from "@services/project/feedback/useCommentToggle";
 import { useProjectComments } from "@swr/useCommentSWR";
 import { useSWRConfig } from "swr";
-// import { useProjectList } from "@services/swr/useProjectSWR";
 
 export function CommentForm({
-  projectId
+  projectId,
+  getKey
   } : {
   projectId: string;
+  getKey: GetKeyType;
   }) {
   // SWR関連
   const { mutate } = useProjectComments(projectId); //コメント
-  // const { mutate: indexMutate } = useProjectList(); //一覧
-  const { mutate: globalMutate } = useSWRConfig()
-  const detailMutateKey = `/api/projects/${projectId}`;
 
   // フック
-  const { postCommentProject } = useCommentRequest();
+  const { handleCreateComment } = useCommentToggle();
   const { register, handleSubmit, setError, reset, errors } = usePostCommentValidation();
 
   // 状態管理
@@ -75,11 +73,9 @@ export function CommentForm({
   const onSubmit = async (data: PostCommentFormData) => {
     setIsSubmitting(true);
     try {
-      await postCommentProject(data, projectId);
+      await handleCreateComment(data, projectId, getKey);
       reset();
       mutate(); //コメントのSWR
-      globalMutate(detailMutateKey);
-      // indexMutate(undefined, {revalidate: true}); //一覧SWR
     } catch (error: any) {
       setError("content", { type: "manual", message: error.content });
       console.error("コメント送信エラー:", error);

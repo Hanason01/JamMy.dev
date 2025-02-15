@@ -22,7 +22,7 @@ export function OtherUsersPageWrapper() {
 
   // SWR関連
   const [tab, setTab] = useState<"user_projects" | "user_collaborated">("user_projects");
-  const { projects, hasMore, loadMore, isLoading, isValidating,  isError, mutate } = useOtherUserProjects(userId, tab);
+  const { projects, hasMore, loadMore, isLoading, isValidating,  isError, mutate, getKey } = useOtherUserProjects(userId, tab);
 
   //状態管理
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
@@ -154,6 +154,7 @@ export function OtherUsersPageWrapper() {
               key={project.attributes.id}
               onPlayClick={handlePlayClick}
               project={project}
+              getKey={getKey}
               />
             ))}
           </InfiniteScroll>

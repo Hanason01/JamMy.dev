@@ -29,7 +29,7 @@ class Api::V1::Users::OtherUsersController < ApplicationController
       project_likes = project_likes_map
       project_comments = project_comments_map
 
-      serialized = serialized_projects(projects, user_likes, project_likes, user_bookmarks, project_comments)
+      serialized = serialized_projects(projects, user_likes,user_bookmarks, project_likes, project_comments)
 
       render json: {
         data: serialized[:data],

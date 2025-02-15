@@ -25,6 +25,7 @@ export function ProjectShowWrapper(){
     isError: isProjectError,
     mutate: mutateProject,
     isValidating : isShowValidating,
+    getKey
   } = useShowProject(projectId);
   console.log("useShowProjectが取得したキャッシュ", projects);
 
@@ -119,6 +120,7 @@ export function ProjectShowWrapper(){
           key={project.attributes.id}
           onPlayClick={handlePlayClick}
           project={project}
+          getKey={getKey}
           />
         ))
       )}
@@ -140,6 +142,7 @@ export function ProjectShowWrapper(){
             comment={comment}
             onReply={handleReply}
             projectId={projectId}
+            getKey={getKey}
           />
         ))
       }
@@ -159,6 +162,7 @@ export function ProjectShowWrapper(){
       ) : (
         <CommentForm
           projectId={projectId}
+          getKey={getKey}
         />
       )}
     </Box>

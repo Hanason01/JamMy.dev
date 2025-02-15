@@ -1,25 +1,15 @@
 "use client"
 import useSWRInfinite from "swr/infinite";
-import { EnrichedCommentCollection, EnrichedComment, Meta } from "@sharedTypes/types";
-import { applyIsOwnerToComments } from "@utils/applyIsOwnerToComments";
-
-// コメントフェッチ用のfetcher関数
-const fetcher = async (url: string): Promise<{ comments: EnrichedComment[], meta: Meta }> => {
-  const res = await fetch(url, { credentials: "include" });
-  if (!res.ok) throw new Error("コメントの取得に失敗しました");
-
-  const data: EnrichedCommentCollection = await res.json();
-  return {
-    comments: applyIsOwnerToComments(data.comments),
-    meta: data.meta,
-  };
-};
+import { fetchProjectComments } from "@swr/fetcher";
+import { getCommentsKey } from "@swr/getKeys";
 
 // コメント用のSWRフック（無限スクロール対応）
 export function useProjectComments(projectId: string) {
+  const getKey = getCommentsKey(projectId);
+
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
-    (index) => `/api/projects/${projectId}/comments?page=${index + 1}`,
-    fetcher,
+    getKey,
+    fetchProjectComments,
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -38,6 +28,7 @@ export function useProjectComments(projectId: string) {
     isError: !!error,
     isValidating,
     mutate,
+    getKey
   };
 }
 

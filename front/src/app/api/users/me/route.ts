@@ -5,6 +5,9 @@ import { createInitialProjectData } from "@utils/createInitialProjectData";
 export async function GET(req: NextRequest) {
   const page = req.nextUrl.searchParams.get("page") || "1";
   const filter = req.nextUrl.searchParams.get("filter") || "my_projects"; // デフォルトは自分の投稿
+  console.log("受け取ったpage", req.nextUrl.searchParams.get("page"));
+  console.log("受け取ったfilter", req.nextUrl.searchParams.get("filter"));
+  console.log("pageとfilter", page, filter);
 
   try {
     const response = await fetch(`${process.env.BACKEND_API_URL}/api/v1/users/me/my_projects?filter=${filter}&page=${page}`, {

@@ -20,10 +20,11 @@ import { useSWRConfig } from "swr";
 export function MyPageWrapper() {
   // SWR関連
   const [tab, setTab] = useState<"my_projects" | "collaborating" | "collaborated" | "bookmarks">("my_projects");
-  const { projects, hasMore, loadMore, isLoading, isValidating, isError, mutate } = useMyProjects(tab); //SWRフックからのreturnは全てtabに裏付けされた個別のキーに対応する
+  const { projects, hasMore, loadMore, isLoading, isValidating, isError, mutate, getKey } = useMyProjects(tab); //SWRフックからのreturnは全てtabに裏付けされた個別のキーに対応する
 
   const { cache } = useSWRConfig();
   console.log("Mypageのcache", cache);
+  console.log("myPAgewrapperのprojects", projects, isError);
 
   //状態管理
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
@@ -157,6 +158,7 @@ export function MyPageWrapper() {
               key={project.attributes.id}
               onPlayClick={handlePlayClick}
               project={project}
+              getKey={getKey}
               />
             ))}
           </InfiniteScroll>
