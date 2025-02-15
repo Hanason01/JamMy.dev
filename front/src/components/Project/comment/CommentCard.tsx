@@ -1,6 +1,6 @@
 "use client";
 
-import { User,EnrichedComment } from "@sharedTypes/types";
+import { User,EnrichedComment, GetKeyType } from "@sharedTypes/types";
 import { useState } from "react";
 import { Box, Avatar, Typography, IconButton, Button, Dialog, DialogTitle,
   DialogContent, DialogContentText, DialogActions,Divider } from "@mui/material";
@@ -8,32 +8,29 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DeleteIcon from "@mui/icons-material/Delete";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
-import { useCommentRequest } from "@services/project/feedback/useCommentRequest";
+import { useCommentToggle } from "@services/project/feedback/useCommentToggle";
 import { useProjectComments } from "@swr/useCommentSWR";
-import { useProjectList } from "@swr/useProjectSWR";
-import { useSWRConfig } from "swr";
 
 export function CommentCard({
   comment,
   onReply,
-  projectId
+  projectId,
+  getKey
 }: {
   comment: EnrichedComment;
   onReply: (commentId: string) => void;
   projectId: string;
+  getKey: GetKeyType;
 }) {
   // SWR関連
   const { mutate } = useProjectComments(projectId); //コメント
-  const { mutate: indexMutate } = useProjectList(); //一覧
-  const { mutate: globalMutate } = useSWRConfig()
-  const detailMutateKey = `/api/projects/${projectId}`;
 
   // 状態管理
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const { attributes, user, isOwner } = comment;
 
   //フック
-  const { deleteCommentProject } = useCommentRequest();
+  const { handleUnComment } = useCommentToggle();
 
   // コメント作成日時を相対時間で表示
   const createdAt = new Date(attributes.created_at);
@@ -52,10 +49,8 @@ export function CommentCard({
 
   //削除ボタン
   const handleDeleteComment = async () =>{
-    await deleteCommentProject(projectId, comment.id)
+    await handleUnComment(projectId, comment.attributes.id, getKey)
     mutate(); //コメントのSWR
-    globalMutate(detailMutateKey);
-    indexMutate(undefined, {revalidate: true}); //一覧SWR
   }
 
   return (
@@ -82,9 +77,11 @@ export function CommentCard({
           <Typography variant="body2" color="textSecondary">
           {formattedDate}
           </Typography>
-          <IconButton size="small" onClick={handleDeleteProxy}>
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+          {isOwner && (
+            <IconButton size="small" onClick={handleDeleteProxy}>
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          )}
 
           {/* 削除用ダイアログ */}
           <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
