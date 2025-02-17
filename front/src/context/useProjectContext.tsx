@@ -22,7 +22,6 @@ export function ProjectProvider({ children }: WithChildren) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentAudioFilePath, setCurrentAudioFilePath] = useState<string | null>(null);
   const [currentProjectForShow, setCurrentProjectForShow] = useState<EnrichedProject | null>(null);
-  console.log("currentProjectForShow追跡", currentProjectForShow);
 
 
   return (

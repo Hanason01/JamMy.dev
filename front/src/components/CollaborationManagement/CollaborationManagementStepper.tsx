@@ -56,6 +56,7 @@ export function CollaborationManagementStepper(){
 
   //応募コレクションを取得
   useEffect(() => {
+    if (!currentProject) return;
     const controller = new AbortController();
     const { signal } = controller;
 
@@ -67,12 +68,10 @@ export function CollaborationManagementStepper(){
       }
 
       try {
-        if (currentProject){
-          const collaborationsData = await collaborationManagementIndexRequest(currentProject.attributes.id, signal);
-          console.log("CollaborationManagemetsリクエスト終了");
+        const collaborationsData = await collaborationManagementIndexRequest(currentProject.attributes.id, signal);
+        console.log("CollaborationManagemetsリクエスト終了");
 
-          setCollaborations(collaborationsData);
-        }
+        setCollaborations(collaborationsData);
       }catch(error: any) {
         console.error(error.message);
       }finally {
@@ -85,7 +84,7 @@ export function CollaborationManagementStepper(){
       console.log("アンマウント");
       controller.abort(); // 非同期処理を中断
     }
-  }, []);
+  }, [currentProject]);
 
   //ステップ進行制御
   const handleNext = () => {
@@ -98,7 +97,7 @@ export function CollaborationManagementStepper(){
 
   return (
     <PlaybackProvider>
-      <Box sx={{m:1, p:1}}>
+      <Box sx={{mx:2, mt:3, mb:9, p:1}}>
         <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
           <HandymanIcon color="primary" sx={{ fontSize: "2rem"}} />
           <Typography variant="h6" sx={{ color: "text.primary" }}>応募管理</Typography>

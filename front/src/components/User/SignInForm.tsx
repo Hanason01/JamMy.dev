@@ -4,17 +4,24 @@ import { LoginFormData } from "@sharedTypes/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ReactElement } from "react";
 import { Box, TextField, FormControlLabel, Checkbox, Button, Divider, Alert, Typography, CircularProgress } from "@mui/material";
 import LockIcon from "@mui/icons-material/Lock";
-import GoogleIcon from "@mui/icons-material/Google";
 import { PasswordField } from "@User/PasswordField";
 import { useSignInValidation } from "@validation/useSignInValidation";
 import { useSignInRequest } from "@services/user/useSignInRequest";
 import { useGoogleSignIn } from "@services/user/useGoogleSignIn"
+import { useAuthContext } from "@context/useAuthContext";
 
 
 
-export function SignInForm({redirectTo} : {redirectTo?:string}) {
+export function SignInForm({
+  redirectTo,
+  GoogleSVGIcon
+  } : {
+  redirectTo?:string
+  GoogleSVGIcon: ReactElement;
+  }) {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -24,6 +31,7 @@ export function SignInForm({redirectTo} : {redirectTo?:string}) {
 
   const { register, handleSubmit, setError, errors } = useSignInValidation();
   const { signInWithGoogle } = useGoogleSignIn();
+  const { closeAuthModal } = useAuthContext();
 
   const { signIn } = useSignInRequest({redirectTo});
   const sendDataToAPI = async (data: LoginFormData) => {
@@ -44,6 +52,11 @@ export function SignInForm({redirectTo} : {redirectTo?:string}) {
       setLoading(false);
     }
   };
+
+  const handlePasswordReset = () => {
+    closeAuthModal();
+  };
+
 
 
   return (
@@ -80,7 +93,7 @@ export function SignInForm({redirectTo} : {redirectTo?:string}) {
       </Box>
       <Button
       variant="outlined"
-      startIcon={<GoogleIcon />}
+      startIcon={GoogleSVGIcon}
       fullWidth
       onClick={signInWithGoogle}
       >
@@ -97,7 +110,7 @@ export function SignInForm({redirectTo} : {redirectTo?:string}) {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 3,
+        gap: 2,
         width: "100%"
       }}>
         <TextField
@@ -131,6 +144,7 @@ export function SignInForm({redirectTo} : {redirectTo?:string}) {
           }}
           component={Link}
           href="/auth/request_reset_password"
+          onClick={handlePasswordReset}
         >
           パスワードをお忘れですか？
         </Typography>
@@ -140,7 +154,7 @@ export function SignInForm({redirectTo} : {redirectTo?:string}) {
           color="primary"
           fullWidth
           sx={{
-            mt: 2,
+            mt: 1,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

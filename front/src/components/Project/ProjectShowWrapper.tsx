@@ -103,7 +103,7 @@ export function ProjectShowWrapper(){
 
   return(
     <Box sx={{ bottom: 112 }}>
-      {isValidating || isShowValidating || isLoading ? (
+      {isShowValidating || isShowValidating || isProjectLoading ? (
         <Box sx={{ textAlign: "center", py: 4 }}>
           <CircularProgress />
         </Box>
@@ -142,6 +142,7 @@ export function ProjectShowWrapper(){
             comment={comment}
             onReply={handleReply}
             projectId={projectId}
+            project={projects[0]}
             getKey={getKey}
           />
         ))

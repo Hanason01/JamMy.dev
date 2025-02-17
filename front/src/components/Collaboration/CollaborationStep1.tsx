@@ -142,12 +142,10 @@ export function CollaborationStep1({
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
-      width: "100%",
       maxWidth: "600px"
       }}>
       <Box sx={{
         justifyContent: "flex-start",
-        width: "100%",
         "& .MuiTypography-root": {
             fontSize: "1rem", // 全体のフォントサイズ
             color: "text.primary", // テーマの文字色
@@ -157,87 +155,104 @@ export function CollaborationStep1({
             color: "text.primary", // 入力フィールドの文字色
           },
       }}>
-        <TextField
-          fullWidth
-          variant="standard"
-          type="number"
-          select
-          label="カウントイン"
-          value={countIn}
-          onChange={(e) => setCountIn(parseInt(e.target.value, 10))}
-          sx={{my:1, width: "20%"}}
-          >
-          {preCounts.map((count) => (
-            <MenuItem key={count} value={count}>
-              {count}
-            </MenuItem>
-          ))}
-        </TextField>
-        <FormGroup sx={{my:1,width: "60%"}}>
-          <FormControlLabel required control={<Switch checked={metronomeOn} onChange={(e) => setMetronomeOn(e.target.checked)}/> }label="メトロノーム"
-          sx={{
-            "& .MuiFormControlLabel-label": {
-              fontSize: "0.9rem",
-              color: "text.primary",
-            },
-          }} />
-        </FormGroup>
-        <FormGroup sx={{my:1,width: "60%"}}>
-          <FormControlLabel required control={<Switch checked={enablePostAudio} onChange={(e) => setEnablePostAudio(e.target.checked)}/> }label="録音時に投稿音声を聴く"
-          sx={{
-            "& .MuiFormControlLabel-label": {
-              fontSize: "0.9rem",
-              color: "text.primary",
-            },
-          }} />
-        </FormGroup>
-        <Box sx={{
-          width: "80%",
-          justifyContent: "center",
-          alignItems: "center",
-          margin: "auto",
-          mt:5
-          }}>
-          <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
+        <Box sx={{display: "flex", flexDirection: "column", alignItems: "flex-start", my:1, width: "100%"}}>
+          <TextField
+            fullWidth
+            variant="standard"
+            type="number"
+            select
+            label="カウントイン"
+            value={countIn}
+            onChange={(e) => setCountIn(parseInt(e.target.value, 10))}
+            sx={{my:1, width: "25%"}}
+            >25
+            {preCounts.map((count) => (
+              <MenuItem key={count} value={count}>
+                {count}
+              </MenuItem>
+            ))}
+          </TextField>
+          <FormGroup sx={{my:1,width: "60%"}}>
+            <FormControlLabel required control={<Switch checked={metronomeOn} onChange={(e) => setMetronomeOn(e.target.checked)}/> }label="メトロノーム"
+            sx={{
+              "& .MuiFormControlLabel-label": {
+                fontSize: "0.9rem",
+                color: "text.primary",
+              },
+            }} />
+          </FormGroup>
+          <FormGroup sx={{my:1,width: "80%"}}>
+            <FormControlLabel required control={<Switch checked={enablePostAudio} onChange={(e) => setEnablePostAudio(e.target.checked)}/> }label="録音時に投稿音声を聴く"
+            sx={{
+              "& .MuiFormControlLabel-label": {
+                fontSize: "0.9rem",
+                color: "text.primary",
+              },
+            }} />
+          </FormGroup>
+        </Box>
+
+        <Box>
+          <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", my:2}}>
             <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
                     alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
-                    sx={{ width: 25, height: 25 }} />
-            <Typography variant="body2" component="span" color="textSecondary">
+                    sx={{ width: 35, height: 35 }} />
+            <Typography
+            variant="body2"
+            component="span"
+            color="textSecondary"
+            sx={{
+              maxWidth: "60%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              ml: 1,
+            }}>
               { currentUser?.attributes.nickname || currentUser?.attributes.username }
             </Typography>
-            <Typography variant="body1" component="span" color="textPrimary" sx={{position: "absolute", left: "50%", transform: "translateX(-50%)",
-          whiteSpace: "nowrap", }} >
+          </Box>
+          <Box sx={{ mb:1}}>
+            <Typography
+            variant="body1"
+            color="textPrimary"
+            sx={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              textAlign: "center",
+              }} >
             { currentProject?.attributes.title }
             </Typography>
           </Box>
-        {audioData && globalAudioContextRef.current ? (
-          <AudioPlayer
-            id = {playerIds[0]} //Post
-            audioBuffer={audioData}
-            audioContext={globalAudioContextRef.current}
-            enablePostAudioPreview={enablePostAudioPreview}
-          />
-        ) : (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100px",
-            }}
-          >
-            <CircularProgress
-              size={64}
-              sx={{
-                color: "primary.main",
-              }}
+
+          {audioData && globalAudioContextRef.current ? (
+            <AudioPlayer
+              id = {playerIds[0]} //Post
+              audioBuffer={audioData}
+              audioContext={globalAudioContextRef.current}
+              enablePostAudioPreview={enablePostAudioPreview}
             />
-          </Box>
-          )}
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100px",
+              }}
+            >
+              <CircularProgress
+                size={64}
+                sx={{
+                  color: "primary.main",
+                }}
+              />
+            </Box>
+            )}
         </Box>
       </Box>
 
-      <Divider sx={{my:1}} />
+      <Divider sx={{my:3}} />
       <Box sx={{
           display: "flex",
           flexDirection: "column",

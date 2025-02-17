@@ -37,7 +37,7 @@ export function PostProjectStepper(){
   };
 
   return (
-    <Box sx={{m:1, p:1}}>
+    <Box sx={{mx:2, mt:3, mb:9, p:1}}>
       <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
         <PostAddIcon color="primary" sx={{ fontSize: "2rem"}} />
         <Typography variant="h6" sx={{ color: "text.primary" }}>投稿画面</Typography>

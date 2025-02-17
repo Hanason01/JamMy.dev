@@ -2,8 +2,10 @@
 
 import { AudioBuffer, SetState } from "@sharedTypes/types";
 import { useEffect, useRef, useState } from "react";
-import { Box, Button, IconButton, CircularProgress, FormGroup, FormControlLabel, Switch} from "@mui/material";
+import { Box, Button, IconButton, CircularProgress, FormGroup, FormControlLabel, Switch, Typography} from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { AudioProcessor } from "@Project/core_logic/AudioProcessor";
 import { useAudioProcessing } from "@audio/useAudioProcessing";
@@ -14,6 +16,7 @@ import { useCollaborationManagementContext } from "@context/useCollaborationMana
 export function PostProjectProcessing({
   id,
   mode,
+  simpleUI= false,
   audioBufferForProcessing,
   setHasRecorded,
   setAudioBufferForProcessing,
@@ -28,6 +31,7 @@ export function PostProjectProcessing({
 } : {
   id?: string; //オプショナル
   mode: "player-only" | "with-effects";
+  simpleUI?: boolean;
   audioBufferForProcessing: AudioBuffer;
   setHasRecorded?: SetState<boolean>; //オプショナル
   setAudioBufferForProcessing?: SetState<AudioBuffer>; //オプショナル
@@ -246,6 +250,21 @@ export function PostProjectProcessing({
   if(isInitialized){
     return(
       <Box sx={{ display: "flex", flexDirection: "column", width: "100%"}}>
+        { !simpleUI && (
+          <>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <GraphicEqIcon sx={{ fontSize: 28, color: "primary.main", mr: 1 }} />
+            <Typography variant="h6">
+              音声編集
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+            ここでは、録音した音声の編集ができます
+          </Typography>
+          </>
+          )
+        }
+        {/* タイトルと説明 */}
         { id && !onRemove && (
         <FormGroup sx={{my:1,width: "60%"}}>
           <FormControlLabel required control={
@@ -299,7 +318,7 @@ export function PostProjectProcessing({
           onClick={handleSubmit}
           variant="primary"
           disabled={loading}
-          startIcon={loading && <CircularProgress size={24} />}
+          endIcon={loading ? <CircularProgress size={24} /> : <ArrowForwardIosIcon />}
           >
             投稿する
           </Button>

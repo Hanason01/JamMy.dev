@@ -1,21 +1,25 @@
 "use client";
 import React, { useState } from "react";
 import axios from "axios";
-import { TextField, Button, Alert, Typography, Box, Container } from "@mui/material";
+import { TextField, Button, Alert, Typography, Box, Container, CircularProgress } from "@mui/material";
 
 export const RequestResetPassword = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/password`, { email });
-      setMessage("リセットリンクをメールに送信しました。メールをご確認の上、パスワードの変更をしてください");
+      setMessage("再設定用リンクをメールに送信しました。ご確認の上、パスワードの変更をしてください");
       setError(null);
     } catch (err) {
-      setError("リセットリンクの送信に失敗しました。もう一度お試しください。");
+      setError("再設定用リンクの送信に失敗しました。もう一度お試しください。");
       setMessage(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,7 +38,7 @@ export const RequestResetPassword = () => {
           パスワードリセット
         </Typography>
         <Typography variant="body1" color="text.secondary" gutterBottom>
-          登録済みのメールアドレスを入力してください。リセットリンクをお送りします。
+          パスワード再設定用リンクを送信します。ご登録のメールアドレスを入力してください。
         </Typography>
         <Box
           component="form"
@@ -65,8 +69,9 @@ export const RequestResetPassword = () => {
               textTransform: "none",
               fontWeight: "bold",
             }}
+            disabled={loading}
           >
-            リセットリンクを送信
+            {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "メールアドレスに送信"}
           </Button>
         </Box>
         {message && (

@@ -4,6 +4,7 @@ import { AudioBuffer, PostCollaborationFormData, PostCollaborationRequestData, U
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Box, TextField, Button, MenuItem, Divider, Alert, CircularProgress } from "@mui/material";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { usePostCollaborationValidation } from "@validation/usePostCollaborationValidation";
 import { usePostCollaborationRequest } from "@services/project/collaboration/usePostCollaborationRequest";
 import { audioEncoder } from "@utils/audioEncoder";
@@ -93,7 +94,7 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      width: "80%",
+      width: "90%",
       gap: 3,
       my: 3,
     }}>
@@ -102,7 +103,7 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
       sx={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        alignItems: "flex-start",
         gap: 3,
         width: "100%"
       }}>
@@ -111,6 +112,8 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         variant="standard"
         defaultValue={currentUser?.attributes.nickname || currentUser?.attributes.username || "不明なユーザー"}
         fullWidth
+        multiline
+        maxRows={2}
         slotProps={{
           input: {readOnly: true},
         }}
@@ -120,6 +123,8 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         variant="standard"
         defaultValue={currentProject?.attributes.title || "不明なタイトル"}
         fullWidth
+        multiline
+          maxRows={2}
         slotProps={{
           input: {readOnly: true},
         }}
@@ -129,22 +134,24 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         variant="standard"
         placeholder="投稿者へコメント"
         fullWidth
+        multiline
+          maxRows={5}
         {...register("comment")}
         error={!!errors.comment}
         helperText={errors.comment?.message}
         />
-        {loading ? (
-          <CircularProgress
-            size={48}
-            sx={{
-              color: "primary",
-            }}
-          />
-        ) : (
-          <Button type="submit" variant="primary" sx={{mt:4}} >
-            投稿する
+        {/* 投稿ボタン*/}
+        <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
+          <Button
+            type="submit"
+            variant="primary"
+            sx={{ mt: 4}}
+            endIcon={loading ? <CircularProgress size={20} sx={{ color: "white" }} /> : <UploadFileIcon />}
+            disabled={loading}
+          >
+            応募する
           </Button>
-        )}
+        </Box>
       </Box>
     </Box>
   );

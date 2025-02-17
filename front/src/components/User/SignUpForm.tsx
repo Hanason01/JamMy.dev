@@ -3,6 +3,7 @@
 import { SignUpFormData, SignUpRequestData } from "@sharedTypes/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ReactElement } from "react";
 import { Box, TextField, Button, Divider, Alert, Typography, CircularProgress } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import GoogleIcon from "@mui/icons-material/Google";
@@ -12,7 +13,13 @@ import { useSignUpValidation } from "@validation/useSignUpValidation";
 import { useSignUpRequest } from "@services/user/useSignUpRequest";
 import { useGoogleSignIn } from "@services/user/useGoogleSignIn"
 
-export function SignUpForm({redirectTo}: {redirectTo?:string}) {
+export function SignUpForm({
+  redirectTo,
+  GoogleSVGIcon
+  } : {
+  redirectTo?:string
+  GoogleSVGIcon: ReactElement;
+  }) {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -88,7 +95,7 @@ export function SignUpForm({redirectTo}: {redirectTo?:string}) {
       </Box>
       <Button
       variant="outlined"
-      startIcon={<GoogleIcon />}
+      startIcon={GoogleSVGIcon}
       fullWidth
       onClick={signInWithGoogle}
       >
@@ -106,7 +113,7 @@ export function SignUpForm({redirectTo}: {redirectTo?:string}) {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 3,
+        gap: 2,
         width: "100%"
       }}>
         <TextField
@@ -151,7 +158,7 @@ export function SignUpForm({redirectTo}: {redirectTo?:string}) {
           color="primary"
           fullWidth
           sx={{
-            mt: 2,
+            mt: 1,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

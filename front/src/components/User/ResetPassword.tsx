@@ -3,7 +3,7 @@ import { ResetPasswordFormData, SignUpRequestData } from "@sharedTypes/types";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
-import { TextField, Button, Alert, Typography, Box, Container } from "@mui/material";
+import { TextField, Button, Alert, Typography, Box, Container, CircularProgress } from "@mui/material";
 import { useResetPasswordValidation } from "@validation/useResetPasswordValidation";
 import { PasswordField } from "@User/PasswordField";
 import { useAuthContext } from "@context/useAuthContext";
@@ -17,6 +17,7 @@ export const ResetPassword = () => {
   const [isTokenValid, setIsTokenValid] = useState<boolean>(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
 
   const { register, handleSubmit, setError: setValidationError, errors } = useResetPasswordValidation();
@@ -44,7 +45,7 @@ export const ResetPassword = () => {
         setIsTokenValid(true);
       } catch (error) {
         setIsTokenValid(false);
-        setError("パスワードリセットのリクエストに失敗しました。");
+        setError("パスワードリセットに失敗しました。トークンが無効、あるいはリンクが期限切れの可能性があります。再度お試しください。");
       }
     };
 
@@ -57,6 +58,7 @@ export const ResetPassword = () => {
 
   //Devise_token_auth: updateアクション
   const resetPasswordRequest = async (data: ResetPasswordFormData) => {
+    setLoading(true);
     try {
       const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/auth/password`, {
         reset_password_token: resetToken,
@@ -77,6 +79,8 @@ export const ResetPassword = () => {
       } else {
         setError("パスワードリセットに失敗しました。");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,7 +98,7 @@ export const ResetPassword = () => {
           }}
         >
           <Typography variant="h5" component="h1" gutterBottom sx={{ mb: 3 }}>
-            パスワードリセットエラー
+            トークンが無効、もしくはリンクの期限切れです。再度お試しください。
           </Typography>
           <Alert severity="error">{error}</Alert>
         </Box>
@@ -146,8 +150,8 @@ export const ResetPassword = () => {
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword?.message}
           />
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            パスワードをリセット
+          <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading}>
+          {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "パスワードをリセット"}
           </Button>
         </form>
       </Box>

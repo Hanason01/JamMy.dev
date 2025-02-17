@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Box, Typography, TextField, InputAdornment, Slider, Button, MenuItem, Switch, FormGroup, FormControlLabel, Divider, CircularProgress, Avatar, Select, Dialog, DialogTitle, DialogContent,DialogContentText, DialogActions,IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import Diversity3OutlinedIcon from '@mui/icons-material/Diversity3Outlined';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { PostProjectProcessing } from "@Project/post_project/PostProjectProcessing";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
@@ -129,35 +131,47 @@ export function CollaborationManagementStep2({
         justifyContent: "flex-start",
         width: "100%",
         "& .MuiTypography-root": {
-            fontSize: "1rem", // 全体のフォントサイズ
-            color: "text.primary", // テーマの文字色
+            fontSize: "1rem",
+            color: "text.primary",
           },
           "& .MuiInputBase-root": {
-            fontSize: "1rem", // 入力フィールドの文字サイズ
-            color: "text.primary", // 入力フィールドの文字色
+            fontSize: "1rem",
+            color: "text.primary",
           },
         }}
       >
-        <Box sx={{
-          width: "80%",
-          justifyContent: "center",
-          alignItems: "center",
-          margin: "auto",
-          mt:5
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-            <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
-                    alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
-                    sx={{ width: 25, height: 25 }} />
-            <Typography variant="body2" component="span" color="textSecondary">
-              { currentUser?.attributes.nickname || currentUser?.attributes.username }
-            </Typography>
-            <Typography variant="body1" component="span" color="textPrimary" sx={{position: "absolute", left: "50%", transform: "translateX(-50%)",
-          whiteSpace: "nowrap", }} >
-            { currentProject?.attributes.title }
-            </Typography>
-          </Box>
+      <Box>
+        <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", my:2}}>
+          <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
+                  alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
+                  sx={{ width: 35, height: 35 }} />
+          <Typography
+          variant="body2"
+          component="span"
+          color="textSecondary"
+          sx={{
+            maxWidth: "60%",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            ml: 1,
+          }}>
+            { currentUser?.attributes.nickname || currentUser?.attributes.username }
+          </Typography>
+        </Box>
+        <Box sx={{ mb:1}}>
+          <Typography
+          variant="body1"
+          color="textPrimary"
+          sx={{
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            textAlign: "center",
+            }} >
+          { currentProject?.attributes.title }
+          </Typography>
+        </Box>
 
         {postAudioData && globalAudioContextRef.current ? (
           <AudioPlayer
@@ -189,7 +203,7 @@ export function CollaborationManagementStep2({
       <Divider sx={{my:1}} />
 
       {/* 投稿音声と同時に聴くスイッチ */}
-      <FormGroup sx={{ my: 1, width: "60%", mx: "auto" }}>
+      <FormGroup sx={{ my: 1, width: "70%", mx: "auto" }}>
         <FormControlLabel
           required
           control={
@@ -227,7 +241,18 @@ export function CollaborationManagementStep2({
                   <Avatar src={item.user.avatar_url || "/default-icon.png"}
                           alt={item.user.nickname ||item.user.username || undefined }
                           sx={{ width: 25, height: 25 }} />
-                  <Typography variant="body2" component="span" color="textSecondary">
+                  <Typography
+                  variant="body2"
+                  component="span"
+                  color="textSecondary"
+                  sx={{
+                    maxWidth: "25%",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    ml: 1,
+                  }}
+                  >
                     { item.user.nickname || item.user.username }
                   </Typography>
                   <Box sx={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
@@ -304,19 +329,20 @@ export function CollaborationManagementStep2({
           mt: 3,
         }}
       >
-        <Button onClick={onBack} variant="primary">
+        <Button onClick={onBack} variant="primary" startIcon={<ArrowBackIosIcon />}>
           音声選択/編集
         </Button>
         {synthesisList.length > 0  &&(
         <Button onClick={handleAudioMerge} variant="primary" disabled={loading}
-          startIcon={loading && <CircularProgress size={24} />}>
+        endIcon={loading ? <CircularProgress size={20} sx={{ color: "white" }} /> : <Diversity3OutlinedIcon />}
+        >
           合成する
         </Button>
         )}
       </Box>
       {/* 削除確認ダイアログ */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>
+        <DialogTitle sx={{ fontSize: 22}}>
         {selectedItemName}さんの応募音声を削除しますか？
           <IconButton
             onClick={handleCloseDialog}

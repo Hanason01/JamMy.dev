@@ -115,7 +115,7 @@ export function PostProjectStep1({onNext,
           label="カウントイン"
           value={countIn}
           onChange={(e) => setCountIn(parseInt(e.target.value, 10))}
-          sx={{my:1, width: "20%"}}
+          sx={{my:1, width: "30%"}}
           >
           {preCounts.map((count) => (
             <MenuItem key={count} value={count}>
@@ -127,14 +127,14 @@ export function PostProjectStep1({onNext,
             <FormControlLabel required control={<Switch checked={metronomeOn} onChange={(e) => setMetronomeOn(e.target.checked)}/> }label="メトロノーム"
             sx={{
               "& .MuiFormControlLabel-label": {
-                fontSize: "1rem", // 小さめのフォントサイズ
-                color: "text.primary", // テーマの primary 色
+                fontSize: "1rem",
+                color: "text.primary",
               },
             }} />
           </FormGroup>
       </Box>
 
-      <Divider sx={{my: 5}} />
+      <Divider sx={{my: 3}} />
       <Box sx={{
           display: "flex",
           flexDirection: "column",
