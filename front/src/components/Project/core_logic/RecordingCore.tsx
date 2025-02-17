@@ -254,15 +254,12 @@ export function RecordingCore({
       flexDirection: "column",
       alignItems: "center",
       width: "100%",
-      // mx:5,
-      pb:10,
       gap:2
       }}>
         <Box sx={{
           width: "100%",
           display: "flex",
           justifyContent: "flex-end",
-          mt:3,
         }}>
           <Button
           variant="secondary"
@@ -301,7 +298,8 @@ export function RecordingCore({
               }}
             />
           ) : (
-          <IconButton disabled={isInitializing} onClick={isRecording ? handleStopRecording : handleStartRecording} sx={{ color:"red", pl: 0 }}>
+          <IconButton disabled={isInitializing} onClick={isRecording ? handleStopRecording : handleStartRecording}
+          sx={{ color:"#e53935", pl: 0 }}>
                   {!isRecording ? <RadioButtonCheckedIcon sx={{fontSize: "6rem"}}/> : <StopCircleIcon sx={{fontSize: "6rem"}}/>}
           </IconButton>
           )}

@@ -35,7 +35,7 @@ export function AudioController({
         padding: 2,
         zIndex: 1100,
         backgroundColor: "rgba(121, 134, 203, 0.1)",
-        backdropFilter: "blur(8px) saturate(100%)",
+        backdropFilter: "blur(14px) saturate(100%)",
       }}
     >
       <IconButton
@@ -57,17 +57,39 @@ export function AudioController({
       >
         <CloseIcon />
       </IconButton>
-      <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb: 2}}>
-        <Avatar src={user?.attributes.avatar_url || "/default-icon.png"}
+      <Box >
+        <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb: 2}}>
+          <Avatar src={user?.attributes.avatar_url || "/default-icon.png"}
                 alt={user?.attributes.nickname || user?.attributes.username || undefined }
-                sx={{ width: 25, height: 25 }} />
-        <Typography variant="body2" component="span" color="textSecondary">
-          { user?.attributes.nickname || user?.attributes.username }
-        </Typography>
-        <Typography variant="body1" component="span" color="textPrimary" sx={{position: "absolute", left: "50%", transform: "translateX(-50%)",
-      whiteSpace: "nowrap", }} >
-        { project?.attributes.title }
-        </Typography>
+                sx={{ width: 35, height: 35 }} />
+          <Typography
+          component="span"
+          color="textSecondary"
+          sx={{
+            maxWidth: "60%",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            ml: 1,
+          }}
+          >
+            { user?.attributes.nickname || user?.attributes.username }
+          </Typography>
+        </Box>
+        <Box sx={{ mb:1}}>
+          <Typography
+            variant="body1"
+            color="textPrimary"
+            sx={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              textAlign: "center",
+              }} >
+            { project?.attributes.title }
+          </Typography>
+        </Box>
+
       </Box>
       <Slider
         value={currentTime}

@@ -8,7 +8,7 @@ const schema = yup.object().shape({
     .string()
     .required("タイトルは必須です")
     .min(1, "最低1文字が必要です")
-    .max(50, "最大50文字までです"),
+    .max(25, "最大25文字までです"),
   description: yup
     .string()
     .required("概要は必須です")

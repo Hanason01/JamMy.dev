@@ -1,7 +1,7 @@
 class Api::V1::ProjectsController < ApplicationController
   before_action :authenticate_user!, only: [:create, :edit, :update, :destroy]
   def index
-    projects = Project.includes(:user, :audio_file, :likes, :bookmarks)
+    projects = Project.includes(:user, :audio_file, :likes, :bookmarks, collaborations: :user)
                       .where(status: [:open, :closed] )
                       .where(visibility: :is_public)
                       .order(created_at: :desc)
@@ -27,7 +27,7 @@ class Api::V1::ProjectsController < ApplicationController
   end
 
   def show
-    projects = Project.includes(:user, :audio_file, :likes, :bookmarks)
+    projects = Project.includes(:user, :audio_file, :likes, :bookmarks, collaborations: :user)
                     .where(id: params[:id], status: [:open, :closed])
 
     if projects.any?

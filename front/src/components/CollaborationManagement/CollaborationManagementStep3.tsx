@@ -5,6 +5,9 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {Typography, Box, TextField, Button,Avatar, MenuItem, Divider, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,  } from "@mui/material";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import { useCompleteCollaborationManagementRequest } from "@services/project/collaboration_management/useCompleteCollaborationManagementRequest";
 import { audioEncoder } from "@utils/audioEncoder";
 import { useProjectContext } from "@context/useProjectContext";
@@ -151,13 +154,15 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
         flexDirection: "column",
         alignItems: "center",
         gap: 3,
-        width: "80%"
+        width: "90%"
       }}>
         <TextField
         label="ユーザー名"
         variant="standard"
         defaultValue={currentUser?.attributes.nickname || currentUser?.attributes.username || "不明なユーザー"}
         fullWidth
+        multiline
+          maxRows={2}
         slotProps={{
           input: {readOnly: true},
         }}
@@ -167,6 +172,8 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
         variant="standard"
         defaultValue={currentProject?.attributes.title || "不明なタイトル"}
         fullWidth
+        multiline
+          maxRows={2}
         slotProps={{
           input: {readOnly: true},
         }}
@@ -176,38 +183,57 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
         variant="standard"
         defaultValue={currentProject?.attributes.description || "不明な概要"}
         fullWidth
+        multiline
+          maxRows={5}
         slotProps={{
           input: {readOnly: true},
         }}
         />
-
-        {globalAudioContextRef.current && mergedAudioBuffer ? (
-        <Box sx={{
-          width:"100%",
-          justifyContent: "center",
-          alignItems: "center",
-          margin: "auto",
-          mt:5
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-            <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
-                    alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
-                    sx={{ width: 25, height: 25 }} />
-            <Typography variant="body2" component="span" color="textSecondary">
-              { currentUser?.attributes.nickname || currentUser?.attributes.username }
-            </Typography>
-            <Typography variant="body1" component="span" color="textPrimary" sx={{position: "absolute", left: "50%", transform: "translateX(-50%)",
-          whiteSpace: "nowrap", }} >
-            { currentProject?.attributes.title }
-            </Typography>
-          </Box>
-          <AudioPlayer
+      </Box>
+      <Box sx={{
+          maxWidth: "500px",
+          width: "100%",
+          mx: "auto",
+        }}>
+      {globalAudioContextRef.current && mergedAudioBuffer ? (
+        <>
+        <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", my:2}}>
+          <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
+                  alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
+                  sx={{ width: 35, height: 35 }} />
+          <Typography
+          variant="body2"
+          component="span"
+          color="textSecondary"
+          sx={{
+            maxWidth: "60%",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            ml: 1,
+          }}>
+            { currentUser?.attributes.nickname || currentUser?.attributes.username }
+          </Typography>
+        </Box>
+        <Box sx={{ mb:1}}>
+          <Typography
+          variant="body1"
+          color="textPrimary"
+          sx={{
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            textAlign: "center",
+            }} >
+          { currentProject?.attributes.title }
+          </Typography>
+        </Box>
+        <AudioPlayer
           audioBuffer={mergedAudioBuffer}
           audioContext={globalAudioContextRef.current}/>
-        </Box>
+        </>
         ) : (
-          <Box
+        <Box
           sx={{
             display: "flex",
             justifyContent: "center",
@@ -222,7 +248,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
             }}
           />
         </Box>
-      )}
+        )}
       </Box>
       <Box
       sx={{
@@ -245,10 +271,10 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
             gap:2,
             mt: 2,
             }}>
-            <Button onClick={()=>sendDataToAPI("save")} variant="primary" >
-              保存する
-            </Button>
-            <Button onClick={handleBackToStep2} variant="primary"  >
+            <Button onClick={()=>sendDataToAPI("save")} variant="primary" disabled={loading}
+            endIcon={loading ? <CircularProgress size={20} sx={{ color: "white" }} /> : <SaveOutlinedIcon />}
+            >保存する</Button>
+            <Button onClick={handleBackToStep2} variant="primary" startIcon={<ArrowBackIosIcon />} >
               合成リストへ戻る
             </Button>
           </Box>
@@ -259,7 +285,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
 
 
           <Box>
-            <Button onClick={handleTerminateProxy} variant="primary" >
+            <Button onClick={handleTerminateProxy} variant="secondary" endIcon={<ReportProblemIcon sx={{color: "#e53935" }} />} >
               このプロジェクトを終了にする
             </Button>
           </Box>

@@ -4,6 +4,7 @@ import { AudioBuffer, PostSettings, PostProjectFormData, PostProjectRequestData 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Box, TextField, Button, MenuItem, Divider, Alert, CircularProgress } from "@mui/material";
+import PostAddIcon from "@mui/icons-material/PostAdd";
 import { usePostProjectValidation } from "@validation/usePostProjectValidation";
 import { usePostProjectRequest } from "@services/project/usePostProjectRequest";
 import { audioEncoder } from "@utils/audioEncoder";
@@ -101,7 +102,7 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      width: "80%",
+      width: "90%",
       gap: 3,
       my: 3,
     }}>
@@ -110,14 +111,14 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
       sx={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        alignItems: "flex-start",
         gap: 3,
         width: "100%"
       }}>
         <TextField
         label="タイトル"
         variant="standard"
-        placeholder="50文字以内"
+        placeholder="25文字以内"
         multiline
           maxRows={5}
         fullWidth
@@ -175,18 +176,18 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
             </MenuItem>
           ))}
         </TextField>
-        {loading ? (
-          <CircularProgress
-            size={48}
-            sx={{
-              color: "primary",
-            }}
-          />
-        ) : (
-          <Button type="submit" variant="primary" sx={{mt:4}} >
-            投稿する
-          </Button>
-        )}
+      </Box>
+      {/* 投稿ボタン*/}
+      <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
+        <Button
+          type="submit"
+          variant="primary"
+          sx={{ mt: 4}}
+          endIcon={loading ? <CircularProgress size={20} sx={{ color: "white" }} /> : <PostAddIcon />}
+          disabled={loading}
+        >
+          投稿する
+        </Button>
       </Box>
     </Box>
   );

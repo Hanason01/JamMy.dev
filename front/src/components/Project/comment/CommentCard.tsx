@@ -1,7 +1,8 @@
 "use client";
 
-import { User,EnrichedComment, GetKeyType } from "@sharedTypes/types";
+import { User,EnrichedComment, GetKeyType,EnrichedProject } from "@sharedTypes/types";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Box, Avatar, Typography, IconButton, Button, Dialog, DialogTitle,
   DialogContent, DialogContentText, DialogActions,Divider } from "@mui/material";
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
@@ -15,13 +16,15 @@ export function CommentCard({
   comment,
   onReply,
   projectId,
-  getKey
+  project,
+  getKey,
 }: {
   comment: EnrichedComment;
   onReply: (commentId: string) => void;
   projectId: string;
+  project: EnrichedProject;
   getKey: GetKeyType;
-}) {
+}){
   // SWR関連
   const { mutate } = useProjectComments(projectId); //コメント
 
@@ -35,6 +38,19 @@ export function CommentCard({
   // コメント作成日時を相対時間で表示
   const createdAt = new Date(attributes.created_at);
   const formattedDate = formatDistanceToNow(createdAt, { addSuffix: true, locale: ja });
+
+  const router = useRouter();
+
+  //ユーザーページ遷移
+  const handleClickAvatar = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (isOwner) {
+      router.push("/mypage");
+    } else {
+      router.push(`/other_users/${user.id}`);
+    }
+  };
 
   // ダイアログの確認後の処理（削除）
   const handleDialogConfirmDelete = () => {
@@ -66,14 +82,26 @@ export function CommentCard({
       {/* ユーザー情報とタイムスタンプ */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Avatar src={user.attributes.avatar_url || "/default-icon.png"} alt={user.attributes.nickname || "名無しのユーザー"} />
+          <Avatar src={user.attributes.avatar_url || "/default-icon.png"} alt={user.attributes.nickname || "名無しのユーザー"} onClick={handleClickAvatar} />
           <Box sx={{ ml: 2 }}>
-            <Typography variant="body1">
+            <Typography
+            variant="body1"
+            component="span"
+              color="textPrimary"
+              onClick={handleClickAvatar}
+              sx={{
+                cursor: "pointer",
+                textDecoration: "none",
+                transition: "text-decoration 0.2s ease-in-out",
+                "&:hover": { textDecoration: "underline" },
+                "&:active": { textDecoration: "underline" },
+              }}
+            >
               {user.attributes.nickname || user.attributes.username || "名無しのユーザー"}
             </Typography>
           </Box>
         </Box>
-        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 1 }}>
           <Typography variant="body2" color="textSecondary">
           {formattedDate}
           </Typography>

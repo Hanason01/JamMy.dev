@@ -20,7 +20,6 @@ export interface UserAttributes {
   email: string;
   username: string | null;
   nickname: string;
-  image: string | null;
   bio: string | null;
   avatar_url: string | null;
 }
@@ -62,12 +61,20 @@ export interface ProjectAttributes {
   visibility: "is_public" | "is_private"; // 公開範囲
   created_at: string;
   updated_at: string;
-  like_count: number;
+  like_count: number | null;
   liked_by_current_user: boolean;
   current_like_id: number | null;
   bookmarked_by_current_user: boolean;
   current_bookmark_id: number | null;
   comment_count: number | null;
+  collaborations: CollaborationUser[];
+}
+
+export interface CollaborationUser {
+  user_id: number;
+  username: string;
+  nickname: string | null;
+  avatar_url: string | null;
 }
 
 

@@ -3,7 +3,7 @@
 import { Project, User, SetState, EnrichedProject, PostProjectFormData, EditProjectRequestData, GetKeyType} from "@sharedTypes/types";
 import { useState, useEffect} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Paper, Box, Avatar, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,Divider, Snackbar, Tooltip, ButtonBase } from "@mui/material";
+import { Paper, Box, Avatar, AvatarGroup, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,Divider, Snackbar, Tooltip, ButtonBase, Chip } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -35,6 +35,7 @@ import { useSWRConfig } from "swr";
 import { useApplyMutate } from "@utils/useApplyMutate";
 import { getMyProjectsKey, getProjectDetailKey, getAllProjectsKey } from "@swr/getKeys";
 import { unstable_serialize } from "swr/infinite";
+import { ParticipantModal } from "@Project/ParticipantModal";
 
 export function ProjectCard({
   mode,
@@ -53,6 +54,7 @@ export function ProjectCard({
   const [expanded, setExpanded] = useState<boolean>(false); //概要展開
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
 
 
   //編集・削除用途のセット（リクエスト関係は別途定義）
@@ -161,6 +163,18 @@ export function ProjectCard({
   //プロジェクトの作成時間取得
   const createdAt = new Date(project.attributes.created_at);
   const formattedDate = formatDistanceToNow(createdAt, { addSuffix: true, locale: ja })
+
+  //件数表示のフォーマッター
+  const formatNumber = (num: number | null): string => {
+    if (num === null) return "0";
+    if (num < 10000) {
+      return num.toString();
+    } else if (num < 100000000) {
+      return (num / 10000).toFixed(1).replace(/\.0$/, "") + "万";
+    } else {
+      return (num / 100000000).toFixed(1).replace(/\.0$/, "") + "億";
+    }
+  };
 
   //ユーザーページ遷移
   const handleClickAvatar = (e: React.MouseEvent) => {
@@ -368,12 +382,11 @@ export function ProjectCard({
       sx={{
         border: "1px solid #ddd",
         borderRadius: 2,
-        padding: 2,
-        marginBottom: 2,
+        p: 2,
+        m: 1.5,
         position: "relative",
         maxWidth: 600,
         backgroundColor: "background.default",
-        mx: 1,
         cursor: mode === "list" && !isEditing ? "pointer" : "default",
       }}
       onClick={mode === "list" && !isEditing ? handleProjectClick : undefined}
@@ -406,8 +419,19 @@ export function ProjectCard({
                 sx={{ cursor: "pointer" }}
               />
             </ButtonBase>
-            <Box sx={{ ml:2, flex: 1, display: "flex", alignItems: "center" }}>
-              <Typography variant="body1" component="span" color="textPrimary">
+            <Box sx={{ ml:2, flex: 1, display: "flex", alignItems: "center", maxWidth: 150 }}>
+              <Typography
+              variant="body1"
+              component="span"
+              color="textPrimary"
+              onClick={handleClickAvatar}
+              sx={{
+                cursor: "pointer",
+                textDecoration: "none",
+                transition: "text-decoration 0.2s ease-in-out",
+                "&:hover": { textDecoration: "underline" },
+                "&:active": { textDecoration: "underline" },
+              }}>
                 {project.user.attributes.nickname || project.user.attributes.username || "名無しのユーザー" }
               </Typography>
             </Box>
@@ -415,7 +439,7 @@ export function ProjectCard({
 
           {/* タイムスタンプ・メニュー */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="body2" color="textPrimary" sx={{ml:5}}>
+            <Typography variant="body2" color="textPrimary" sx={{ml:3}}>
               {formattedDate}
             </Typography>
             {project.isOwner && (
@@ -624,41 +648,73 @@ export function ProjectCard({
         )}
       </>
     )}
-      {/* コラボ状況 */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            my: 2.5,
-            pointerEvents: isEditing ? "none" : "auto",
-            opacity: isEditing ? 0.5 : 1,
-          }}
-        >
-          <PeopleIcon sx={{ color: "text.secondary"}} />
-          <Typography variant="body2" color="textSecondary">
-            ユーザーB、ユーザーC他数名が参加（実装中）
-          </Typography>
-        </Box>
-
-
-
-
+    {/* コラボ状況 & 応募ボタン & 再生ボタン グループ */}
       <Box
         sx={{
           display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "space-between",
-          width: "100%",
-          m: 1,
+          alignItems: "center",
+          my: 2,
+          mx: 1,
           gap:2,
           pointerEvents: isEditing ? "none" : "auto",
           opacity: isEditing ? 0.5 : 1,
         }}
       >
-        <Box>
-          {/* 応募管理・応募するボタン */}
-          <Box >
-          {project.attributes.status === "open" && (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 , width: 260 }}>
+          {/* コラボ状況 */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Chip
+            icon={<PeopleIcon sx={{fontSize: 20}} />}
+            label="参加者"
+            onClick={(event) => {
+              event.stopPropagation();
+              setIsOpenParticipantModal(true);
+            }}
+            sx={{
+              fontWeight: "bold",
+              fontSize: "0.875rem",
+              py: 0.5,
+            }}
+          />
+          {project.attributes.collaborations.length > 0 ? (
+            <AvatarGroup
+            max={4}
+            spacing="small"
+            sx={{ minWidth: 130, justifyContent: "flex-end" }}
+            onClick={(event) => {
+              event.stopPropagation();
+              setIsOpenParticipantModal(true);
+            }}
+            >
+              {project.attributes.collaborations.map((user) => (
+                <Avatar
+                  key={user.user_id}
+                  alt={user.nickname || user.username || "名無しのユーザー"}
+                  src={user.avatar_url || "/default-avatar.png"}
+                />
+              ))}
+            </AvatarGroup>
+          ) : (
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              sx={{ ml: 2, fontWeight: "bold" }}
+            >
+              『募集中』
+            </Typography>
+          )}
+          </Box>
+
+          {/* モーダルの表示 */}
+          <ParticipantModal
+            isOpenParticipantModal={isOpenParticipantModal}
+            setIsOpenParticipantModal={setIsOpenParticipantModal}
+            participants={project.attributes.collaborations}
+          />
+
+        {/* 応募管理・応募するボタン */}
+          <Box>
+          {project.attributes.status === "open" ? (
             project.isOwner ? (
               <Button
               variant="secondary"
@@ -679,105 +735,142 @@ export function ProjectCard({
                 handleCollaborationRequest();
               }}
               >応募する</Button>
-            )
+              )
+          ) : (
+            <Button
+            variant="secondary"
+            fullWidth
+            disabled
+          >
+            プロジェクト終了済
+          </Button>
           )}
           </Box>
-
-          {/* フィードボタン群 */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              mt: 1
-            }}
-          >
-            {/* コメントボタン */}
-            <IconButton
-            onClick={(e) => {
-              e.stopPropagation(); // バブリング防止
-              handleCommentToggle();
-            }}
-            sx={{ color: "text.secondary" }}
-            >
-              <ChatBubbleOutlineIcon  />
-            </IconButton>
-            <Typography variant="body2" color="textSecondary" sx={{ mr: 2 }}>
-              {project.attributes.comment_count}
-            </Typography>
-
-            {/* いいねボタン */}
-            <IconButton
-            onClick={(e) => {
-              e.stopPropagation(); // バブリング防止
-              handleLikeToggle();
-            }}
-            sx={{ color: project.attributes.liked_by_current_user ? "secondary.main" : "text.secondary" }}
-            >
-            {project.attributes.liked_by_current_user ? (
-              <FavoriteIcon  />
-            ) : (
-              <FavoriteBorderIcon />
-            )}
-            </IconButton>
-            <Typography variant="body2" color={project.attributes.liked_by_current_user ? "secondary.main" : "textSecondary"}sx={{ mr: 2 }}>
-              {project.attributes.like_count}
-            </Typography>
-
-            {/* 共有ボタン */}
-            <>
-              <Tooltip title="リンクをコピー">
-                <IconButton
-                onClick={(e) => {
-                  e.stopPropagation(); // バブリング防止
-                  handleCopyLink();
-                }}
-                sx={{ color: "text.secondary", mr:2 }}
-                >
-                  <IosShareIcon  />
-                </IconButton>
-              </Tooltip>
-              <Snackbar
-                open={openSnackbar}
-                autoHideDuration={2000}
-                onClose={() => setOpenSnackbar(false)}
-                message="リンクをコピーしました"
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              />
-            </>
-
-            {/* ブックマーク */}
-            <IconButton
-            onClick={(e) => {
-              e.stopPropagation(); // バブリング防止
-              handleBookmarkToggle();
-            }}
-            sx={{ color: project.attributes.bookmarked_by_current_user ? "secondary.main" : "text.secondary",
-            }}
-            >
-            {project.attributes.bookmarked_by_current_user ? (
-              <BookmarkIcon />
-            ) : (
-              <BookmarkBorderIcon />
-            )}
-            </IconButton>
-          </Box>
         </Box>
-
         {/* 再生ボタン */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end"}}>
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems:"center", mx:4 }}>
+          <Typography variant="body2" color="textSecondary"sx={{ fontSize: 15 }}>
+            Play!
+          </Typography>
           <IconButton
           onClick={(e) => {
             e.stopPropagation(); // バブリング防止
             onPlayClick(project);
           }}
           sx={{
-          color: "primary.main",
-          border: "2px solid",
-          borderRadius: "14px",
-          padding: 0,
-          mr: 4,
+            color: "white",
+            backgroundColor: "primary.main",
+            borderRadius: "50%",
+            padding: 2,
+            width: 80,
+            height: 80,
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+            transition: "transform 0.1s ease, box-shadow 0.1s ease",
+            "&:hover": {
+              backgroundColor: "primary.dark",
+            },
+            "&:active": {
+              transform: "scale(0.9)",
+              boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+            },
           }}><PlayArrowIcon sx={{ fontSize: 70 }}/></IconButton>
         </Box>
+      </Box>
+
+      {/* フィードボタン群 */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 6,
+          mt: 1,
+          width: "100%",
+        }}
+      >
+        {/* コメントボタン */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+          onClick={(e) => {
+            e.stopPropagation(); // バブリング防止
+            handleCommentToggle();
+          }}
+          sx={{ color: "text.secondary" }}
+          >
+            <ChatBubbleOutlineIcon sx={{ fontSize: 25 }} />
+          </IconButton>
+          <Typography variant="body2" color="textSecondary"sx={{ fontSize: 20 }}>
+            {formatNumber(project.attributes.comment_count)}
+          </Typography>
+        </Box>
+
+        {/* いいねボタン */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+          onClick={(e) => {
+            e.stopPropagation(); // バブリング防止
+            handleLikeToggle();
+          }}
+          sx={{ color: project.attributes.liked_by_current_user ? "secondary.main" : "text.secondary" }}
+          >
+          {project.attributes.liked_by_current_user ? (
+            <FavoriteIcon  sx={{ fontSize: 25 }} />
+          ) : (
+            <FavoriteBorderIcon sx={{ fontSize: 25 }} />
+          )}
+          </IconButton>
+          <Typography variant="body2" color={project.attributes.liked_by_current_user ? "secondary.main" : "textSecondary"}sx={{ fontSize: 20 }}>
+          {formatNumber(project.attributes.like_count)}
+          </Typography>
+        </Box>
+
+        {/* 共有ボタン */}
+        <>
+          <Tooltip title="リンクをコピー">
+            <IconButton
+            onClick={(e) => {
+              e.stopPropagation(); // バブリング防止
+              handleCopyLink();
+            }}
+            sx={{ color: "text.secondary" }}
+            >
+              <IosShareIcon sx={{ fontSize: 25 }}  />
+            </IconButton>
+          </Tooltip>
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={2000}
+            onClose={() => setOpenSnackbar(false)}
+            message="リンクをコピーしました"
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          />
+        </>
+
+        {/* ブックマーク */}
+        <IconButton
+        onClick={(e) => {
+          e.stopPropagation(); // バブリング防止
+          handleBookmarkToggle();
+        }}
+        sx={{ color: project.attributes.bookmarked_by_current_user ? "secondary.main" : "text.secondary",
+        }}
+        >
+        {project.attributes.bookmarked_by_current_user ? (
+          <BookmarkIcon sx={{ fontSize: 25 }} />
+        ) : (
+          <BookmarkBorderIcon sx={{ fontSize: 25 }} />
+        )}
+        </IconButton>
       </Box>
     </Paper>
   );

@@ -225,7 +225,7 @@ export function MyProfile() {
             />
             {/* 名前 */}
             <Box>
-              <Typography variant="h5">
+              <Typography variant="h5" sx={{maxWidth: 230}}>
                 {user?.nickname || user?.username || "名無し"}
               </Typography>
             </Box>

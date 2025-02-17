@@ -5,6 +5,8 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Box, Typography, TextField, InputAdornment, Slider, Button, MenuItem, Switch, FormGroup, FormControlLabel, Divider, CircularProgress, Avatar, Select, Dialog, DialogTitle, DialogContent, DialogContentText,IconButton, Snackbar, } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import AddIcon from '@mui/icons-material/Add';
 import { PostProjectProcessing } from "@Project/post_project/PostProjectProcessing";
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
@@ -235,12 +237,10 @@ export function CollaborationManagementStep1({
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
-      width: "100%",
       maxWidth: "600px"
       }}>
       <Box sx={{
         justifyContent: "flex-start",
-        width: "100%",
         "& .MuiTypography-root": {
             fontSize: "1rem", // 全体のフォントサイズ
             color: "text.primary", // テーマの文字色
@@ -250,56 +250,69 @@ export function CollaborationManagementStep1({
             color: "text.primary", // 入力フィールドの文字色
           },
       }}>
-        <Box sx={{
-          width: "80%",
-          justifyContent: "center",
-          alignItems: "center",
-          margin: "auto",
-          mt:5
-          }}>
-          <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-            <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
-                    alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
-                    sx={{ width: 25, height: 25 }} />
-            <Typography variant="body2" component="span" color="textSecondary">
-              { currentUser?.attributes.nickname || currentUser?.attributes.username }
-            </Typography>
-            <Typography variant="body1" component="span" color="textPrimary" sx={{position: "absolute", left: "50%", transform: "translateX(-50%)",
-          whiteSpace: "nowrap", }} >
-            { currentProject?.attributes.title }
-            </Typography>
-          </Box>
-        {postAudioData && globalAudioContextRef.current ? (
-          <AudioPlayer
-            id = {"Post"} //Post
-            audioBuffer={postAudioData}
-            audioContext={globalAudioContextRef.current}
-            enablePostAudioPreview={enablePostAudioPreview}
-          />
-        ) : (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100px",
-            }}
-          >
-            <CircularProgress
-              size={64}
+          <Box>
+            <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", my:2}}>
+              <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
+                      alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
+                      sx={{ width: 35, height: 35 }} />
+              <Typography
+              variant="body2"
+              component="span"
+              color="textSecondary"
               sx={{
-                color: "primary.main",
-              }}
+                maxWidth: "60%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                ml: 1,
+              }}>
+                { currentUser?.attributes.nickname || currentUser?.attributes.username }
+              </Typography>
+            </Box>
+            <Box sx={{ mb:1}}>
+              <Typography
+              variant="body1"
+              color="textPrimary"
+              sx={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                textAlign: "center",
+                }} >
+              { currentProject?.attributes.title }
+              </Typography>
+            </Box>
+          {postAudioData && globalAudioContextRef.current ? (
+            <AudioPlayer
+              id = {"Post"} //Post
+              audioBuffer={postAudioData}
+              audioContext={globalAudioContextRef.current}
+              enablePostAudioPreview={enablePostAudioPreview}
             />
-          </Box>
-          )}
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100px",
+              }}
+            >
+              <CircularProgress
+                size={64}
+                sx={{
+                  color: "primary.main",
+                }}
+              />
+            </Box>
+            )}
         </Box>
       </Box>
 
-      <Divider sx={{my:1}} />
+      <Divider sx={{my:3}} />
 
       {/* 投稿音声と同時に聴くスイッチ */}
-      <FormGroup sx={{ my: 1, width: "60%", mx: "auto" }}>
+      <FormGroup sx={{ my: 1, width: "70%", mx: "auto" }}>
         <FormControlLabel
           required
           control={
@@ -344,7 +357,18 @@ export function CollaborationManagementStep1({
                     <Avatar src={collaboration?.user.avatar_url || "/default-icon.png"}
                             alt={collaboration?.user.nickname || collaboration?.user.username || undefined }
                             sx={{ width: 25, height: 25 }} />
-                    <Typography variant="body2" component="span" color="textSecondary">
+                    <Typography
+                    variant="body2"
+                    component="span"
+                    color="textSecondary"
+                    sx={{
+                      maxWidth: "25%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      ml: 1,
+                    }}
+                    >
                       { collaboration?.user.nickname || collaboration?.user.username }
                     </Typography>
                     <Box sx={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
@@ -387,12 +411,14 @@ export function CollaborationManagementStep1({
                   <PostProjectProcessing
                     id = {slot.collaborationId.toString()}
                     mode = "with-effects"
+                    simpleUI = {true}
                     audioBufferForProcessing={slot.audioBuffer}
                     onRemove={() => handleRemoveAudio(slot.slotId)}
                     enablePostAudioPreview={enablePostAudioPreview}
                     setEnablePostAudioPreview={setEnablePostAudioPreview}
                     selectedVolume ={selectedVolume}
                     setSelectedVolume={setSelectedVolume}
+
                   />)}
                 </>
               ) : collaborations.length > 0 ? (
@@ -420,7 +446,7 @@ export function CollaborationManagementStep1({
                     ))}
                 </Select>
               ) : (
-                <Typography variant="body2" color="textSecondary">
+                <Typography variant="body2" color="textSecondary" sx={{textAlign: "center"}}>
                   応募がありません
                 </Typography>
               )}
@@ -447,11 +473,21 @@ export function CollaborationManagementStep1({
       </Box>
       <Box sx={{ mt: 5, display: "flex", justifyContent: "center" }}>
         {isEditing ? (
-          <Button variant="contained" color="primary" onClick={() => handleAddToSynthesisList()}>
+          <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleAddToSynthesisList()}
+          endIcon={loading ? <CircularProgress size={24} /> : <AddIcon />}
+          >
             合成リストに追加
           </Button>
         ) : (
-          <Button variant="contained" color="primary" onClick={onNext}>
+          <Button
+          variant="contained"
+          color="primary"
+          onClick={onNext}
+          endIcon={loading ? <CircularProgress size={24} /> : <ArrowForwardIosIcon />}
+          >
             合成画面へ
           </Button>
         )}
