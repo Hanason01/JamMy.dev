@@ -7,7 +7,7 @@ const schema = yup.object().shape({
   comment: yup
     .string()
     .optional()
-    .max(255, "最大255文字までです"),
+    .max(160, "最大160文字までです"),
 });
 
 export const usePostCollaborationValidation = () => {
