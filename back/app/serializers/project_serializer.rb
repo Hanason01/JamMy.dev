@@ -39,4 +39,20 @@ class ProjectSerializer
   attribute :comment_count do |project, params|
     params[:project_comments_map]&.[](project.id) || 0
   end
+
+  #応募コラボのUser情報の追加属性
+  attribute :collaborations do |project|
+    project.collaborations
+          .where(status: "approved")
+          .includes(:user)
+          .map { |c|
+            {
+              user_id: c.user.id,
+              username: c.user.username,
+              nickname: c.user.nickname,
+              avatar_url: c.user.avatar_url
+            }
+          }
+          .uniq { |user| user[:user_id] }
+  end
 end
