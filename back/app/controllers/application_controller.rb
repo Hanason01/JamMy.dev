@@ -7,30 +7,30 @@ class ApplicationController < ActionController::API
 
   # before_action :set_csrf_cookie
 
-  #S3へファイル保存（Audio）
+  #S3へファイル保存
   def upload_file_to_s3(file, dir)
     # S3へアクセスするインスタンスを作成
     s3 = initialize_s3_resource
     bucket = s3.bucket('jam-my')
-    file_name = "#{dir}/#{SecureRandom.uuid}_#{file.original_filename}"
+    file_key = "#{dir}/#{SecureRandom.uuid}_#{file.original_filename}"
 
     begin
-      obj = bucket.object(file_name)
+      obj = bucket.object(file_key)
 
-      # ACLの設定を削除し、バケットポリシーで制御
-      obj.upload_file(file.path, content_type: file.content_type)
+      # アップロード（キャッシュ１年）
+      obj.upload_file(file.path, content_type: file.content_type, cache_control: "public, max-age=31536000, immutable")
 
     rescue Aws::S3::Errors::ServiceError => e
       Rails.logger.error "S3アップロードエラー: #{e.message}"
       raise "ファイル保存に失敗しました"
     end
 
-    # S3からアップロード後のURLを取得
-    obj.public_url
+    # カラムに保存するキー
+    file_key
   end
 
 
-  #S3からファイル削除（Audio）
+  #S3からファイル削除
   def delete_file_from_s3(file_path)
     s3 = initialize_s3_resource
     bucket = s3.bucket('jam-my')

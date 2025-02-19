@@ -23,5 +23,5 @@ class User < ActiveRecord::Base
   validates :nickname, presence: true, length: { maximum:15 }, on: :create
   validates :bio, length: { maximum: 160 }, on: :create
   validates :provider, presence: true, on: :create
-  validates :avatar_url, format: { with: URI::regexp, message: "は正しいURLを指定してください" }, allow_blank: true
+  # validates :avatar_url, format: { with: /\Aavatar\/[a-zA-Z0-9\-_.]+\z/, message: "は正しい形式で指定してください" }, allow_blank: true
 end
