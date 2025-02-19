@@ -1,6 +1,6 @@
 "use client";
 
-import { User, AuthContextType, WithChildren } from "@sharedTypes/types";
+import { User, UserAttributes, AuthContextType, WithChildren } from "@sharedTypes/types";
 import React, { createContext, useState, useContext, useEffect } from "react";
 
 // 初期値を設定
@@ -16,6 +16,7 @@ const initialContext: AuthContextType = {
   closeAuthModal: () => {},
   signIn: () => false,
   requireAuth: () => false,
+  applyProfileUpdate: async () => {},
 };
 
 const AuthContext = createContext<AuthContextType>(initialContext);
@@ -23,24 +24,24 @@ const AuthContext = createContext<AuthContextType>(initialContext);
 export const AuthProvider = ({ children }: WithChildren) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
-  const [authenticatedUser, setAuthenticatedUser] = useState<User | null>(null);
-  console.log("AuthProviderでisAuthenticatedを追跡",isAuthenticated);
+  const [authenticatedUser, setAuthenticatedUser] = useState< UserAttributes | null>(null);
+  // console.log("AuthProviderでisAuthenticatedを追跡",isAuthenticated);
 
   //初期化
   useEffect(() => {
     const storedUser = localStorage.getItem("authenticatedUser");
     if (storedUser) {
-      setAuthenticatedUser(JSON.parse(storedUser) as User);
+      setAuthenticatedUser(JSON.parse(storedUser) as UserAttributes);
       setIsAuthenticated(true);
     }
-    console.log("Authenticatedの初期化をcontextで行う");
+    // console.log("Authenticatedの初期化をcontextで行う");
   }, []);
 
   //ログイン成功時の関数
   const handleLoginSuccess = async (user: User):Promise<void> => {
-    localStorage.setItem("authenticatedUser", JSON.stringify(user));
+    localStorage.setItem("authenticatedUser", JSON.stringify(user.attributes));
     setIsAuthenticated(true);
-    setAuthenticatedUser(user);
+    setAuthenticatedUser(user.attributes);
     closeAuthModal();
   };
 
@@ -82,6 +83,12 @@ export const AuthProvider = ({ children }: WithChildren) => {
     return true;
   };
 
+  // プロフィール変更時の変更処理
+  const applyProfileUpdate = async (user: UserAttributes):Promise<void> => {
+    localStorage.setItem("authenticatedUser", JSON.stringify(user));
+    setAuthenticatedUser(user);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -95,7 +102,8 @@ export const AuthProvider = ({ children }: WithChildren) => {
         openAuthModal,
         closeAuthModal,
         signIn,
-        requireAuth
+        requireAuth,
+        applyProfileUpdate
       }}
     >
       {children}

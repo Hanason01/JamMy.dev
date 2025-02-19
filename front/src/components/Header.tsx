@@ -14,16 +14,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 export function Header() {
   const { isAuthenticated, authenticatedUser, openAuthModal } = useAuthContext();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [localUser, setLocalUser] = useState<User | null>(null);
   const router = useRouter();
-
-  // ローカルストレージからユーザー情報を取得（リロード対策）
-  useEffect(() => {
-    const storedUser = localStorage.getItem("authenticatedUser");
-    if (storedUser) {
-      setLocalUser(JSON.parse(storedUser));
-    }
-  }, []);
 
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -39,29 +30,28 @@ export function Header() {
     handleClose();
   };
 
+  //利用規約・プライバシポリシー遷移
+  const handleTerm = () => {
+    handleClose();
+    router.push("/terms");
+  }
+
+  const handlePrivacy = () => {
+    handleClose();
+    router.push("/privacy_policy");
+  }
+
   //ログアウト処理
   const { logout } = useLogoutRequest();
   const handleLogout = async () => {
     try {
       await logout();
-      setLocalUser(null);
       handleClose();
     } catch (error) {
       window.alert("ログアウトに失敗しました")
       console.error("ログアウト処理に失敗しました");
     }
   };
-
-  //アバター情報の選定
-  const avatarSrc =
-    isAuthenticated && authenticatedUser?.attributes?.avatar_url
-      ? authenticatedUser.attributes.avatar_url
-      : localUser?.attributes?.avatar_url;
-
-  const avatarAlt =
-    isAuthenticated && authenticatedUser?.attributes?.nickname
-      ? authenticatedUser.attributes?.nickname
-      : localUser?.attributes?.nickname || "User";
 
   return (
     <Box sx={{
@@ -91,8 +81,8 @@ export function Header() {
                 onClick={handleMenu}
                 color="inherit"
               >
-                {avatarSrc ? (
-                  <Avatar src={avatarSrc} alt={avatarAlt} />
+                {authenticatedUser?.avatar_url ? (
+                  <Avatar src={`/api/proxy-image?key=${encodeURIComponent(authenticatedUser.avatar_url)}`} alt={authenticatedUser?.nickname} />
                 ) : (
                   <AccountCircle />
                 )}
@@ -113,16 +103,12 @@ export function Header() {
                 onClose={handleClose}
               >
                 <MenuItem
-                    component={Link}
-                    href="/terms"
-                    onClick={handleClose}
+                    onClick={handleTerm}
                   >
                     利用規約
                 </MenuItem>
                 <MenuItem
-                    component={Link}
-                    href="/privacy_policy"
-                    onClick={handleClose}
+                    onClick={handlePrivacy}
                   >
                     プライバシーポリシー
                 </MenuItem>
@@ -135,7 +121,7 @@ export function Header() {
                 >
                   お問い合わせ
                 </MenuItem>
-                {isAuthenticated || localUser ? (
+                {isAuthenticated || authenticatedUser ? (
                   <div>
                     <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
                   </div>

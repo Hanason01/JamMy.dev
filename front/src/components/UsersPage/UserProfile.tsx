@@ -52,7 +52,11 @@ export function UserProfile(
           {/* アバター + 名前 */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
             <Avatar
-              src={avatar || "/default-avatar.png"}
+              src={
+                avatar
+                  ? `/api/proxy-image?key=${encodeURIComponent(avatar)}`
+                  : "/default-avatar.png"
+              }
               sx={{
                 width: 80,
                 height: 80,

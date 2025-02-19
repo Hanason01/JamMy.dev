@@ -8,6 +8,7 @@ import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 import CloseIcon from "@mui/icons-material/Close";
 
+
 export function AudioController({
   onClose,
   audioData,
@@ -59,7 +60,12 @@ export function AudioController({
       </IconButton>
       <Box >
         <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb: 2}}>
-          <Avatar src={user?.attributes.avatar_url || "/default-icon.png"}
+          <Avatar
+                src={
+                  user?.attributes.avatar_url
+                    ? `/api/proxy-image?key=${encodeURIComponent(user.attributes.avatar_url)}`
+                    : "/default-icon.png"
+                }
                 alt={user?.attributes.nickname || user?.attributes.username || undefined }
                 sx={{ width: 35, height: 35 }} />
           <Typography

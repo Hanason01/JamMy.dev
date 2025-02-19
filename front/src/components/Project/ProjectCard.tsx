@@ -92,7 +92,7 @@ export function ProjectCard({
       await mutate(detailKey, undefined, { revalidate: true });
     }
 
-    // **マイページのプロジェクト一覧の更新**
+    // マイページのプロジェクト一覧の更新
     if (myProjectsMutate) {
       const myProjectsKeys = [
         getMyProjectsKey(0, "my_projects"),
@@ -104,7 +104,7 @@ export function ProjectCard({
       await Promise.all(myProjectsKeys.map((key) => myProjectsMutate(key)));
     }
 
-    // **全体のプロジェクト一覧の更新**
+    // 全体のプロジェクト一覧の更新
     if (projectListMutate) {
       const allProjectsKey = getAllProjectsKey(0);
       console.log(" 全体のプロジェクト一覧の再フェッチ");
@@ -179,6 +179,7 @@ export function ProjectCard({
   //ユーザーページ遷移
   const handleClickAvatar = (e: React.MouseEvent) => {
     e.stopPropagation();
+    localStorage.removeItem("scrollPosition");
 
     if (project.isOwner) {
       router.push("/mypage");
@@ -414,7 +415,11 @@ export function ProjectCard({
               }}
             >
               <Avatar
-                src={project.user.attributes.avatar_url || "/default-icon.png"}
+                src={
+                  project.user.attributes.avatar_url
+                    ? `/api/proxy-image?key=${encodeURIComponent(project.user.attributes.avatar_url)}`
+                    : "/default-icon.png"
+                }
                 alt={project.user.attributes.nickname || project.user.attributes.username || undefined }
                 sx={{ cursor: "pointer" }}
               />
@@ -690,7 +695,11 @@ export function ProjectCard({
                 <Avatar
                   key={user.user_id}
                   alt={user.nickname || user.username || "名無しのユーザー"}
-                  src={user.avatar_url || "/default-avatar.png"}
+                  src={
+                    user.avatar_url
+                      ? `/api/proxy-image?key=${encodeURIComponent(user.avatar_url)}`
+                      : "/default-avatar.png"
+                  }
                 />
               ))}
             </AvatarGroup>

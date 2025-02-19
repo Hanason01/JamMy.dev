@@ -38,7 +38,13 @@ export const NotificationList = ({ notification }: Props) => {
               "&:active": { transform: "scale(0.8)" },
             }}
           >
-            <Avatar src={notification.sender?.avatar_url || "/default-icon.png"} />
+            <Avatar
+            src={
+              notification.sender?.avatar_url
+                ? `/api/proxy-image?key=${encodeURIComponent(notification.sender.avatar_url)}`
+                : "/default-icon.png"
+            }
+            />
           </ButtonBase>
           <Box sx={{ ml: 2 }}>
             <Typography variant="body1">{notification.message}</Typography>
