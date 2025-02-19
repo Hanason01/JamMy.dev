@@ -8,8 +8,8 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*", // 全てのパスに適用
         headers: [
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-          { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" }, //FFmpegでsame-origin必須
+          { key: "Cross-Origin-Embedder-Policy", value: "require-corp" }, //FFmpegの利用、クッキー利用でrequire-corp必須
         ],
       },
     ];

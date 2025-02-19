@@ -25,14 +25,14 @@ class Api::V1::Auth::ConfirmationsController < DeviseTokenAuth::ConfirmationsCon
       render json: {
         success: true,
         message: "アカウントが有効化されました。",
-        user: UserSerializer.new(@resource).serializable_hash[:data][:attributes]
+        user: UserSerializer.new(@resource).serializable_hash[:data]
       }, status: :ok
     elsif @resource.confirmed?
       # すでに認証済みの場合
       render json: {
         success: true,
         message: "すでにアカウントは有効化されています。",
-        user: UserSerializer.new(@resource).serializable_hash[:data][:attributes]
+        user: UserSerializer.new(@resource).serializable_hash[:data]
       }, status: :ok
     else
       # 認証失敗時

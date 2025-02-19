@@ -142,7 +142,11 @@ export function CollaborationManagementStep2({
       >
       <Box>
         <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", my:2}}>
-          <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
+          <Avatar src={
+                    currentUser?.attributes.avatar_url
+                      ? `/api/proxy-image?key=${encodeURIComponent(currentUser.attributes.avatar_url)}`
+                      : "/default-icon.png"
+                  }
                   alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
                   sx={{ width: 35, height: 35 }} />
           <Typography
@@ -238,7 +242,11 @@ export function CollaborationManagementStep2({
             <Box key={item.id} sx={{ mt: 2 }}>
               {/* ユーザー情報とコメント */}
                 <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-                  <Avatar src={item.user.avatar_url || "/default-icon.png"}
+                  <Avatar src={
+                            item.user.avatar_url
+                              ? `/api/proxy-image?key=${encodeURIComponent(item.user.avatar_url)}`
+                              : "/default-icon.png"
+                          }
                           alt={item.user.nickname ||item.user.username || undefined }
                           sx={{ width: 25, height: 25 }} />
                   <Typography

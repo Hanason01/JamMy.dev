@@ -198,7 +198,11 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
       {globalAudioContextRef.current && mergedAudioBuffer ? (
         <>
         <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", my:2}}>
-          <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
+          <Avatar src={
+                    currentUser?.attributes.avatar_url
+                      ? `/api/proxy-image?key=${encodeURIComponent(currentUser.attributes.avatar_url)}`
+                      : "/default-icon.png"
+                  }
                   alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
                   sx={{ width: 35, height: 35 }} />
           <Typography

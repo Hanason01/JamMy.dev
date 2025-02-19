@@ -75,7 +75,13 @@ export const ParticipantModal = ({
             }}
             >
               <ListItemAvatar>
-                <Avatar src={user.avatar_url || "/default-avatar.png"} />
+                <Avatar
+                src={
+                  user.avatar_url
+                    ? `/api/proxy-image?key=${encodeURIComponent(user.avatar_url)}`
+                    : "/default-avatar.png"
+                }
+                />
               </ListItemAvatar>
               <ListItemText primary={user.nickname || user.username || "名無しのユーザー"} />
             </ListItem>

@@ -14,6 +14,6 @@ export const applyIsOwnerToProjects = (projects: InitialProjectData[]): Enriched
 
   return projects.map((project) => ({
     ...project,
-    isOwner: parsedUser?.id === project.user.id,
+    isOwner: String(parsedUser?.id) === project.user.id,
   }));
 };

@@ -44,6 +44,7 @@ export function CommentCard({
   //ユーザーページ遷移
   const handleClickAvatar = (e: React.MouseEvent) => {
     e.stopPropagation();
+    localStorage.removeItem("scrollPosition");
 
     if (isOwner) {
       router.push("/mypage");
@@ -82,7 +83,14 @@ export function CommentCard({
       {/* ユーザー情報とタイムスタンプ */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Avatar src={user.attributes.avatar_url || "/default-icon.png"} alt={user.attributes.nickname || "名無しのユーザー"} onClick={handleClickAvatar} />
+          <Avatar
+            src={
+              user.attributes.avatar_url
+                ? `/api/proxy-image?key=${encodeURIComponent(user.attributes.avatar_url)}`
+                : "/default-icon.png"
+            }
+            alt={user.attributes.nickname || "名無しのユーザー"}
+            onClick={handleClickAvatar} />
           <Box sx={{ ml: 2 }}>
             <Typography
             variant="body1"

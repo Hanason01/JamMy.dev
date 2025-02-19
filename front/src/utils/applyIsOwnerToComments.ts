@@ -11,6 +11,6 @@ export const applyIsOwnerToComments = (comments: InitialComment[]): EnrichedComm
 
   return comments.map(comment => ({
     ...comment,
-    isOwner: parsedUser?.id === comment.user.id,
+    isOwner: String(parsedUser?.id) === comment.user.id,
   }));
 };

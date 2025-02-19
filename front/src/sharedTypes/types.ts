@@ -404,7 +404,7 @@ export interface EnrichedCommentCollection {
 
   // Context 用の型定義
   export interface AuthContextType {
-    authenticatedUser: User | null;
+    authenticatedUser: UserAttributes | null;
     isAuthenticated: boolean;
     showAuthModal: boolean;
     handleLoginSuccess: (user: User) => Promise<void>;
@@ -415,6 +415,7 @@ export interface EnrichedCommentCollection {
     closeAuthModal: () => void;
     signIn: () => boolean;
     requireAuth: () => boolean;
+    applyProfileUpdate: (user: UserAttributes) => Promise<void>;
   }
 
   //Project

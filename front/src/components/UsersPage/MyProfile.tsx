@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import axios from "axios";
 import { UserAttributes, EditUserFormData } from "@sharedTypes/types";
 import {Box, Avatar, IconButton, Button, Typography, TextField, CircularProgress, Tooltip,} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import { useEditUserValidation } from "@validation/useEditUserValidation";
+import { useAuthContext } from "@context/useAuthContext";
 
 export function MyProfile() {
   const [user, setUser] = useState<UserAttributes | null>(null);
@@ -23,6 +22,9 @@ export function MyProfile() {
 
   //バリデーション
   const { register, handleSubmit, setValue, watch, setError, reset, errors } = useEditUserValidation();
+
+  //context
+  const { applyProfileUpdate } = useAuthContext();
 
   // プロフィール初期化
   useEffect(() => {
@@ -88,6 +90,7 @@ export function MyProfile() {
       );
       const resData = res.data.data.attributes;
       setUser(resData)
+      applyProfileUpdate(resData);
       setAvatarPreview(res.data?.avatar_url);
       reset({ nickname: resData.nickname, bio: resData.bio ?? "" });
       setIsEditing(false);
@@ -130,7 +133,11 @@ export function MyProfile() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
             <Box sx={{ position: "relative", width: 80, height: 80 }}>
               <Avatar
-                src={avatarPreview || "/default-avatar.png"}
+                src={avatar
+                  ? URL.createObjectURL(avatar)
+                  : avatarPreview
+                    ? `/api/proxy-image?key=${encodeURIComponent(avatarPreview)}`
+                    : "/default-avatar.png"}
                 sx={{
                   width: 80,
                   height: 80,
@@ -217,7 +224,7 @@ export function MyProfile() {
           {/* アバター + 名前 */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
             <Avatar
-              src={avatarPreview || "/default-avatar.png"}
+              src={avatarPreview ? `/api/proxy-image?key=${encodeURIComponent(avatarPreview)}` : "/default-avatar.png"}
               sx={{
                 width: 80,
                 height: 80,

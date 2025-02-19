@@ -98,7 +98,7 @@ export function CollaborationManagementStep1({
         //初回アクセス時の保有チェック
         const authenticatedUser = JSON.parse(localStorage.getItem("authenticatedUser") || "null");
         console.log("authenticatedUser,currentUser", authenticatedUser.id,user?.id)
-        if (user && user.id !== authenticatedUser.id) {
+        if (user && user.id !== String(authenticatedUser.id)) {
           console.log("他人の投稿にアクセスしたため、/projects にリダイレクトします");
           router.push("/projects");
         }
@@ -252,7 +252,11 @@ export function CollaborationManagementStep1({
       }}>
           <Box>
             <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", my:2}}>
-              <Avatar src={currentUser?.attributes.avatar_url || "/default-icon.png"}
+              <Avatar src={
+                        currentUser?.attributes.avatar_url
+                          ? `/api/proxy-image?key=${encodeURIComponent(currentUser.attributes.avatar_url)}`
+                          : "/default-icon.png"
+                      }
                       alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
                       sx={{ width: 35, height: 35 }} />
               <Typography
@@ -354,7 +358,11 @@ export function CollaborationManagementStep1({
               {slot.collaborationId ? (
                 <>
                   <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", mb:0.5}}>
-                    <Avatar src={collaboration?.user.avatar_url || "/default-icon.png"}
+                    <Avatar src={
+                              collaboration?.user.avatar_url
+                                ? `/api/proxy-image?key=${encodeURIComponent(collaboration.user.avatar_url)}`
+                                : "/default-icon.png"
+                            }
                             alt={collaboration?.user.nickname || collaboration?.user.username || undefined }
                             sx={{ width: 25, height: 25 }} />
                     <Typography
