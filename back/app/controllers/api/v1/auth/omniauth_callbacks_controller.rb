@@ -38,6 +38,11 @@ class Api::V1::Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCall
     # カスタマイズ部分
 
     attrs = attrs.slice(*user.attribute_names)
+
+    # 既存ユーザーの場合は上書きしない
+    if user.persisted?
+      attrs.except!("nickname", "avatar_url")
+    end
     user.assign_attributes(attrs)
   end
 
