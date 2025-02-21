@@ -68,6 +68,7 @@ export interface ProjectAttributes {
   current_bookmark_id: number | null;
   comment_count: number | null;
   collaborations: CollaborationUser[];
+  updatedAt?: string | null;
 }
 
 export interface CollaborationUser {

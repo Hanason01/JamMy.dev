@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import useSWR from "swr";
 import { fetchNotifications } from "@swr/fetcher";
 import { Notification } from "@sharedTypes/types";
@@ -13,10 +14,15 @@ export function useNotifications() {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      revalidateOnMount: true,
-      fallbackData: []
+      revalidateOnMount: false,
     }
   );
+
+  useEffect(() => {
+    if (!data) {
+      mutate();
+    }
+  }, []);
 
   return {
     notifications: data ?? [],

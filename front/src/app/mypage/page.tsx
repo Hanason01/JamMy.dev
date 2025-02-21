@@ -1,7 +1,7 @@
 import { Header } from "@components/Header";
 import { FeedbackAlert } from "@components/FeedbackAlert";
 import { BottomNavi } from "@components/BottomNavi";
-import { MyPageWrapper } from "@UsersPage/UsersPageWrapper";
+import { MyPageWrapper } from "@components/UsersPage/MyPageWrapper";
 import { Suspense } from "react";
 
 export default function MyPage(){

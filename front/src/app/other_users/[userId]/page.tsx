@@ -1,7 +1,7 @@
 import { Header } from "@components/Header";
 import { FeedbackAlert } from "@components/FeedbackAlert";
 import { BottomNavi } from "@components/BottomNavi";
-import { OtherUsersPageWrapper } from "@UsersPage/OtherUsersPageWrapper";
+import { UsersPageWrapper } from "@components/UsersPage/UsersPageWrapper";
 import { Suspense } from "react";
 
 export default function OtherUsersPage(){
@@ -9,7 +9,7 @@ export default function OtherUsersPage(){
     <Suspense fallback={<div>Loading...</div>}>
       <Header />
       <FeedbackAlert />
-      <OtherUsersPageWrapper />
+      <UsersPageWrapper />
       <BottomNavi />
     </Suspense>
   );
