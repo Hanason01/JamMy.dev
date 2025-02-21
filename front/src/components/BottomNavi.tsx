@@ -15,10 +15,10 @@ import Badge from "@mui/material/Badge";
 export function BottomNavi() {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentRoute, setCurrentRoute } = useCurrentRouteState();
+  const { currentRoute, previousRoute, setCurrentRoute, lastDetailRoute, setLastDetailRoute } = useCurrentRouteState();
   const { hasUnread } = useNotificationContext();
 
-  // `router.pathname` が変更されたら `currentRoute` を更新
+  // パスが変更（現在位置が変更）されたらcontextでその情報を保持。かつ
   useEffect(() => {
     setCurrentRoute(pathname); // Contextに反映
   }, [pathname, setCurrentRoute]);
@@ -58,9 +58,26 @@ export function BottomNavi() {
       default:
         route = "/projects";
     }
-
-    setCurrentRoute(route); // Contextの状態を更新
-    router.push(route); // ページ遷移
+    if (route === "/projects") {
+      // 一覧ページにすでにいる場合 → 最新データ取得（2回目のボタン押下は再フェッチ依頼とみなす）
+      if (currentRoute === "/projects") {
+        // window.scrollTo({ top: 0, behavior: "smooth" }); // スクロール初期化
+        // await mutate(undefined, { revalidate: true }); // 再フェッチ
+        // setSize(1); // 1ページ目にリセット
+      // // 詳細→一覧以外のナビ→一覧なら詳細へ戻る（詳細→一覧は次段のelse処理となる）
+      // } else if (lastDetailRoute && previousRoute !== "/projects"){
+      //   router.push(lastDetailRoute);
+      } else {
+        // 他のページから一覧に戻る（通常の一覧への遷移）
+        if (lastDetailRoute){ setLastDetailRoute(null); } //詳細→一覧の場合は、履歴を削除
+        setCurrentRoute(route);
+        router.push(route);
+      }
+    } else {
+      // 通常の遷移（一覧関係なし）
+      setCurrentRoute(route); // Contextの状態を更新
+      router.push(route); // ページ遷移
+    }
   };
 
   return (
