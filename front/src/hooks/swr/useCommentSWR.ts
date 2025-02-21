@@ -15,7 +15,6 @@ export function useProjectComments(projectId: string) {
       revalidateOnReconnect: false,
       revalidateFirstPage: false,
       revalidateOnMount: true,
-      compare: (a, b) => JSON.stringify(a) === JSON.stringify(b),
     }
   );
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Project, User, SetState, EnrichedProject, PostProjectFormData, EditProjectRequestData, GetKeyType} from "@sharedTypes/types";
+import { Project, User, SetState, EnrichedProject, PostProjectFormData, EditProjectRequestData, GetKeyType, PageData} from "@sharedTypes/types";
 import { useState, useEffect} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Paper, Box, Avatar, AvatarGroup, Button, IconButton, Typography,Menu, MenuItem, TextField, Checkbox, FormControlLabel, Alert, CircularProgress,Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,Divider, Snackbar, Tooltip, ButtonBase, Chip } from "@mui/material";
@@ -23,7 +23,6 @@ import { useProjectContext } from "@context/useProjectContext";
 import { useFeedbackContext } from "@context/useFeedbackContext";
 import { useAuthContext } from "@context/useAuthContext";
 import { useClientCacheContext } from "@context/useClientCacheContext";
-import { useSWRContext } from "@context/useSWRContext";
 import { usePostProjectValidation } from "@validation/usePostProjectValidation";
 import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { audioEncoder } from "@utils/audioEncoder";
@@ -31,11 +30,8 @@ import { useEditProjectRequest } from "@services/project/useEditProjectRequest";
 import { useDeleteProjectRequest } from "@services/project/useDeleteProjectRequest";
 import { useLikeToggle } from "@services/project/feedback/useLikeToggle";
 import { useBookmarkToggle } from "@services/project/feedback/useBookmarkToggle";
-import { useSWRConfig } from "swr";
-import { useApplyMutate } from "@utils/useApplyMutate";
-import { getMyProjectsKey, getProjectDetailKey, getAllProjectsKey } from "@swr/getKeys";
-import { unstable_serialize } from "swr/infinite";
 import { ParticipantModal } from "@Project/ParticipantModal";
+import { useRevalidateSWR } from "@utils/useRevalidateSWR"
 
 export function ProjectCard({
   mode,
@@ -82,35 +78,11 @@ export function ProjectCard({
   const { deleteProject } = useDeleteProjectRequest();
 
     // SWR関連
-  const { mutate, cache } = useSWRConfig()
-  const { myProjectsMutate, projectListMutate } = useSWRContext();
+  const { batchUpdateAll } = useRevalidateSWR();
   const handleMutate = async () => {
-    // **詳細ページの更新**
-    const detailKey = getProjectDetailKey(project.id);
-    if (detailKey) {
-      console.log("詳細ページの再フェッチ:", detailKey);
-      await mutate(detailKey, undefined, { revalidate: true });
-    }
-
-    // マイページのプロジェクト一覧の更新
-    if (myProjectsMutate) {
-      const myProjectsKeys = [
-        getMyProjectsKey(0, "my_projects"),
-        getMyProjectsKey(0, "collaborating"),
-        getMyProjectsKey(0, "collaborated"),
-        getMyProjectsKey(0, "bookmarks")
-      ];
-      console.log("🔄 マイページの再フェッチ:", myProjectsKeys);
-      await Promise.all(myProjectsKeys.map((key) => myProjectsMutate(key)));
-    }
-
-    // 全体のプロジェクト一覧の更新
-    if (projectListMutate) {
-      const allProjectsKey = getAllProjectsKey(0);
-      console.log(" 全体のプロジェクト一覧の再フェッチ");
-      await projectListMutate(allProjectsKey);
-    }
+    await batchUpdateAll(project.id);
   };
+
 
     //モード切替
   const handleEdit = () => setIsEditing(true);
@@ -279,7 +251,7 @@ export function ProjectCard({
       await editProject(formData, project.id);
       console.log("プロジェクトが正常に更新されました");
       setIsEditing(false);
-      await handleMutate()
+      await handleMutate(); //関係するSWR全てに再フェッチ依頼
       setFeedbackByKey("project:edit:success");
     }catch(error: any) {
       if (error.title) {
@@ -309,7 +281,7 @@ export function ProjectCard({
   //削除ボタン
   const handleDeleteProject = async () =>{
     await deleteProject(project.id)
-    await handleMutate()
+    await handleMutate(); //関係するSWR全てに再フェッチ依頼
     const fromPage = searchParams.get("from");
     if (fromPage === "my_projects" || fromPage === "collaborating" || fromPage === "collaborated" || fromPage === "bookmarks") {
       router.replace(`/mypage?tab=${fromPage}&feedback=project:delete:success`);

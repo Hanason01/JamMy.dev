@@ -13,6 +13,8 @@ import { useProjectComments } from "@swr/useCommentSWR";
 import { useShowProject } from "@swr/useShowProjectSWR";
 import { CommentForm } from "@Project/comment/CommentForm";
 import { useSWRConfig } from "swr";
+import { useRevalidateSWR } from "@utils/useRevalidateSWR";
+import { PullToRefresh } from "@components/PullToRefresh";
 
 
 export function ProjectShowWrapper(){
@@ -31,6 +33,7 @@ export function ProjectShowWrapper(){
 
   const { comments, meta, hasMore, loadMore, isLoading, isError,isValidating,  mutate } = useProjectComments(projectId);
   console.log("SWRが取得したComments", comments);
+  const { updateProjectDetail } = useRevalidateSWR(); //再フェッチ関数
 
   const { cache } = useSWRConfig();
   console.log("Showのcache", cache);
@@ -103,6 +106,7 @@ export function ProjectShowWrapper(){
 
   return(
     <Box sx={{ bottom: 112 }}>
+    <PullToRefresh onRefresh={() => updateProjectDetail(projectId)} />
       {isShowValidating || isShowValidating || isProjectLoading ? (
         <Box sx={{ textAlign: "center", py: 4 }}>
           <CircularProgress />

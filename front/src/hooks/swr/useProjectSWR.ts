@@ -1,13 +1,12 @@
 "use client"
+import { useEffect } from "react";
 import useSWRInfinite from "swr/infinite";
 import { EnrichedProject } from "@sharedTypes/types";
 import { fetchProjectList } from "@swr/fetcher";
 import { getAllProjectsKey  } from "@swr/getKeys";
-import { useSWRContext } from "@context/useSWRContext";
 
 // 投稿一覧 (無限スクロール用)
 export function useProjectList() {
-  const { setProjectListMutate, projectListMutate } = useSWRContext();
   const getKey = (index: number) => getAllProjectsKey(index);
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
     getKey, //ページネーション指定(index = 0)
@@ -15,20 +14,24 @@ export function useProjectList() {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      revalidateFirstPage: false, // 再フェッチ無効化（再マウント時にフェッチしない）
-      revalidateOnMount: true, //初回フェッチ有効か（デフォルトtrue）
+      revalidateFirstPage: false,
+      revalidateOnMount: false,
     }
   );
+
+  // 初回のみフェッチする
+  useEffect(() => {
+    if (!data) {
+      mutate();
+    }
+  }, []);
 
   const projects: EnrichedProject[] = data
     ? data.flatMap((page) => page.projects as EnrichedProject[])
     : [];//全データ(以下出力例参照)
-  // console.log("SWR内でproject監視", projects);
+
   const hasMore = data ? data[data.length - 1]?.meta?.total_pages > size : false;
 
-  if (!projectListMutate || projectListMutate !== mutate) {
-    setProjectListMutate(mutate);
-  }
 
   return {
     projects,
@@ -39,7 +42,7 @@ export function useProjectList() {
     isError: !!error, //エラー情報
     isValidating, //追加取得中かフラグ
     mutate, // 楽観的更新用
-    getKey
+    getKey,
   };
 }
 

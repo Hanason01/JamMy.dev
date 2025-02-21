@@ -1,14 +1,13 @@
 "use client"
+import { useEffect } from "react";
 import useSWRInfinite from "swr/infinite";
 import { EnrichedProject } from "@sharedTypes/types";
 import { fetchProjectList } from "@swr/fetcher";
 import { getOtherUserProjectsKey  } from "@swr/getKeys";
-import { useSWRContext } from "@context/useSWRContext";
 
 
 
 export function useOtherUserProjects(user_id: string, filter: "user_projects" | "user_collaborated") {
-  const { setOtherUserProjectsMutate, otherUserProjectsMutate } = useSWRContext();
   const getKey = (index: number) => getOtherUserProjectsKey(index, user_id, filter);
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
     getKey,
@@ -17,18 +16,21 @@ export function useOtherUserProjects(user_id: string, filter: "user_projects" | 
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       revalidateFirstPage: false,
-      revalidateOnMount: true,
+      revalidateOnMount: false,
     }
   );
+
+  useEffect(() => {
+    if (!data) {
+      mutate();
+    }
+  }, []);
 
   const projects: EnrichedProject[] = data
     ? data.flatMap((page) => page.projects)
     : [];
   const hasMore = data ? data[data.length - 1]?.meta?.total_pages > size : false;
 
-  if (!otherUserProjectsMutate || otherUserProjectsMutate !== mutate) {
-    setOtherUserProjectsMutate(mutate);
-  }
 
   return {
     projects,
