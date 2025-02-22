@@ -8,6 +8,8 @@ import { useLogoutRequest } from "@services/user/useLogoutRequest";
 import Link from "next/link";
 import { AppBar, Box, Toolbar, Typography, Avatar, Menu, MenuItem } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
+import LogoutIcon from '@mui/icons-material/Logout';
+import LoginIcon from '@mui/icons-material/Login';
 import AccountCircle from "@mui/icons-material/AccountCircle";
 
 
@@ -123,10 +125,10 @@ export function Header() {
                 </MenuItem>
                 {isAuthenticated || authenticatedUser ? (
                   <div>
-                    <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
+                    <MenuItem onClick={handleLogout}>ログアウト<LogoutIcon sx={{color:"text.secondary", ml: 3 }}/></MenuItem>
                   </div>
                 ) : (
-                  <MenuItem onClick={handleLogin}>ログイン</MenuItem>
+                  <MenuItem onClick={handleLogin}>ログイン<LogoutIcon sx={{color:"text.secondary", ml: 3 }} /></MenuItem>
                 )}
               </Menu>
             </Box>

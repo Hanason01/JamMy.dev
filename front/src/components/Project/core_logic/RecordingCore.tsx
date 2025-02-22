@@ -4,8 +4,7 @@ import { AudioBuffer, Settings, SetState } from "@sharedTypes/types";
 import { useState, useEffect, useRef } from "react";
 import { Button, Box, IconButton, Typography, CircularProgress, Menu, MenuItem } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
-import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
-import StopCircleIcon from "@mui/icons-material/StopCircle";
+import { keyframes } from "@emotion/react";
 import { useAudioRecorder } from "@audio/useAudioRecorder";
 import { useAudioAnalyzer } from "@audio/useAudioAnalyzer";
 import { useAudioCountIn } from "@audio/useAudioCountIn";
@@ -33,6 +32,7 @@ export function RecordingCore({
   const [loading, setLoading] = useState<boolean>(false); // ローディング状態
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+  const [isPressed, setIsPressed] = useState(false);
 
   //WebAudioApi関連
   const audioContextRef = useRef<AudioContext | null>(null); //メトロノームと共有
@@ -170,6 +170,7 @@ export function RecordingCore({
 
   // 録音開始処理
   const handleStartRecording = async (): Promise<void> => {
+    setIsPressed(true);
     if (settings.countIn > 0) {
       startCountIn(settings, () => {
         console.log("startRecording呼び出しタイミング:", performance.now()); // コールバックの呼び出しタイミング
@@ -248,6 +249,36 @@ export function RecordingCore({
     return `${minutes}:${seconds.padStart(4, "0")}`; // "分:秒.0"の形式
   };
 
+  //録音ボタンアニメーション
+  const shrinkToSquare = keyframes`
+    0% {
+      border-radius: 50%;
+      width: 5rem;
+      height: 5rem;
+    }
+    100% {
+      border-radius: 10%;
+      width: 3rem;
+      height: 3rem;
+    }
+  `;
+
+  //秒数アニメーション
+  // const fadeInOut = keyframes`
+  //   0% { opacity: 0; transform: translateY(-3px); }
+  //   50% { opacity: 1; transform: translateY(0); }
+  //   100% { opacity: 1; }
+  // `;
+
+    const fadeIn = keyframes`
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  `;
+
   return(
     <Box sx={{
       display: "flex",
@@ -283,7 +314,27 @@ export function RecordingCore({
           <Box sx= {{display: "flex",
             flexDirection: "column",
             alignItems: "center",}}>
-            <Typography variant="h6">{formatRemainingTime()}</Typography>
+            {/* <Typography variant="h6">{formatRemainingTime()}</Typography> */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "4px 12px",
+                borderRadius: "8px",
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 600,
+                fontSize: "2.2rem",
+                letterSpacing: "1.5px",
+                animation: `${fadeIn} 0.3s ease-in-out`,
+                minWidth: "120px",
+                textAlign: "center",
+                color: "primary.dark",
+                backdropFilter: "blur(6px)",
+              }}
+            >
+              {formatRemainingTime()}
+            </Box>
             <AnalyzerVisualization analyzerData={analyzerData}/>
           </Box>
           ) : (
@@ -298,10 +349,34 @@ export function RecordingCore({
               }}
             />
           ) : (
-          <IconButton disabled={isInitializing} onClick={isRecording ? handleStopRecording : handleStartRecording}
-          sx={{ color:"#e53935", pl: 0 }}>
-                  {!isRecording ? <RadioButtonCheckedIcon sx={{fontSize: "6rem"}}/> : <StopCircleIcon sx={{fontSize: "6rem"}}/>}
-          </IconButton>
+          <Box
+            sx={{
+              width: "6rem",
+              height: "6rem",
+              borderRadius: "50%",
+              border: "4px solid #e53935",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: isInitializing ? 0.5 : 1,
+              pointerEvents: isInitializing ? "none" : "auto",
+            }}
+          >
+            <Box
+              sx={{
+                width: "5rem",
+                height: "5rem",
+                borderRadius: "50%",
+                backgroundColor: "#e53935",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.3s ease-in-out",
+                animation: isPressed || isRecording ? `${shrinkToSquare} 0.3s ease-in-out forwards` : "none",
+              }}
+              onClick={!isRecording ? handleStartRecording : handleStopRecording}
+            />
+          </Box>
           )}
         </Box>
     </Box>
