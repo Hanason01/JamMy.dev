@@ -22,7 +22,7 @@ export function useProjectList() {
   // 初回のみフェッチする
   useEffect(() => {
     if (!data) {
-      mutate();
+      setSize(1);
     }
   }, []);
 

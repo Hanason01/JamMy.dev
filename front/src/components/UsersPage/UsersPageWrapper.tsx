@@ -14,6 +14,8 @@ import { useClientCacheContext } from "@context/useClientCacheContext";
 import { ProjectCard } from "@Project/ProjectCard";
 import { UserProfile } from "@UsersPage/UserProfile";
 import { useOtherUserProjects } from "@swr/useOtherUsersProjectsSWR";
+import { useRevalidateSWR } from "@utils/useRevalidateSWR";
+import { PullToRefresh } from "@components/PullToRefresh";
 
 export function UsersPageWrapper() {
   // Params
@@ -22,6 +24,12 @@ export function UsersPageWrapper() {
   // SWR関連
   const [tab, setTab] = useState<"user_projects" | "user_collaborated">("user_projects");
   const { projects, hasMore, loadMore, isLoading, isValidating,  isError, mutate, getKey } = useOtherUserProjects(userId, tab);
+  const { updateOtherUserProjects, updateOtherUserTab } = useRevalidateSWR();
+  const handleRefresh = async () => {
+    if (projects.length > 0) {
+      await updateOtherUserProjects(projects[0].id);
+    }
+  };
 
   //状態管理
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
@@ -41,6 +49,13 @@ export function UsersPageWrapper() {
   // タブ切り替え時の処理
   const handleTabChange = (_: React.SyntheticEvent, newValue: "user_projects" | "user_collaborated") => {
     setTab(newValue);
+  };
+
+  // タブクリック時のフェッチ判定
+  const handleTabClick = async (selectedTab: "user_projects" | "user_collaborated") => {
+    if (tab === selectedTab && projects.length > 0) {
+      await updateOtherUserTab(userId, selectedTab, projects[0].id); // すでに選択されているタブがクリックされた場合、フェッチ
+    }
   };
 
   // スクロール位置を復元
@@ -104,6 +119,7 @@ export function UsersPageWrapper() {
 
   return (
     <Box>
+      <PullToRefresh onRefresh={handleRefresh} />
       {/* プロフィール欄 */}
       <UserProfile user_id = {userId}/>
 
@@ -118,8 +134,22 @@ export function UsersPageWrapper() {
         mb:3,
         height: 60,
         }}>
-        <Tab label="投稿" value="user_projects" icon={<PostAddIcon /> } iconPosition="start" sx={{ minWidth: "auto", px: 3 }} />
-        <Tab label="コラボ" value="user_collaborated" icon={<Diversity3Icon />} iconPosition="start" sx={{ minWidth: "auto", px: 3 }}/>
+        <Tab
+        label="投稿"
+        value="user_projects"
+        icon={<PostAddIcon /> }
+        iconPosition="start"
+        onClick={() => handleTabClick("user_projects")}
+        sx={{ minWidth: "auto", px: 3 }}
+        />
+        <Tab
+        label="コラボ"
+        value="user_collaborated"
+        icon={<Diversity3Icon />}
+        iconPosition="start"
+        onClick={() => handleTabClick("user_collaborated")}
+        sx={{ minWidth: "auto", px: 3 }}
+        />
       </Tabs>
 
       {/* 投稿一覧 */}

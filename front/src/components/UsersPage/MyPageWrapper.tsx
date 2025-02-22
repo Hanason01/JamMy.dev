@@ -15,11 +15,19 @@ import { useClientCacheContext } from "@context/useClientCacheContext";
 import { ProjectCard } from "@Project/ProjectCard";
 import { MyProfile } from "@UsersPage/MyProfile";
 import { useMyProjects } from "@swr/useMyProjectsSWR";
+import { useRevalidateSWR } from "@utils/useRevalidateSWR";
+import { PullToRefresh } from "@components/PullToRefresh";
 
 export function MyPageWrapper() {
   // SWR関連
   const [tab, setTab] = useState<"my_projects" | "collaborating" | "collaborated" | "bookmarks">("my_projects");
   const { projects, hasMore, loadMore, isLoading, isValidating, isError, mutate, getKey } = useMyProjects(tab); //SWRフックからのreturnは全てtabに裏付けされた個別のキーに対応する
+  const { updateMyProjects, updateMyProjectsTab } = useRevalidateSWR();
+  const handleRefresh = async () => {
+    if (projects.length > 0) {
+      await updateMyProjects(projects[0].id);
+    }
+  };
 
   //状態管理
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
@@ -37,8 +45,15 @@ export function MyPageWrapper() {
   const { scrollPosition } = useClientCacheContext();
 
   // タブ切り替え時の処理
-  const handleTabChange = (_: React.SyntheticEvent, newValue: "my_projects" | "collaborating" | "collaborated" | "bookmarks") => {
+  const handleTabChange = async (_: React.SyntheticEvent, newValue: "my_projects" | "collaborating" | "collaborated" | "bookmarks") => {
     setTab(newValue);
+  };
+
+  // タブクリック時のフェッチ判定
+  const handleTabClick = async (selectedTab: "my_projects" | "collaborating" | "collaborated" | "bookmarks") => {
+    if (tab === selectedTab && projects.length > 0) {
+      await updateMyProjectsTab(selectedTab, projects[0].id); // すでに選択されているタブがクリックされた場合、フェッチ
+    }
   };
 
     // スクロール位置を復元
@@ -50,58 +65,59 @@ export function MyPageWrapper() {
     }, []);
 
 
-    //スクロール保持
-    useEffect(() => {
-      const handleScroll = throttle(() => {
-        scrollPosition.current = window.scrollY;
-      }, 200); // スクロール毎に呼ばれるが実行は200ms間隔
+  //スクロール保持
+  useEffect(() => {
+    const handleScroll = throttle(() => {
+      scrollPosition.current = window.scrollY;
+    }, 200); // スクロール毎に呼ばれるが実行は200ms間隔
 
-      // スクロールイベント
-      window.addEventListener("scroll", handleScroll);
+    // スクロールイベント
+    window.addEventListener("scroll", handleScroll);
 
-      return () => {
-        window.removeEventListener("scroll", handleScroll);
-        handleScroll.cancel();
-      };
-    }, []);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      handleScroll.cancel();
+    };
+  }, []);
 
 
-    //再生ボタン押下時処理
-    const handlePlayClick = async (project: EnrichedProject) => {
-      const { user, audioFilePath } = project;
-      try {
-        if (audioFilePath) {
-          const audioData = await fetchAudioData(audioFilePath);
-          setAudioData(audioData);
-          setAudioUrl(audioFilePath);
-          setAudioControllerVisible(true);
-          setProjectForController(project);
-          setUserForController(user);
-        }
-      }catch(e) {
-        console.error("音声データが取得できませんでした");
+  //再生ボタン押下時処理
+  const handlePlayClick = async (project: EnrichedProject) => {
+    const { user, audioFilePath } = project;
+    try {
+      if (audioFilePath) {
+        const audioData = await fetchAudioData(audioFilePath);
+        setAudioData(audioData);
+        setAudioUrl(audioFilePath);
+        setAudioControllerVisible(true);
+        setProjectForController(project);
+        setUserForController(user);
       }
-    };
-
-    //AudioController閉じる処理
-    const handleCloseClick = () => {
-      setProjectForController(null);
-      setUserForController(null);
-      setAudioControllerVisible(false);
-      setAudioUrl(null);
-      setAudioData(null);
-    };
-
-    if (isError) {
-      return (
-        <Box sx={{ mx: 2, my: 4 }}>
-          <Alert severity="error">{isError}</Alert>
-        </Box>
-      );
+    }catch(e) {
+      console.error("音声データが取得できませんでした");
     }
+  };
+
+  //AudioController閉じる処理
+  const handleCloseClick = () => {
+    setProjectForController(null);
+    setUserForController(null);
+    setAudioControllerVisible(false);
+    setAudioUrl(null);
+    setAudioData(null);
+  };
+
+  if (isError) {
+    return (
+      <Box sx={{ mx: 2, my: 4 }}>
+        <Alert severity="error">{isError}</Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box>
+      <PullToRefresh onRefresh={handleRefresh} />
       {/* プロフィール欄 */}
       <MyProfile />
 
@@ -116,10 +132,38 @@ export function MyPageWrapper() {
         mb:3,
         height: 60,
         }}>
-        <Tab label="投稿" value="my_projects" icon={<PostAddIcon /> } iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }} />
-        <Tab label="応募" value="collaborating" icon={<UploadFileIcon />} iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }}/>
-        <Tab label="コラボ" value="collaborated" icon={<Diversity3Icon />} iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }}/>
-        <Tab label="ブックマーク" value="bookmarks" icon={<BookmarkBorderIcon />} iconPosition="start" sx={{ minWidth: "auto", px: 1.8 }}/>
+        <Tab
+        label="投稿"
+        value="my_projects"
+        icon={<PostAddIcon /> }
+        iconPosition="start"
+        onClick={() => handleTabClick("my_projects")}
+        sx={{ minWidth: "auto", px: 1.8 }}
+        />
+        <Tab
+        label="応募"
+        value="collaborating"
+        icon={<UploadFileIcon />}
+        iconPosition="start"
+        onClick={() => handleTabClick("collaborating")}
+        sx={{ minWidth: "auto", px: 1.8 }}
+        />
+        <Tab
+        label="コラボ"
+        value="collaborated"
+        icon={<Diversity3Icon />}
+        iconPosition="start"
+        onClick={() => handleTabClick("collaborated")}
+        sx={{ minWidth: "auto", px: 1.8 }}
+        />
+        <Tab
+        label="ブックマーク"
+        value="bookmarks"
+        icon={<BookmarkBorderIcon />}
+        iconPosition="start"
+        onClick={() => handleTabClick("bookmarks")}
+        sx={{ minWidth: "auto", px: 1.8 }}
+        />
       </Tabs>
 
       {/* 投稿一覧 */}

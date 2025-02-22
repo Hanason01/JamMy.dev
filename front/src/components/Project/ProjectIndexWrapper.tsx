@@ -10,6 +10,8 @@ import { useFetchAudioData } from "@audio/useFetchAudioData";
 import { useClientCacheContext } from "@context/useClientCacheContext";
 import { useProjectList } from "@swr/useProjectSWR";
 import { useSWRConfig } from "swr";
+import { useRevalidateSWR } from "@utils/useRevalidateSWR";
+import { PullToRefresh } from "@components/PullToRefresh";
 
 
 export function ProjectIndexWrapper({}){
@@ -18,9 +20,16 @@ export function ProjectIndexWrapper({}){
   // 投稿一覧用
   const { projects, meta, hasMore, loadMore, isLoading, isError, isValidating, mutate, getKey } = useProjectList();
   // console.log("SWRのprojectsキャッシュ", projects);
+  // const { cache } = useSWRConfig();
+  // console.log("Indexのcache", cache);
 
-  const { cache } = useSWRConfig();
-  console.log("Indexのcache", cache);
+  const { updateAllProjects } = useRevalidateSWR();
+  // プル・トゥ・リフレッシュ処理
+  const handleRefresh = async () => {
+    if (projects.length > 0) {
+      await updateAllProjects(projects[0].id);
+    }
+  };
 
 
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
@@ -99,9 +108,21 @@ export function ProjectIndexWrapper({}){
       </Box>
     );
   }
+
+  //初期状態
+  if (!projects) {
+    return (
+      <Box sx={{ textAlign: "center", py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return(
     <Box sx={{ pb : "56px" }}>
-      {isValidating || isLoading ? (
+      <PullToRefresh onRefresh={handleRefresh} />
+
+      { isLoading ? (
       <Box sx={{ textAlign: "center", py: 4 }}>
         <CircularProgress />
       </Box>
@@ -122,6 +143,7 @@ export function ProjectIndexWrapper({}){
             </Box>
           }
         >
+
         {projects.map((project) => (
             <ProjectCard
             mode="list"

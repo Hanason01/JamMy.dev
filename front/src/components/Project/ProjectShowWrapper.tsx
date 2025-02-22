@@ -29,14 +29,21 @@ export function ProjectShowWrapper(){
     isValidating : isShowValidating,
     getKey
   } = useShowProject(projectId);
-  console.log("useShowProjectが取得したキャッシュ", projects);
 
-  const { comments, meta, hasMore, loadMore, isLoading, isError,isValidating,  mutate } = useProjectComments(projectId);
-  console.log("SWRが取得したComments", comments);
-  const { updateProjectDetail } = useRevalidateSWR(); //再フェッチ関数
+  const {
+    comments,
+    meta,
+    hasMore,
+    loadMore,
+    isLoading: isCommentsLoading,
+    isError,
+    isValidating: isCommentsValidating,
+    mutate
+  } = useProjectComments(projectId);
+  const { updateProjectDetail } = useRevalidateSWR();
 
-  const { cache } = useSWRConfig();
-  console.log("Showのcache", cache);
+  // const { cache } = useSWRConfig();
+  // console.log("Showのcache", cache);
 
 
 
@@ -104,14 +111,24 @@ export function ProjectShowWrapper(){
     );
   }
 
+  //初期状態
+  if (!projects) {
+    return (
+      <Box sx={{ textAlign: "center", py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return(
     <Box sx={{ bottom: 112 }}>
-    <PullToRefresh onRefresh={() => updateProjectDetail(projectId)} />
-      {isShowValidating || isShowValidating || isProjectLoading ? (
+      <PullToRefresh onRefresh={() => updateProjectDetail(projectId)} />
+
+      {isProjectLoading ? (
         <Box sx={{ textAlign: "center", py: 4 }}>
           <CircularProgress />
         </Box>
-      ) : projects.length === 0 ?(
+      ) : projects && projects.length === 0 ?(
         <Box sx={{ textAlign: "center", my: 4 }}>
           <Typography variant="h6" color="textSecondary">
             投稿がありません。
@@ -130,28 +147,34 @@ export function ProjectShowWrapper(){
       )}
 
       {/* コメント表示部分（無限スクロール対応） */}
-      <InfiniteScroll
-        dataLength={comments.length}
-        next={loadMore}
-        hasMore={hasMore}
-        loader={
-          <Box sx={{ textAlign: "center", py: 2 }}>
-            <CircularProgress />
-          </Box>
+      { isCommentsLoading ? (
+        <Box sx={{ textAlign: "center", py: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <InfiniteScroll
+          dataLength={comments.length}
+          next={loadMore}
+          hasMore={hasMore}
+          loader={
+            <Box sx={{ textAlign: "center", py: 2 }}>
+              <CircularProgress />
+            </Box>
+          }
+        >
+        {comments.map((comment) => (
+            <CommentCard
+              key={comment.attributes.id}
+              comment={comment}
+              onReply={handleReply}
+              projectId={projectId}
+              project={projects[0]}
+              getKey={getKey}
+            />
+          ))
         }
-      >
-      {comments.map((comment) => (
-          <CommentCard
-            key={comment.attributes.id}
-            comment={comment}
-            onReply={handleReply}
-            projectId={projectId}
-            project={projects[0]}
-            getKey={getKey}
-          />
-        ))
-      }
-      </InfiniteScroll>
+        </InfiniteScroll>
+      )}
 
 
 
