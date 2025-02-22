@@ -116,16 +116,6 @@ export function MyProfile() {
 
   return (
     <Box sx={{ p: 4, maxWidth: 600, mx: "auto", position: "relative" }}>
-      {/* 編集ボタン */}
-      <Tooltip title="編集">
-        <IconButton
-          onClick={isEditing ? handleSubmit(onSubmit) : toggleEditMode}
-          sx={{ position: "absolute", top: 20, right: 20 }}
-        >
-          {isEditing? null : <EditIcon /> }
-        </IconButton>
-      </Tooltip>
-
 
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -236,6 +226,17 @@ export function MyProfile() {
                 {user?.nickname || user?.username || "名無し"}
               </Typography>
             </Box>
+
+            {/* 編集ボタン */}
+            {!isEditing && (
+              <Button
+                variant="secondary"
+                onClick={toggleEditMode}
+                sx={{ height: 35, width:80, mt:7}}
+              >
+                <Typography variant="body2" sx={{ color: "primary.main", fontSize:15 }}>編集</Typography>
+              </Button>
+            )}
           </Box>
 
           {/* 自己紹介 */}
