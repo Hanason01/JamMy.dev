@@ -30,6 +30,7 @@ import { useEditProjectRequest } from "@services/project/useEditProjectRequest";
 import { useDeleteProjectRequest } from "@services/project/useDeleteProjectRequest";
 import { useLikeToggle } from "@services/project/feedback/useLikeToggle";
 import { useBookmarkToggle } from "@services/project/feedback/useBookmarkToggle";
+import { useDeleteProjectToggle } from "@services/project/useDeleteProjectToggle";
 import { ParticipantModal } from "@Project/ParticipantModal";
 import { useRevalidateSWR } from "@utils/useRevalidateSWR"
 
@@ -94,6 +95,7 @@ export function ProjectCard({
   //汎用フック
   const { handleLike, handleUnlike } = useLikeToggle();
   const { handleBookmark, handleUnBookmark } = useBookmarkToggle();
+  const { handleDeleteProjectSWR } = useDeleteProjectToggle();
 
   //汎用Context関係
   const { setCurrentProject, setCurrentUser, setCurrentAudioFilePath, } = useProjectContext();
@@ -280,8 +282,7 @@ export function ProjectCard({
 
   //削除ボタン
   const handleDeleteProject = async () =>{
-    await deleteProject(project.id)
-    await handleMutate(); //関係するSWR全てに再フェッチ依頼
+    await handleDeleteProjectSWR(project.id, mode, getKey);
     const fromPage = searchParams.get("from");
     if (fromPage === "my_projects" || fromPage === "collaborating" || fromPage === "collaborated" || fromPage === "bookmarks") {
       router.replace(`/mypage?tab=${fromPage}&feedback=project:delete:success`);
