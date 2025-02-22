@@ -18,9 +18,37 @@ import "@lib/opentelemetry_client";
 
 
 export const metadata = {
-  title: "JamMy",
-  description: "JamMyアプリケーション",
+  title: "JamMy - 繋がる、創る、響き合う。",
+  description: "JamMyは、録音した音を重ねて仲間とコラボできる音声合成サービス。楽器がなくても、歌が苦手でもOK! 直感的な操作で、誰でも簡単にユニークなサウンドを創れる。遊び心とひらめきで、新しい音楽体験を。",
+  openGraph: {
+    title: "JamMy - 繋がる、創る、響き合う。",
+    description: "録音した音を重ねて仲間とコラボ。ひらめきと遊び心で、唯一無二のサウンドを創ろう。",
+    url: "https://jam-my.com",
+    siteName: "JamMy",
+    images: [
+      {
+        url: "/ogp-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "JamMyのOGP画像",
+      },
+      {
+        url: "/ogp-square.jpg",//(LINE用)
+        width: 800,
+        height: 800,
+        alt: "JamMyのOGP画像（正方形）",
+      }
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JamMy - 繋がる、創る、響き合う。",
+    description: "録音した音を重ねて仲間とコラボ。ひらめきと遊び心で、唯一無二のサウンドを創ろう。",
+    images: ["/ogp-image.jpg"],
+  },
 };
+
 
 // 本番環境で console.log を無効化
 if (process.env.NODE_ENV === "production") {

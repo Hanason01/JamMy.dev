@@ -17,6 +17,8 @@ import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import IosShareIcon from '@mui/icons-material/IosShare';
+import LinkIcon from '@mui/icons-material/Link';
+import XIcon from '@mui/icons-material/X';
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useProjectContext } from "@context/useProjectContext";
@@ -50,6 +52,7 @@ export function ProjectCard({
   //状態変数・変数
   const [expanded, setExpanded] = useState<boolean>(false); //概要展開
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
 
@@ -344,10 +347,28 @@ export function ProjectCard({
 
     //リンク共有ボタン
     const handleCopyLink = () => {
-      const projectUrl = `${window.location.origin}/projects/${project.id}/project_show`;
+      const projectUrl = `${process.env.NEXT_PUBLIC_FRONT_URL}/projects/${project.id}/project_show`;
       navigator.clipboard.writeText(projectUrl)
         .then(() => setOpenSnackbar(true))
         .catch(err => console.error("リンクのコピーに失敗しました:", err));
+      handleShareMenuClose();
+    };
+
+    //X投稿リンク
+    const handleShareToX = () => {
+      const text = encodeURIComponent(`#JamMy で「${project.attributes.title}」をチェック！`);
+      const url = encodeURIComponent(`${process.env.NEXT_PUBLIC_FRONT_URL}/projects/${project.id}/project_show`);
+      const twitterUrl = `https://x.com/intent/tweet?text=${text}&url=${url}`;
+      handleShareMenuClose();
+      window.open(twitterUrl, "_blank");
+    }
+
+    const handleShareMenu = (event: React.MouseEvent<HTMLElement>) => {
+      setShareAnchorEl(event.currentTarget);
+    };
+
+    const handleShareMenuClose = () => {
+      setShareAnchorEl(null);
     };
 
   return(
@@ -462,7 +483,7 @@ export function ProjectCard({
                     handleDeleteProxy();
                   }}
                 >
-                  <DeleteIcon sx={{ mr: 1 }} /> 削除
+                  <DeleteIcon sx={{color:"#e53935", mr: 1 }} /> <span style={{ color: "#e53935" }}>削除</span>
                 </MenuItem>
               </Menu>
             </>
@@ -782,9 +803,16 @@ export function ProjectCard({
             e.stopPropagation(); // バブリング防止
             handleCommentToggle();
           }}
-          sx={{ color: "text.secondary" }}
+          sx={{color: "text.secondary" }}
           >
-            <ChatBubbleOutlineIcon sx={{ fontSize: 25 }} />
+            <ChatBubbleOutlineIcon
+            sx={{
+              fontSize: 25,
+              transition: "transform 0.2s ease-in-out",
+              "&:active": {
+                transform: "scale(0.8)",
+              },
+              }} />
           </IconButton>
           <Typography variant="body2" color="textSecondary"sx={{ fontSize: 20 }}>
             {formatNumber(project.attributes.comment_count)}
@@ -803,7 +831,13 @@ export function ProjectCard({
             e.stopPropagation(); // バブリング防止
             handleLikeToggle();
           }}
-          sx={{ color: project.attributes.liked_by_current_user ? "secondary.main" : "text.secondary" }}
+          sx={{
+            color: project.attributes.liked_by_current_user ? "secondary.main" : "text.secondary",
+            transition: "transform 0.2s ease-in-out",
+            "&:active": {
+              transform: "scale(0.8)",
+            },
+          }}
           >
           {project.attributes.liked_by_current_user ? (
             <FavoriteIcon  sx={{ fontSize: 25 }} />
@@ -818,25 +852,66 @@ export function ProjectCard({
 
         {/* 共有ボタン */}
         <>
-          <Tooltip title="リンクをコピー">
-            <IconButton
-            onClick={(e) => {
-              e.stopPropagation(); // バブリング防止
-              handleCopyLink();
-            }}
-            sx={{ color: "text.secondary" }}
-            >
-              <IosShareIcon sx={{ fontSize: 25 }}  />
-            </IconButton>
-          </Tooltip>
+          <IconButton
+          onClick={(e) => {
+            e.stopPropagation(); // バブリング防止
+            handleShareMenu(e);
+          }}
+          sx={{color: "text.secondary"}}
+          >
+            <IosShareIcon
+            sx={{
+              fontSize: 25,
+              transition: "transform 0.2s ease-in-out",
+              "&:active": {
+                transform: "scale(0.8)",
+              },
+              }}  />
+          </IconButton>
           <Snackbar
             open={openSnackbar}
             autoHideDuration={2000}
             onClose={() => setOpenSnackbar(false)}
             message="リンクをコピーしました"
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            sx={{ bottom: 56 }}
           />
+          <Menu
+            id="menu-appbar"
+            anchorEl={shareAnchorEl}
+            open={Boolean(shareAnchorEl)}
+            onClose={handleShareMenuClose}
+            onClick={(e) => e.stopPropagation()}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+          >
+            <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation(); // バブリング防止
+                  handleCopyLink();
+                }}
+              >
+                <LinkIcon sx={{ mr: 1 }} />URLで共有
+            </MenuItem>
+            <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation(); // バブリング防止
+                  handleShareToX();
+                }}
+              >
+                <XIcon sx={{ mr: 1, height: 22, width: 22}} />で投稿
+            </MenuItem>
+          </Menu>
         </>
+
+
 
         {/* ブックマーク */}
         <IconButton
@@ -844,7 +919,12 @@ export function ProjectCard({
           e.stopPropagation(); // バブリング防止
           handleBookmarkToggle();
         }}
-        sx={{ color: project.attributes.bookmarked_by_current_user ? "secondary.main" : "text.secondary",
+        sx={{
+          color: project.attributes.bookmarked_by_current_user ? "secondary.main" : "text.secondary",
+          transition: "transform 0.2s ease-in-out",
+          "&:active": {
+            transform: "scale(0.8)",
+          },
         }}
         >
         {project.attributes.bookmarked_by_current_user ? (
