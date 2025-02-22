@@ -1,5 +1,4 @@
 import axios from "axios";
-import { handleStatusErrors } from "@services/ErrorHandler";
 import { useFeedbackContext } from "@context/useFeedbackContext";
 
 export const useDeleteProjectRequest = () => {

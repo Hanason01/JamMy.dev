@@ -40,7 +40,6 @@ a {
     color-scheme: dark;
   }
 } */
-
 body {
-  overscroll-behavior: contain;
+  overscroll-behavior-y: none;
 }

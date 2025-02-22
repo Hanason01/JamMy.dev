@@ -87,6 +87,17 @@ export const useRevalidateSWR = () => {
     );
   };
 
+    // **タブごとのキャッシュ更新（マイページ）**
+  const updateMyProjectsTab = async (tab: "my_projects" | "collaborating" | "collaborated" | "bookmarks", projectId: string) => {
+    const listKey = unstable_serialize((index) => getMyProjectsKey(index, tab));
+    if (!listKey) return;
+
+    const copiedProject = await createMutateObject((index) => getMyProjectsKey(index, tab), projectId);
+    if (!copiedProject) return;
+
+    await executeMutate(listKey, copiedProject);
+  };
+
   // **他ユーザーのプロジェクト一覧のキャッシュを更新**
   const updateOtherUserProjects = async (projectId: string) => {
     const allKeys = Array.from(cache.keys()) as string[];
@@ -122,6 +133,18 @@ export const useRevalidateSWR = () => {
     );
   };
 
+  // **タブごとのキャッシュ更新（ユーザーページ）**
+  const updateOtherUserTab = async (userId: string, tab: "user_projects" | "user_collaborated", projectId: string) => {
+    const listKey = unstable_serialize((index) => getOtherUserProjectsKey(index, userId, tab));
+    if (!listKey) return;
+
+    // プロジェクトデータを取得して更新
+    const copiedProject = await createMutateObject((index) => getOtherUserProjectsKey(index, userId, tab), projectId);
+    if (!copiedProject) return;
+
+    await executeMutate(listKey, copiedProject);
+  };
+
   // **プロジェクト詳細のキャッシュを更新**
   const updateProjectDetail = async (projectId: string) => {
     const detailKey = getProjectDetailKey(projectId);
@@ -151,7 +174,9 @@ export const useRevalidateSWR = () => {
   return {
     updateAllProjects,
     updateMyProjects,
+    updateMyProjectsTab,
     updateOtherUserProjects,
+    updateOtherUserTab,
     updateProjectDetail,
     updateNotifications,
     batchUpdateAll,

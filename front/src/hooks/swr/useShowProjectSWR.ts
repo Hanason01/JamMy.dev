@@ -24,7 +24,7 @@ export function useShowProject(projectId: string) {
   }, []);
 
   return {
-    projects: data?.projects ?? [],
+    projects: data?.projects,
     isLoading,
     isError: !!error,
     isValidating,

@@ -7,7 +7,7 @@ interface ApplyMutateProps {
   createApiRequest?: () => Promise<any>;
   destroyApiRequest?: () => Promise<any>;
   isShowMode: boolean;
-  actionType: "like" | "unLike" | "bookmark" | "unBookmark" | "comment" | "unComment";
+  actionType: "like" | "unLike" | "bookmark" | "unBookmark" | "comment" | "unComment" | "delete";
   actionValues: Record<string, any>; // 呼び出し元が指定する動的値の配列
   getKey: GetKeyType; //処理主体のgetKey
 }
@@ -43,7 +43,7 @@ export const useApplyMutate = () => {
   // **操作種別に応じた新規オブジェクトを作成する関数**
   const createUpdatedProject = (
     targetProject: EnrichedProject,
-    actionType:  "like" | "unLike" | "bookmark" | "unBookmark" | "comment" | "unComment",
+    actionType:  "like" | "unLike" | "bookmark" | "unBookmark" | "comment" | "unComment" | "delete",
     actionValues: Record<string, any>
   ): EnrichedProject => {
     console.log("createUpdatedProject発動", targetProject, actionType, actionValues);
@@ -97,22 +97,28 @@ export const useApplyMutate = () => {
     // **個別のプロジェクトの詳細ページを更新**
     const updateProjectDetailPage = async (
       projectId: string,
-      updatedProject: EnrichedProject
+      updatedProject: EnrichedProject | null
     ) => {
       const key = `/api/projects/${projectId}`;
       console.log(`詳細ページのmutate開始 - key: ${key}`);
 
       await mutate(
         key,
-        (currentData: PageData | undefined) =>
-          currentData
-            ? {
-                ...currentData,
-                projects: currentData.projects.map((p) =>
-                  p.id === projectId ? updatedProject : p
-                ),
-              }
-            : undefined,
+        (currentData: PageData | undefined) => {
+          if (!currentData) return undefined;
+
+          // **削除処理**
+          if (updatedProject === null) {
+            return { projects: [] };
+          }
+
+          return {
+            ...currentData,
+            projects: currentData.projects.map((p) =>
+              p.id === projectId ? updatedProject : p
+            ),
+          };
+        },
         false
       );
       console.log(`詳細ページのmutate完了 - key: ${key}`);
@@ -122,7 +128,7 @@ export const useApplyMutate = () => {
   // **バッチ処理: 一覧の全てのページを更新する(excludeKeyで処理主体は除外)**
   const batchMutateLists = async (
     projectId: string,
-    updatedProject: EnrichedProject,
+    updatedProject: EnrichedProject | null,
     excludeKey: string | null = null
   ) => {
     console.log("バッチ処理開始")
@@ -147,11 +153,24 @@ export const useApplyMutate = () => {
           console.log(`${key}のmutate開始`);
           return mutate(
             key,
-            (currentData: PageData[] | undefined) =>
-              currentData?.map((page) => ({
+            (currentData: PageData[] | undefined) => {
+              if (!currentData) return undefined;
+
+              //削除処理専用
+              if (updatedProject === null) {
+                return currentData.map((page) => ({
+                  ...page,
+                  projects: page.projects.filter((p) => p.id !== projectId),
+                }));
+              }
+
+              return currentData.map((page) => ({
                 ...page,
-                projects: page.projects.map((p) => (p.id === projectId ? updatedProject : p)),
-              })),
+                projects: page.projects.map((p) =>
+                  p.id === projectId ? updatedProject : p
+                ),
+              }));
+            },
             false
           )
         }
@@ -179,8 +198,14 @@ export const useApplyMutate = () => {
         console.log("レスポンス", response);
 
         //最終処理
-        if (!(actionType === "comment" || actionType === "unComment")){
+        if (!(actionType === "comment" || actionType === "unComment" || actionType === "delete")){
           actionValues.id = response.id;
+        }
+
+        // 削除処理専用
+        if (actionType === "delete") {
+          batchMutateLists(projectId, null, null);
+          return { projects: [] };
         }
 
         const finalObject = createUpdatedProject(targetProject, actionType, actionValues);
@@ -202,6 +227,12 @@ export const useApplyMutate = () => {
         optimisticData: (prevData: PageData | undefined) => {
           if (!prevData) throw new Error("楽観的更新用のデータが存在しません");
           console.log("詳細の楽観的更新開始", prevData);
+
+          // 削除処理専用
+          if (actionType === "delete") {
+            return { projects: [] };
+          }
+
           return {
             ...prevData,
             projects: prevData.projects.map((p) =>{
@@ -237,7 +268,21 @@ export const useApplyMutate = () => {
         // APIリクエスト
         const response = await executeApiRequest({projectId, createApiRequest, destroyApiRequest});
         console.log("レスポンス", response);
-        actionValues.id = response.id;
+        if (actionType !== "delete") {
+          actionValues.id = response.id;
+        }
+        //削除処理専用
+        if (actionType === "delete") {
+          batchMutateLists(projectId, null, mutateKey);
+          updateProjectDetailPage(projectId, null)
+          return currentData
+            .map((page) => ({
+              ...page,
+              projects: page.projects.filter((p) => p.id !== projectId),
+            }))
+            .filter((page) => page.projects.length > 0);
+        }
+
         const finalObject = createUpdatedProject(targetProject, actionType, actionValues);
         console.log("最終処理用のオブジェクト", finalObject);
 
@@ -245,6 +290,8 @@ export const useApplyMutate = () => {
         batchMutateLists(projectId, finalObject, mutateKey);
         // 詳細ページの変更処理（詳細キャッシュがない場合は）
         updateProjectDetailPage(projectId, finalObject)
+
+
 
         // 一覧ページの確定更新
         console.log("一覧の最終更新処理");
@@ -259,6 +306,17 @@ export const useApplyMutate = () => {
         optimisticData: (prevData: PageData[] | undefined) => {
           if (!prevData) throw new Error("楽観的更新用のデータが存在しません");
           console.log("一覧の楽観的更新開始", prevData);
+
+          //削除処理専用
+          if (actionType === "delete") {
+          return prevData
+            .map((page) => ({
+              ...page,
+              projects: page.projects.filter((p) => p.id !== projectId),
+            }))
+            .filter((page) => page.projects.length > 0);
+        }
+
           return prevData.map((page) => ({
             ...page,
             projects: page.projects.map((p) => {

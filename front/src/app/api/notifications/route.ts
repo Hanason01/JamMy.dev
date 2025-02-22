@@ -17,7 +17,6 @@ export async function GET(req: NextRequest) {
     }
 
     const notifications = await response.json();
-    console.log("通知レスポンス ", notifications);
     return NextResponse.json(notifications);
   } catch (error) {
     console.error("通知取得エラー:", error);

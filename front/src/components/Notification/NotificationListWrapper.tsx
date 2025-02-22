@@ -5,12 +5,14 @@ import { useEffect } from "react";
 import { NotificationList } from "@Notification/NotificationList";
 import { useNotifications } from "@swr/useNotificationsSWR";
 import { useNotificationContext } from "@context/useNotificationContext";
+import { useRevalidateSWR } from "@utils/useRevalidateSWR";
+import { PullToRefresh } from "@components/PullToRefresh";
 
 
 export const NotificationListWrapper = () => {
   const { hasUnread, setHasUnread } = useNotificationContext();
   const { notifications, isLoading, isValidating, isError, mutate } = useNotifications();
-  console.log("notifications", notifications);
+  const { updateNotifications } = useRevalidateSWR();
 
   //未読があれば再フェッチ
   useEffect(() => {
@@ -31,6 +33,7 @@ export const NotificationListWrapper = () => {
 
   return (
     <Box sx={{ pb: "56px" }}>
+      <PullToRefresh onRefresh={updateNotifications} />
       {isValidating || isLoading ? (
         <Box sx={{ textAlign: "center", py: 4 }}>
           <CircularProgress />
