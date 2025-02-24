@@ -6,12 +6,14 @@ class Devise::CustomMailer < Devise::Mailer
   def confirmation_instructions(record, token, opts = {})
     opts[:confirmation_url] = Rails.configuration.x.confirmation_url
     opts[:subject] ="メールアドレス認証"
+    opts[:content_type] = "text/html"
     super
   end
 
 
   def reset_password_instructions(record, token, opts = {})
     opts[:subject] ="パスワード再設定のご案内"
+    opts[:content_type] = "text/html"
     super
   end
 end
