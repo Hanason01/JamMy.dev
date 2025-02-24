@@ -9,10 +9,6 @@ import { ClientCacheProvider } from "@context/useClientCacheContext";
 import { FeedbackProvider } from "@context/useFeedbackContext";
 import { NotificationProvider } from "@context/useNotificationContext";
 
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
 import "./globals.css";
 import "@lib/opentelemetry_client";
 
@@ -20,6 +16,9 @@ import "@lib/opentelemetry_client";
 export const metadata = {
   title: "JamMy - 繋がる、創る、響き合う。",
   description: "JamMyは、録音した音を重ねて仲間とコラボできる音声合成サービス。楽器がなくても、歌が苦手でもOK! 直感的な操作で、誰でも簡単にユニークなサウンドを創れる。遊び心とひらめきで、新しい音楽体験を。",
+  icons: {
+    icon: "/favicon.ico",
+  },
   openGraph: {
     title: "JamMy - 繋がる、創る、響き合う。",
     description: "録音した音を重ねて仲間とコラボ。ひらめきと遊び心で、唯一無二のサウンドを創ろう。",
