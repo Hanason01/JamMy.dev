@@ -1,6 +1,13 @@
 import React from "react";
 import { Container, Typography, Box, List, ListItem, Paper, Link } from "@mui/material";
 
+export async function generateMetadata() {
+  return {
+    title: "JamMy - プライバシーポリシー",
+    description: "JamMyのプライバシーポリシーについての記載ページです",
+  };
+}
+
 const PrivacyPolicy = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>

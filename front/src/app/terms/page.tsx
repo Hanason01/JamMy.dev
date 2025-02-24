@@ -1,6 +1,13 @@
 import React from "react";
 import { Container, Typography, Box, List, ListItem, Paper } from "@mui/material";
 
+export async function generateMetadata() {
+  return {
+    title: "JamMy -  利用規約",
+    description: "JamMyの利用規約についての記載ページです",
+  };
+}
+
 const TermsOfService = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
