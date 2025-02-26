@@ -90,13 +90,15 @@ export function CommentForm({
       sx={{
         position: "fixed",
         bottom: 56,
-        left: 0,
-        right: 0,
+        left: "50%",
+        transform: "translateX(-50%)",
         display: "flex",
         alignItems: "center",
         padding: 1,
         backgroundColor: "#fff",
         zIndex: 1100,
+        width: "100%",
+        maxWidth: "800px"
       }}
     >
       <Box

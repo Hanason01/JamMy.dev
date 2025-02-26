@@ -70,7 +70,15 @@ export function CollaborationStepper(){
 
     return (
       <PlaybackProvider>
-        <Box sx={{mx:2, mt:3, mb:9, p:1}}>
+        <Box
+        sx={{
+          mx: "auto", mt:3, mb:9, p:1,
+          width: "100%",
+          maxWidth: "800px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          }}>
           <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
             <UploadFileIcon color="primary" sx={{ fontSize: "2rem"}} />
             <Typography variant="h6" sx={{ color: "text.primary" }}>応募画面</Typography>
@@ -79,6 +87,7 @@ export function CollaborationStepper(){
                   sx={{
                     justifyContent: "center",
                     width: "60%",
+                    maxWidth: "600px",
                     margin: "0 auto",
                     my:3
                   }}>
@@ -89,7 +98,7 @@ export function CollaborationStepper(){
             )))}
           </Stepper>
 
-          <Box>
+          <Box sx={{width:"100%",maxWidth: "100%",display: "flex", alignItems: "center", justifyContent: "center",}}>
             {activeStep === 0 &&
             <CollaborationStep1
             onNext={handleNext}

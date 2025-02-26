@@ -144,8 +144,10 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
       alignItems: "center",
       justifyContent: "center",
       width: "100%",
+      maxWidth: "600px",
       gap: 3,
       my: 3,
+      p:2
     }}>
       {formError && <Alert severity="error">{formError}</Alert>}
       <Box
@@ -154,7 +156,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
         flexDirection: "column",
         alignItems: "center",
         gap: 3,
-        width: "90%"
+        width: "100%"
       }}>
         <TextField
         label="ユーザー名"
@@ -191,7 +193,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
         />
       </Box>
       <Box sx={{
-          maxWidth: "500px",
+          maxWidth: "600px",
           width: "100%",
           mx: "auto",
         }}>

@@ -97,7 +97,14 @@ export function CollaborationManagementStepper(){
 
   return (
     <PlaybackProvider>
-      <Box sx={{mx:2, mt:3, mb:9, p:1}}>
+      <Box sx={{
+          mx: "auto", mt:3, mb:9, p:1,
+          width: "100%",
+          maxWidth: "800px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          }}>
         <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
           <HandymanIcon color="primary" sx={{ fontSize: "2rem"}} />
           <Typography variant="h6" sx={{ color: "text.primary" }}>応募管理</Typography>
@@ -107,6 +114,7 @@ export function CollaborationManagementStepper(){
                   justifyContent: "center",
                   width: "90%",
                   margin: "0 auto",
+                  maxWidth: "600px",
                   my:3
                 }}>
           {steps.map((label => (
@@ -117,7 +125,7 @@ export function CollaborationManagementStepper(){
         </Stepper>
 
       {!loading ? (
-        <Box>
+        <Box  sx={{width:"100%",maxWidth: "100%",display: "flex", alignItems: "center", justifyContent: "center",}}>
           {activeStep === 0 &&
           <CollaborationManagementStep1
           onNext={handleNext}

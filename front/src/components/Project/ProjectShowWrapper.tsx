@@ -121,7 +121,7 @@ export function ProjectShowWrapper(){
   }
 
   return(
-    <Box sx={{ bottom: 112 }}>
+    <Box sx={{ mb: 15, maxWidth: "800px", mx: "auto", p: 2 }}>
       <PullToRefresh onRefresh={() => updateProjectDetail(projectId)} />
 
       {isProjectLoading ? (
@@ -136,6 +136,7 @@ export function ProjectShowWrapper(){
         </Box>
       ) : (
       projects.map((project) => (
+        <Box key={project.attributes.id} sx={{ width: "100%", display: "flex", justifyContent: "center"}}>
           <ProjectCard
           mode="detail"
           key={project.attributes.id}
@@ -143,6 +144,7 @@ export function ProjectShowWrapper(){
           project={project}
           getKey={getKey}
           />
+        </Box>
         ))
       )}
 
@@ -175,6 +177,7 @@ export function ProjectShowWrapper(){
         }
         </InfiniteScroll>
       )}
+
 
 
 

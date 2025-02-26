@@ -13,7 +13,7 @@ const PrivacyPolicy = () => {
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 2, borderRadius: 2, backgroundColor: "#f9f9f9" }}>
         <Box textAlign="center" mb={3}>
-          <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
+          <Typography fontWeight="bold" color="primary" gutterBottom sx={{ fontSize: "1.75rem" }}>
             プライバシーポリシー
           </Typography>
         </Box>

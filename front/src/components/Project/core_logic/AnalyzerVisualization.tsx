@@ -56,7 +56,7 @@ export function AnalyzerVisualization({ analyzerData }: AnalyzerVisualizationPro
       width={400}
       height={150}
       style={{
-        width: "100%",
+        width: "90%",
         maxWidth: "400px",
         height: "100px",
       }}

@@ -94,7 +94,8 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      width: "90%",
+      width: "100%",
+      maxWidth: "600px",
       gap: 3,
       my: 3,
     }}>

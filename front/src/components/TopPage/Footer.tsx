@@ -17,7 +17,7 @@ export function Footer() {
       <Container maxWidth="lg">
         <Stack
           direction="row"
-          spacing={4}
+          spacing={{ xs: 0, sm: 4 }}
           justifyContent="center"
           alignItems="center"
           sx={{ mb: 2 }}
@@ -32,7 +32,7 @@ export function Footer() {
           </Link>
 
           {/* お問い合わせ（外部リンク） */}
-          <ButtonBase sx={{ p: 1, borderRadius: "4px" }} component="a" href="https://docs.google.com/forms/d/e/1FAIpQLSf2F2t-i6hRg20p24Qq_en1MhfNxeXD2mDeqqpy2uGuYLDxog/viewform">
+          <ButtonBase sx={{ p: 1, borderRadius: "4px" }} component="a" target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSf2F2t-i6hRg20p24Qq_en1MhfNxeXD2mDeqqpy2uGuYLDxog/viewform">
             <Typography variant="body2" sx={{ color: "primary.main" }}>
               お問い合わせ
             </Typography>

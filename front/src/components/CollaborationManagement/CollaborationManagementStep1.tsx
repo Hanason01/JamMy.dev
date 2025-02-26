@@ -237,7 +237,9 @@ export function CollaborationManagementStep1({
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
-      maxWidth: "600px"
+      width: "100%",
+      maxWidth: "600px",
+      p:2
       }}>
       <Box sx={{
         justifyContent: "flex-start",
@@ -316,26 +318,40 @@ export function CollaborationManagementStep1({
       <Divider sx={{my:3}} />
 
       {/* 投稿音声と同時に聴くスイッチ */}
-      <FormGroup sx={{ my: 1, width: "70%", mx: "auto" }}>
-        <FormControlLabel
-          required
-          control={
-            <Switch
-              checked={enablePostAudioPreview}
-              onChange={(e) => {
-                handleEnablePostAudioPreview(e);
-              }}
-            />
-          }
-          label="投稿音声と同時に聴く"
-          sx={{
-            "& .MuiFormControlLabel-label": {
-              fontSize: "0.9rem",
-              color: "text.primary",
-            },
-          }}
-        />
-      </FormGroup>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%", // 親要素の幅を100%に
+        }}
+      >
+        <FormGroup sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "auto",}}>
+          <FormControlLabel
+            required
+            control={
+              <Switch
+                checked={enablePostAudioPreview}
+                onChange={(e) => {
+                  handleEnablePostAudioPreview(e);
+                }}
+              />
+            }
+            label="投稿音声と同時に聴く"
+            sx={{
+              "& .MuiFormControlLabel-label": {
+                fontSize: "0.9rem",
+                color: "text.primary",
+              },
+            }}
+          />
+        </FormGroup>
+      </Box>
+
 
       {/* Collaboration Slots */}
       <Box
