@@ -58,6 +58,9 @@ export function PostProjectStep2({
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
+      width: "100%",
+      maxWidth: "600px",
+      p:2,
       gap:3
     }}>
       <PostProjectForm audioBuffer={audioBufferForPost} settings={settingsForPost} />

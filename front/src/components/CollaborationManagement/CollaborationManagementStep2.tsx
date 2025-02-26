@@ -124,7 +124,8 @@ export function CollaborationManagementStep2({
       flexDirection: "column",
       justifyContent: "center",
       width: "100%",
-      maxWidth: "600px"
+      maxWidth: "600px",
+      p:2
       }}
     >
       <Box sx={{
@@ -207,26 +208,39 @@ export function CollaborationManagementStep2({
       <Divider sx={{my:1}} />
 
       {/* 投稿音声と同時に聴くスイッチ */}
-      <FormGroup sx={{ my: 1, width: "70%", mx: "auto" }}>
-        <FormControlLabel
-          required
-          control={
-            <Switch
-              checked={enablePostAudioPreview}
-              onChange={(e) => {
-                handleEnablePostAudioPreview(e);
-              }}
-            />
-          }
-          label="投稿音声と同時に聴く"
-          sx={{
-            "& .MuiFormControlLabel-label": {
-              fontSize: "0.9rem",
-              color: "text.primary",
-            },
-          }}
-        />
-      </FormGroup>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%", // 親要素の幅を100%に
+        }}
+      >
+        <FormGroup sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "auto",}}>
+          <FormControlLabel
+            required
+            control={
+              <Switch
+                checked={enablePostAudioPreview}
+                onChange={(e) => {
+                  handleEnablePostAudioPreview(e);
+                }}
+              />
+            }
+            label="投稿音声と同時に聴く"
+            sx={{
+              "& .MuiFormControlLabel-label": {
+                fontSize: "0.9rem",
+                color: "text.primary",
+              },
+            }}
+          />
+        </FormGroup>
+      </Box>
 
       {/* 合成リスト表示 */}
       <Box
@@ -352,17 +366,6 @@ export function CollaborationManagementStep2({
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle sx={{ fontSize: 22}}>
         {selectedItemName}さんの応募音声を削除しますか？
-          <IconButton
-            onClick={handleCloseDialog}
-            sx={{
-              position: "absolute",
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
         </DialogTitle>
         <DialogContent>
           <DialogContentText gutterBottom>

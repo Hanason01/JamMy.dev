@@ -313,7 +313,9 @@ export function RecordingCore({
         {isInitialized? (
           <Box sx= {{display: "flex",
             flexDirection: "column",
-            alignItems: "center",}}>
+            alignItems: "center",
+            width: "100%",
+            }}>
             {/* <Typography variant="h6">{formatRemainingTime()}</Typography> */}
             <Box
               sx={{

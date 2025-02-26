@@ -56,6 +56,9 @@ export function CollaborationStep2({
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
+      width: "100%",
+      maxWidth: "600px",
+      p:2,
       gap:3
     }}>
       <CollaborationForm audioBuffer={audioBufferForPost} />

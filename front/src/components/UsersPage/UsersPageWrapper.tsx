@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import InfiniteScroll from "react-infinite-scroll-component";
 import throttle from "lodash/throttle";
 import { Box, Alert, Tabs, Tab, Typography, CircularProgress } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import { AudioController } from "@components/Project/AudioController"
@@ -124,33 +125,35 @@ export function UsersPageWrapper() {
       <UserProfile user_id = {userId}/>
 
       {/* タブ */}
-      <Tabs
-      value={tab}
-      onChange={handleTabChange}
-      scrollButtons="auto"
-      centered
-      sx={{
-        maxWidth: "100%",
-        mb:3,
-        height: 60,
-        }}>
-        <Tab
-        label="投稿"
-        value="user_projects"
-        icon={<PostAddIcon /> }
-        iconPosition="start"
-        onClick={() => handleTabClick("user_projects")}
-        sx={{ minWidth: "auto", px: 3 }}
-        />
-        <Tab
-        label="コラボ"
-        value="user_collaborated"
-        icon={<Diversity3Icon />}
-        iconPosition="start"
-        onClick={() => handleTabClick("user_collaborated")}
-        sx={{ minWidth: "auto", px: 3 }}
-        />
-      </Tabs>
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Tabs
+        value={tab}
+        onChange={handleTabChange}
+        scrollButtons={false}
+        centered
+        sx={{
+          maxWidth: "100%",
+          mb:3,
+          height: 60,
+          }}>
+          <Tab
+          label="投稿"
+          value="user_projects"
+          icon={<PostAddIcon /> }
+          iconPosition="start"
+          onClick={() => handleTabClick("user_projects")}
+          sx={{ minWidth: "auto", px: 3 }}
+          />
+          <Tab
+          label="コラボ"
+          value="user_collaborated"
+          icon={<Diversity3Icon />}
+          iconPosition="start"
+          onClick={() => handleTabClick("user_collaborated")}
+          sx={{ minWidth: "auto", px: 3 }}
+          />
+        </Tabs>
+      </Box>
 
       {/* 投稿一覧 */}
       <Box sx={{ pb : "56px" }}>
@@ -175,16 +178,26 @@ export function UsersPageWrapper() {
               </Box>
             }
           >
-          {projects.map((project) => (
-              <ProjectCard
-              mode="list"
-              category={tab}
-              key={project.attributes.id}
-              onPlayClick={handlePlayClick}
-              project={project}
-              getKey={getKey}
-              />
-            ))}
+            <Grid
+            container spacing={2}
+            direction="row"
+            justifyContent="center"
+              sx={{
+                maxWidth: "1200px",
+                margin: "0 auto",
+              }}>
+              {projects.map((project) => (
+                <Grid key={project.attributes.id} {...{ xs: 12, md: 6 }} sx={{ px: 1, py:1 }}>
+                  <ProjectCard
+                    mode="list"
+                    category="projects"
+                    onPlayClick={handlePlayClick}
+                    project={project}
+                    getKey={getKey}
+                  />
+                </Grid>
+              ))}
+            </Grid>
           </InfiniteScroll>
         )}
         {isAudioControllerVisible && audioUrl && audioData &&(

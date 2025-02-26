@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import throttle from "lodash/throttle";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import { ProjectCard } from "@Project/ProjectCard";
 import { AudioController } from "@components/Project/AudioController"
 import { useFetchAudioData } from "@audio/useFetchAudioData";
@@ -143,17 +144,26 @@ export function ProjectIndexWrapper({}){
             </Box>
           }
         >
-
-        {projects.map((project) => (
-            <ProjectCard
-            mode="list"
-            category="projects"
-            key={project.attributes.id}
-            onPlayClick={handlePlayClick}
-            project={project}
-            getKey={getKey}
-            />
-          ))}
+          <Grid
+          container spacing={2}
+          direction="row"
+          justifyContent="center"
+            sx={{
+              maxWidth: "1200px",
+              margin: "0 auto",
+            }}>
+            {projects.map((project) => (
+              <Grid key={project.attributes.id} {...{ xs: 12, md: 6 }} sx={{ px: 1, py:1 }}>
+                <ProjectCard
+                  mode="list"
+                  category="projects"
+                  onPlayClick={handlePlayClick}
+                  project={project}
+                  getKey={getKey}
+                />
+              </Grid>
+            ))}
+          </Grid>
         </InfiniteScroll>
       )}
       {isAudioControllerVisible && audioUrl && audioData &&(

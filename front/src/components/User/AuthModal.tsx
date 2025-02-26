@@ -74,14 +74,14 @@ export function AuthModal({
               backgroundColor: "background.default",
               width: "75%",
               "& .MuiTabs-indicator": {
-              bottom: "6px",
+              bottom: "8px",
             },
               "& .MuiTab-root": {
               minHeight: "50px",},
             }}
           >
-            <Tab icon={<LockIcon/>} iconPosition="start" label="ログイン" sx={{ fontSize: "12px" }}/>
-            <Tab icon={<PersonAddIcon/>} iconPosition="start" label="新規登録" sx={{ fontSize: "12px" }}/>
+            <Tab icon={<LockIcon/>} iconPosition="start" label="ログイン" sx={{ fontSize: "12px", p:1 }}/>
+            <Tab icon={<PersonAddIcon/>} iconPosition="start" label="新規登録" sx={{ fontSize: "12px", p:1 }}/>
           </Tabs>
             {tabIndex === 0 && <SignInForm redirectTo={redirectTo } GoogleSVGIcon={<GoogleSVGIcon />} />}
             {tabIndex === 1 && <SignUpForm redirectTo={redirectTo } GoogleSVGIcon={<GoogleSVGIcon />} />}

@@ -37,8 +37,17 @@ export function PostProjectStepper(){
   };
 
   return (
-    <Box sx={{mx:2, mt:3, mb:9, p:1}}>
-      <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+    <Box
+    sx={{
+      mx: "auto", mt:3, mb:9, p:1,
+      width: "100%",
+      maxWidth: "800px",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      }}>
+      <Box sx={{display: "flex", alignItems: "center", justifyContent: "center", width: "100%"}}>
         <PostAddIcon color="primary" sx={{ fontSize: "2rem"}} />
         <Typography variant="h6" sx={{ color: "text.primary" }}>投稿画面</Typography>
       </Box>
@@ -46,6 +55,7 @@ export function PostProjectStepper(){
               sx={{
                 justifyContent: "center",
                 width: "60%",
+                maxWidth: "600px",
                 margin: "0 auto",
                 my:3
               }}>
@@ -56,7 +66,7 @@ export function PostProjectStepper(){
         )))}
       </Stepper>
 
-      <Box>
+      <Box sx={{width:"100%",maxWidth: "100%",display: "flex", alignItems: "center", justifyContent: "center",}}>
         {activeStep === 0 &&
         <PostProjectStep1
         onNext={handleNext}

@@ -378,9 +378,9 @@ export function ProjectCard({
         border: "1px solid #ddd",
         borderRadius: 2,
         p: 2,
-        m: 1.5,
         position: "relative",
         maxWidth: 600,
+        width: { xs: "100%", sm: "100%", md: "400px", lg: "450px" },
         backgroundColor: "background.default",
         cursor: mode === "list" && !isEditing ? "pointer" : "default",
       }}
@@ -616,12 +616,17 @@ export function ProjectCard({
 
         </>
       ) : (
-      <>
+      <Box>
         {/* 通常モード */}
         <Typography variant="h6" sx={{ mt: 1 }}>
           {project.attributes.title}
         </Typography>
-        <Typography variant="body2">
+        <Typography variant="body2" sx={{
+          maxWidth: "100%",
+          width: "auto",
+          wordBreak: "break-word",
+          whiteSpace: "pre-wrap",
+        }}>
           {expanded ? project.attributes.description : `${previewText}`}
         </Typography>
         {!isDescriptionShort &&(
@@ -645,13 +650,14 @@ export function ProjectCard({
             </IconButton>
           </Box>
         )}
-      </>
+      </Box>
     )}
     {/* コラボ状況 & 応募ボタン & 再生ボタン グループ */}
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
+          justifyContent: "space-between",
           my: 2,
           mx: 1,
           gap:2,
@@ -751,7 +757,7 @@ export function ProjectCard({
           </Box>
         </Box>
         {/* 再生ボタン */}
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems:"center", mx:4 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems:"center"}}>
           <Typography variant="body2" color="textSecondary"sx={{ fontSize: 15 }}>
             Play!
           </Typography>

@@ -212,19 +212,21 @@ export function MyProfile() {
       ) : (
         <>
           {/* アバター + 名前 */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-            <Avatar
-              src={avatarPreview ? `/api/proxy-image?key=${encodeURIComponent(avatarPreview)}` : "/default-avatar.png"}
-              sx={{
-                width: 80,
-                height: 80,
-              }}
-            />
-            {/* 名前 */}
-            <Box>
-              <Typography variant="h5" sx={{maxWidth: 230}}>
-                {user?.nickname || user?.username || "名無し"}
-              </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Avatar
+                src={avatarPreview ? `/api/proxy-image?key=${encodeURIComponent(avatarPreview)}` : "/default-avatar.png"}
+                sx={{
+                  width: 80,
+                  height: 80,
+                }}
+              />
+              {/* 名前 */}
+              <Box>
+                <Typography variant="h5" sx={{maxWidth: 230}}>
+                  {user?.nickname || user?.username || "名無し"}
+                </Typography>
+              </Box>
             </Box>
 
             {/* 編集ボタン */}

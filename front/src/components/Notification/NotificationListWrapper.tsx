@@ -32,7 +32,7 @@ export const NotificationListWrapper = () => {
   }
 
   return (
-    <Box sx={{ pb: "56px" }}>
+    <Box sx={{ pb: "56px", maxWidth: { xs: "100%", sm: "100%", md: "800px", lg: "1000px", xl: "1200px" }, mx: "auto"  }}>
       <PullToRefresh onRefresh={updateNotifications} />
       {isValidating || isLoading ? (
         <Box sx={{ textAlign: "center", py: 4 }}>

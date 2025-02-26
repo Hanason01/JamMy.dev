@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Slider from "react-slick";
 import { Typography, Box, Container, Stack, Button } from "@mui/material";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
@@ -27,6 +27,7 @@ const slides = [
 
 export function Help() {
   const [activeStep, setActiveStep] = useState(0);
+  const sliderRef = useRef<Slider | null>(null);
   const maxSteps = slides.length;
 
   const handleBeforeChange = (oldIndex: number, newIndex: number) => {
@@ -34,11 +35,15 @@ export function Help() {
   };
 
   const handleNext = () => {
-    setActiveStep((prevStep) => (prevStep + 1) % maxSteps);
+    if (sliderRef.current) {
+      sliderRef.current.slickNext();
+    }
   };
 
   const handleBack = () => {
-    setActiveStep((prevStep) => (prevStep - 1 + maxSteps) % maxSteps);
+    if (sliderRef.current) {
+      sliderRef.current.slickPrev();
+    }
   };
 
   const settings = {
@@ -66,7 +71,7 @@ export function Help() {
 
           {/* スライダー */}
           <Box sx={{ width: "100%", position: "relative" }}>
-            <Slider {...settings}>
+            <Slider ref={sliderRef} {...settings}>
               {slides.map((slide, index) => (
                 <Box
                   key={index}

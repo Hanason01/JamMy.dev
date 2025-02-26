@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import throttle from "lodash/throttle";
 import { Box, Alert, Tabs, Tab, Typography, CircularProgress } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import Diversity3Icon from '@mui/icons-material/Diversity3';
@@ -122,49 +123,52 @@ export function MyPageWrapper() {
       <MyProfile />
 
       {/* タブ */}
-      <Tabs
-      value={tab}
-      variant="scrollable"
-      onChange={handleTabChange}
-      scrollButtons="auto"
-      sx={{
-        maxWidth: "100%",
-        mb:3,
-        height: 60,
-        }}>
-        <Tab
-        label="投稿"
-        value="my_projects"
-        icon={<PostAddIcon /> }
-        iconPosition="start"
-        onClick={() => handleTabClick("my_projects")}
-        sx={{ minWidth: "auto", px: 1.8 }}
-        />
-        <Tab
-        label="応募"
-        value="collaborating"
-        icon={<UploadFileIcon />}
-        iconPosition="start"
-        onClick={() => handleTabClick("collaborating")}
-        sx={{ minWidth: "auto", px: 1.8 }}
-        />
-        <Tab
-        label="コラボ"
-        value="collaborated"
-        icon={<Diversity3Icon />}
-        iconPosition="start"
-        onClick={() => handleTabClick("collaborated")}
-        sx={{ minWidth: "auto", px: 1.8 }}
-        />
-        <Tab
-        label="ブックマーク"
-        value="bookmarks"
-        icon={<BookmarkBorderIcon />}
-        iconPosition="start"
-        onClick={() => handleTabClick("bookmarks")}
-        sx={{ minWidth: "auto", px: 1.8 }}
-        />
-      </Tabs>
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Tabs
+        value={tab}
+        variant="scrollable"
+        scrollButtons={false}
+        onChange={handleTabChange}
+        sx={{
+          maxWidth: "100%",
+          mb:3,
+          height: 60,
+          }}>
+          <Tab
+          label="投稿"
+          value="my_projects"
+          icon={<PostAddIcon /> }
+          iconPosition="start"
+          onClick={() => handleTabClick("my_projects")}
+          sx={{ minWidth: "auto", px: 1.8 }}
+          />
+          <Tab
+          label="応募"
+          value="collaborating"
+          icon={<UploadFileIcon />}
+          iconPosition="start"
+          onClick={() => handleTabClick("collaborating")}
+          sx={{ minWidth: "auto", px: 1.8 }}
+          />
+          <Tab
+          label="コラボ"
+          value="collaborated"
+          icon={<Diversity3Icon />}
+          iconPosition="start"
+          onClick={() => handleTabClick("collaborated")}
+          sx={{ minWidth: "auto", px: 1.8 }}
+          />
+          <Tab
+          label="ブックマーク"
+          value="bookmarks"
+          icon={<BookmarkBorderIcon />}
+          iconPosition="start"
+          onClick={() => handleTabClick("bookmarks")}
+          sx={{ minWidth: "auto", px: 1.8 }}
+          />
+        </Tabs>
+      </Box>
+
 
       {/* 投稿一覧 */}
       <Box sx={{ pb : "56px" }}>
@@ -189,16 +193,26 @@ export function MyPageWrapper() {
               </Box>
             }
           >
-          {projects.map((project) => (
-              <ProjectCard
-              mode="list"
-              category={tab}
-              key={project.attributes.id}
-              onPlayClick={handlePlayClick}
-              project={project}
-              getKey={getKey}
-              />
-            ))}
+            <Grid
+            container spacing={2}
+            direction="row"
+            justifyContent="center"
+              sx={{
+                maxWidth: "1200px",
+                margin: "0 auto",
+              }}>
+              {projects.map((project) => (
+                <Grid key={project.attributes.id} {...{ xs: 12, md: 6 }} sx={{ px: 1, py:1 }}>
+                  <ProjectCard
+                    mode="list"
+                    category="projects"
+                    onPlayClick={handlePlayClick}
+                    project={project}
+                    getKey={getKey}
+                  />
+                </Grid>
+              ))}
+            </Grid>
           </InfiniteScroll>
         )}
         {isAudioControllerVisible && audioUrl && audioData &&(

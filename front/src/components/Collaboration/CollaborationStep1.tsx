@@ -142,7 +142,9 @@ export function CollaborationStep1({
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
-      maxWidth: "600px"
+      width: "100%",
+      maxWidth: "600px",
+      p:2
       }}>
       <Box sx={{
         justifyContent: "flex-start",
