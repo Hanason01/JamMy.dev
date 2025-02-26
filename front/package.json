@@ -36,6 +36,8 @@
     "react-dom": "18",
     "react-hook-form": "^7.53.1",
     "react-infinite-scroll-component": "^6.1.0",
+    "react-slick": "^0.30.3",
+    "slick-carousel": "^1.8.1",
     "swr": "2.3.0",
     "yup": "^1.4.0"
   },
