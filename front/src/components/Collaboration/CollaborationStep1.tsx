@@ -33,7 +33,7 @@ export function CollaborationStep1({
   const [metronomeOn, setMetronomeOn] = useState<boolean>(false); //メトロノームON/OFF
   const [enablePostAudio, setEnablePostAudio] = useState<boolean>(true); //録音時投稿音声同時再生
   const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(false); //プレビュー時投稿音声同時再生
-  console.log("enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡",enablePostAudioPreview);
+  // console.log("enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡",enablePostAudioPreview);
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
   const [selectedVolume, setSelectedVolume] = useState<number>(1); // 音量管理
   const globalAudioContextRef = useRef<AudioContext | null>(null);
@@ -67,9 +67,9 @@ export function CollaborationStep1({
 
         //初回アクセス時の保有チェック
         const authenticatedUser = JSON.parse(localStorage.getItem("authenticatedUser") || "null");
-        console.log("authenticatedUser,curretUser", authenticatedUser.id,user?.id)
+        // console.log("authenticatedUser,curretUser", authenticatedUser.id,user?.id)
         if (user && user.id === String(authenticatedUser.id)) {
-          console.log("自分の投稿にアクセスしたため、/projects にリダイレクトします");
+          // console.log("自分の投稿にアクセスしたため、/projects にリダイレクトします");
           router.push("/projects");
         }
 
@@ -77,24 +77,24 @@ export function CollaborationStep1({
         if (project){
           setRecordingDurationSliderValue(project.attributes.duration);
           setSpeedSliderValue(project.attributes.tempo);
-          console.log("速度とテンポの初期化が終了しました");
+          // console.log("速度とテンポの初期化が終了しました");
         }
 
         // globalAudioContext の初期化
         globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
           sampleRate: 44100
         });
-        console.log("globalAudioContext の初期化に成功", globalAudioContextRef.current);
+        // console.log("globalAudioContext の初期化に成功", globalAudioContextRef.current);
 
         // AudioBuffer の取得
         if (audioFilePath) {
           const audioArrayBuffer = await fetchAudioData(audioFilePath);
           const audioBufferData = await globalAudioContextRef.current.decodeAudioData(audioArrayBuffer);
           setAudioData(audioBufferData);
-          console.log("AudioBuffer の取得およびデコードに成功",audioData);
+          // console.log("AudioBuffer の取得およびデコードに成功",audioData);
         }
         else{
-          console.log("audioFilePathが存在しないため、AudioBufferの取得およびデコードは行わません", audioFilePath);
+          // console.log("audioFilePathが存在しないため、AudioBufferの取得およびデコードは行わません", audioFilePath);
         }
       } catch (error) {
         console.error("AudioContext の初期化に失敗しました", error);
@@ -106,16 +106,16 @@ export function CollaborationStep1({
     return () => {
       if (audioData) {
         setAudioData(null);
-        console.log("audioDataのクリーンアップに成功");
+        // console.log("audioDataのクリーンアップに成功");
       }
       if (globalAudioContextRef.current) {
         globalAudioContextRef.current.close();
         globalAudioContextRef.current = null;
-        console.log("globalAudioContext を閉じました");
+        // console.log("globalAudioContext を閉じました");
       }
       setRecordingDurationSliderValue(30);
       setSpeedSliderValue(120);
-      console.log("STEP1のクリーンアップが終了しました");
+      // console.log("STEP1のクリーンアップが終了しました");
     };
   }, []);
 
@@ -131,7 +131,7 @@ export function CollaborationStep1({
 
   //録音データの受け取りと受け渡し
   const handleRecordingComplete = (audioBuffer: AudioBuffer) =>{
-    console.log("録音が完了しました:", audioBuffer);
+    // console.log("録音が完了しました:", audioBuffer);
     setAudioBufferForProcessing(audioBuffer); //Step1のプレビュー用
     setHasRecorded(true); //編集コンポーネントへ表示切替
     setEnablePostAudioPreview(true); //プレビューで同時音声をONにする

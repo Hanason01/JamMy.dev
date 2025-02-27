@@ -32,7 +32,6 @@ export const useCommentRequest = () => {
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/comments/${commentId}`,
         { withCredentials: true }
       );
-      setFeedbackByKey("comment:success");
       return response.data.comment;
     } catch (error: any) {
       handleCommentError(error, "deleteComment:error");

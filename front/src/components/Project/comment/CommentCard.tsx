@@ -67,7 +67,7 @@ export function CommentCard({
   //削除ボタン
   const handleDeleteComment = async () =>{
     await handleUnComment(projectId, comment.attributes.id, getKey)
-    mutate(); //コメントのSWR
+    await mutate(); //コメントのSWR
   }
 
   return (

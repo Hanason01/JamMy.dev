@@ -9,7 +9,7 @@ class AudioProcessor extends AudioWorkletProcessor {
 
     // メッセージ受信ハンドラを登録
     this.port.onmessage = (event) => {
-      console.log("Received message:", event.data);
+      // console.log("Received message:", event.data);
 
       if (event.data.type === "start") {
         // フラグをセット
@@ -17,19 +17,19 @@ class AudioProcessor extends AudioWorkletProcessor {
         this.isTerminated = false;
         this.startTime = currentTime;
         this.maxDuration = event.data.duration;
-        console.log("録音開始されました:", this.maxDuration);
+        // console.log("録音開始されました:", this.maxDuration);
       } else if (event.data.type === "stop") {
         // 録音停止フラグをセット
-        console.log("録音停止フラグがセットされました:", currentTime);
+        // console.log("録音停止フラグがセットされました:", currentTime);
         this.finishRecording();
       } else if (event.data.type === "terminate") {
-        console.log("プロセッサーが terminate メッセージを受信しました。録音を終了します。");
+        // console.log("プロセッサーが terminate メッセージを受信しました。録音を終了します。");
         this.isRecording = false; // 録音状態を無効化
         this.isTerminated = true; // 録音終了を有効化
         this.audioData = []; // データをクリア
       }
     };
-    console.log("AudioProcessorが初期化されました");
+    // console.log("AudioProcessorが初期化されました");
     // メインスレッドへ準備完了を通知
     this.port.postMessage({ type: "ready" });
   }
@@ -37,7 +37,7 @@ class AudioProcessor extends AudioWorkletProcessor {
   // プロセス処理
   process(inputs) {
     if (this.isTerminated) {
-      console.log("録音終了フラグが有効です。processを停止します。");
+      // console.log("録音終了フラグが有効です。processを停止します。");
       return false; // プロセッサー停止
     }
     if (!this.isRecording) {
@@ -65,10 +65,10 @@ class AudioProcessor extends AudioWorkletProcessor {
 
   // 録音完了時の処理
   finishRecording() {
-    console.log("録音完了処理を開始します");
+    // console.log("録音完了処理を開始します");
 
     if (!this.isRecording) {
-      console.log("録音中ではありません。完了処理をスキップします。");
+      // console.log("録音中ではありません。完了処理をスキップします。");
       return;
     }
 
@@ -78,22 +78,22 @@ class AudioProcessor extends AudioWorkletProcessor {
     // 録音データに無音補完を実施
     const sampleRate = globalThis.sampleRate; // AudioWorkletProcessor の sampleRate を使用
     const maxFrames = Math.ceil(this.maxDuration * sampleRate); // 最大フレーム数を計算
-    console.log("sampleRate: " ,sampleRate);
-    console.log(`最大フレーム数: ${maxFrames}`);
+    // console.log("sampleRate: " ,sampleRate);
+    // console.log(`最大フレーム数: ${maxFrames}`);
     const totalFrames = this.audioData.reduce((sum, chunk) => sum + chunk.length, 0);
-    console.log(`録音データフレーム数: ${totalFrames}, 最大フレーム数: ${maxFrames}`);
+    // console.log(`録音データフレーム数: ${totalFrames}, 最大フレーム数: ${maxFrames}`);
 
     if (totalFrames < maxFrames) {
       const silenceFrames = maxFrames - totalFrames;
       const silenceBuffer = new Float32Array(silenceFrames).fill(0); // 無音部分を生成
       this.audioData.push(silenceBuffer);
-      console.log(`無音補完が完了しました: ${silenceFrames} フレーム`);
+      // console.log(`無音補完が完了しました: ${silenceFrames} フレーム`);
     }
 
 
     // メインスレッドに録音データを送信
     this.port.postMessage({ type: "complete", audioData: this.audioData });
-    console.log("録音データをメインスレッドに送信しました:", this.audioData);
+    // console.log("録音データをメインスレッドに送信しました:", this.audioData);
 
     // 録音データをクリア
     this.audioData = [];

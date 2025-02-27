@@ -65,13 +65,13 @@ export function ProjectShowWrapper(){
 
   // コメントへの返信処理
   const handleReply = (commentId: string) => {
-    console.log(`返信先Id: ${commentId}`);
+    // console.log(`返信先Id: ${commentId}`);
     // 返信ロジック実装予定
   };
 
   // コメントの削除処理
   const handleDelete = (commentId: string) => {
-    console.log(`削除するId: ${commentId}`);
+    // console.log(`削除するId: ${commentId}`);
     // 削除ロジック実装予定
   };
 

@@ -28,7 +28,7 @@ export const useCommentToggle = () => {
       actionValues:{increment: 1},
       getKey
     });
-    console.log("追加の楽観的更新後", cache);
+    // console.log("追加の楽観的更新後", cache);
   };
 
 
@@ -54,7 +54,7 @@ export const useCommentToggle = () => {
       actionValues:{increment: -1},
       getKey
     });
-    console.log("解除の楽観的更新後", cache);
+    // console.log("解除の楽観的更新後", cache);
   };
 
 

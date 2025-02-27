@@ -11,7 +11,7 @@ export function useAudioMetronome() {
 
   // 初期化関数
   const metronomeInitialize = (audioContext: AudioContext | null, clickSoundBuffer: AudioBuffer | null): void => {
-    console.log("metronomeInitializeが受け取ったBuffer", clickSoundBuffer);
+    // console.log("metronomeInitializeが受け取ったBuffer", clickSoundBuffer);
     audioContextRef.current = audioContext;
     clickSoundBufferRef.current = clickSoundBuffer;
     // console.log("useAudioMetronomeが初期化されました", {
@@ -70,19 +70,19 @@ export function useAudioMetronome() {
       }
     };
 
-    console.log(`メトロノーム開始: tempo=${tempo}, interval=${interval}`);
+    // console.log(`メトロノーム開始: tempo=${tempo}, interval=${interval}`);
     scheduleClicks();
   };
 
   // メトロノーム停止
   const stopMetronome = () => {
-    console.log("stopMetronomeが呼び出されました");
-    console.log("メトロノーム停止前の状態:", {
-    isPlaying: isPlayingRef.current,
-    nextClickTime: nextClickTimeRef.current,
-    });
+    // console.log("stopMetronomeが呼び出されました");
+    // console.log("メトロノーム停止前の状態:", {
+    // isPlaying: isPlayingRef.current,
+    // nextClickTime: nextClickTimeRef.current,
+    // });
     isPlayingRef.current = false;
-    console.log("メトロノームが停止しました");
+    // console.log("メトロノームが停止しました");
   };
 
   return { metronomeInitialize, startMetronome, stopMetronome };

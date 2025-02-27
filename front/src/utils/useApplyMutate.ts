@@ -30,7 +30,7 @@ export const useApplyMutate = () => {
     createApiRequest?: () => Promise<any>;
     destroyApiRequest?: () => Promise<any>;
   }) => {
-    console.log("APIリクエスト開始");
+    // console.log("APIリクエスト開始");
     if (destroyApiRequest) {
       return await destroyApiRequest();
     } else if (createApiRequest) {
@@ -46,11 +46,11 @@ export const useApplyMutate = () => {
     actionType:  "like" | "unLike" | "bookmark" | "unBookmark" | "comment" | "unComment" | "delete",
     actionValues: Record<string, any>
   ): EnrichedProject => {
-    console.log("createUpdatedProject発動", targetProject, actionType, actionValues);
+    // console.log("createUpdatedProject発動", targetProject, actionType, actionValues);
 
     //いいねの場合
     if (actionType === "like" || actionType === "unLike") {
-      console.log("Likeの上書きオブジェクト作成開始");
+      // console.log("Likeの上書きオブジェクト作成開始");
       const updatedProject = {
         ...targetProject,
         attributes: {
@@ -60,12 +60,12 @@ export const useApplyMutate = () => {
           current_like_id: actionValues.id,
         },
       };
-      console.log("処理に使用するオブジェクト:", updatedProject);
+      // console.log("処理に使用するオブジェクト:", updatedProject);
       return updatedProject;
 
     //ブックマークの場合
     } else if (actionType === "bookmark" || actionType === "unBookmark") {
-      console.log("Bookmarkの上書きオブジェクト作成開始");
+      // console.log("Bookmarkの上書きオブジェクト作成開始");
       const updatedProject = {
         ...targetProject,
         attributes: {
@@ -74,12 +74,12 @@ export const useApplyMutate = () => {
           current_bookmark_id: actionValues.id,
         },
       };
-      console.log("処理に使用するオブジェクト", updatedProject);
+      // console.log("処理に使用するオブジェクト", updatedProject);
       return updatedProject;
 
     //コメントの場合
     }  else if (actionType === "comment" || actionType === "unComment") {
-      console.log("Commentの上書きオブジェクト作成開始");
+      // console.log("Commentの上書きオブジェクト作成開始");
       const updatedProject = {
         ...targetProject,
         attributes: {
@@ -87,7 +87,7 @@ export const useApplyMutate = () => {
           comment_count: targetProject.attributes.comment_count + actionValues.increment,
         },
       };
-      console.log("処理に使用するオブジェクト", updatedProject);
+      // console.log("処理に使用するオブジェクト", updatedProject);
       return updatedProject;
     }
     throw new Error("無効な actionType です");
@@ -100,7 +100,7 @@ export const useApplyMutate = () => {
       updatedProject: EnrichedProject | null
     ) => {
       const key = `/api/projects/${projectId}`;
-      console.log(`詳細ページのmutate開始 - key: ${key}`);
+      // console.log(`詳細ページのmutate開始 - key: ${key}`);
 
       await mutate(
         key,
@@ -121,7 +121,7 @@ export const useApplyMutate = () => {
         },
         false
       );
-      console.log(`詳細ページのmutate完了 - key: ${key}`);
+      // console.log(`詳細ページのmutate完了 - key: ${key}`);
     };
 
 
@@ -131,12 +131,12 @@ export const useApplyMutate = () => {
     updatedProject: EnrichedProject | null,
     excludeKey: string | null = null
   ) => {
-    console.log("バッチ処理開始")
+    // console.log("バッチ処理開始")
 
     const allKeys = Array.from(cache.keys()) as string[];
-    console.log("キー取得", allKeys);
-    console.log("excludeKey:", excludeKey);
-    console.log("比較対象のキー一覧:", allKeys.map((key) => ({ key, isExcluded: key === excludeKey })));
+    // console.log("キー取得", allKeys);
+    // console.log("excludeKey:", excludeKey);
+    // console.log("比較対象のキー一覧:", allKeys.map((key) => ({ key, isExcluded: key === excludeKey })));
 
     const keysToUpdate = allKeys.filter((key) => {
       if (key === excludeKey) return false; //一覧かつ処理主体はスキップ
@@ -145,12 +145,12 @@ export const useApplyMutate = () => {
       if (key.includes("/notifications")) return false; // 通知はスキップ
       return key.startsWith("$inf$/api/users/") || key.startsWith("$inf$/api/projects?");
     });
-    console.log("アップデートすべきキーの抽出", keysToUpdate)
+    // console.log("アップデートすべきキーの抽出", keysToUpdate)
 
     await Promise.all(
       keysToUpdate.map((key) =>
         {
-          console.log(`${key}のmutate開始`);
+          // console.log(`${key}のmutate開始`);
           return mutate(
             key,
             (currentData: PageData[] | undefined) => {
@@ -184,7 +184,7 @@ export const useApplyMutate = () => {
     //処理主体のmutateKeyの定義
     const getKey = props.getKey as () => string | null;
     const mutateKey = getKey();
-    console.log("詳細用mutate開始、getKeyは？", mutateKey);
+    // console.log("詳細用mutate開始、getKeyは？", mutateKey);
     let targetProject: EnrichedProject;
 
     // **1. 楽観的更新 (オプションを活用)**
@@ -195,7 +195,7 @@ export const useApplyMutate = () => {
 
         //APIリクエスト
         const response = await executeApiRequest({projectId, createApiRequest, destroyApiRequest});
-        console.log("レスポンス", response);
+        // console.log("レスポンス", response);
 
         //最終処理
         if (!(actionType === "comment" || actionType === "unComment" || actionType === "delete")){
@@ -209,13 +209,13 @@ export const useApplyMutate = () => {
         }
 
         const finalObject = createUpdatedProject(targetProject, actionType, actionValues);
-        console.log("最終処理用のオブジェクト", finalObject);
+        // console.log("最終処理用のオブジェクト", finalObject);
 
         //一覧ページの更新(除外対象なし)
           batchMutateLists(projectId, finalObject, null);
 
         // 詳細の更新
-        console.log("詳細の最終更新処理");
+        // console.log("詳細の最終更新処理");
         return {
           ...currentData,
           projects: currentData.projects.map((p) =>
@@ -226,7 +226,7 @@ export const useApplyMutate = () => {
       {
         optimisticData: (prevData: PageData | undefined) => {
           if (!prevData) throw new Error("楽観的更新用のデータが存在しません");
-          console.log("詳細の楽観的更新開始", prevData);
+          // console.log("詳細の楽観的更新開始", prevData);
 
           // 削除処理専用
           if (actionType === "delete") {
@@ -257,7 +257,7 @@ export const useApplyMutate = () => {
     // 一覧ページのキーを取得
     const mutateKey = unstable_serialize(getKey as (index: number) => string);
     let targetProject: EnrichedProject;
-    console.log("一覧用mutate開始、getKeyは？", mutateKey);
+    // console.log("一覧用mutate開始、getKeyは？", mutateKey);
 
     // **1. 楽観的更新**
     await mutate(
@@ -267,7 +267,7 @@ export const useApplyMutate = () => {
 
         // APIリクエスト
         const response = await executeApiRequest({projectId, createApiRequest, destroyApiRequest});
-        console.log("レスポンス", response);
+        // console.log("レスポンス", response);
         if (actionType !== "delete") {
           actionValues.id = response.id;
         }
@@ -284,7 +284,7 @@ export const useApplyMutate = () => {
         }
 
         const finalObject = createUpdatedProject(targetProject, actionType, actionValues);
-        console.log("最終処理用のオブジェクト", finalObject);
+        // console.log("最終処理用のオブジェクト", finalObject);
 
         // 他の一覧ページ更新のバッチ処理(処理主体を除く)
         batchMutateLists(projectId, finalObject, mutateKey);
@@ -294,7 +294,7 @@ export const useApplyMutate = () => {
 
 
         // 一覧ページの確定更新
-        console.log("一覧の最終更新処理");
+        // console.log("一覧の最終更新処理");
         return currentData.map((page) => ({
           ...page,
           projects: page.projects.map((p) =>
@@ -305,7 +305,7 @@ export const useApplyMutate = () => {
       {
         optimisticData: (prevData: PageData[] | undefined) => {
           if (!prevData) throw new Error("楽観的更新用のデータが存在しません");
-          console.log("一覧の楽観的更新開始", prevData);
+          // console.log("一覧の楽観的更新開始", prevData);
 
           //削除処理専用
           if (actionType === "delete") {
@@ -336,16 +336,16 @@ export const useApplyMutate = () => {
 
   //全体処理制御
   const applyMutate = async (props: ApplyMutateProps) => {
-    console.log("===== applyMutate 呼び出し時の props =====");
-    console.log("projectId:", props.projectId);
-    console.log("createApiRequest:", props.createApiRequest ? "関数がセットされています" : "未定義");
-    console.log("destroyApiRequest:", props.destroyApiRequest ? "関数がセットされています" : "未定義");
-    console.log("isShowMode:", props.isShowMode);
-    console.log("actionType:", props.actionType);
-    console.log("actionValues:", props.actionValues);
-    console.log("actionValues (deep copy):", JSON.parse(JSON.stringify(props.actionValues)));
-    console.log("getKey:", props.getKey);
-    console.log("=======================================");
+    // console.log("===== applyMutate 呼び出し時の props =====");
+    // console.log("projectId:", props.projectId);
+    // console.log("createApiRequest:", props.createApiRequest ? "関数がセットされています" : "未定義");
+    // console.log("destroyApiRequest:", props.destroyApiRequest ? "関数がセットされています" : "未定義");
+    // console.log("isShowMode:", props.isShowMode);
+    // console.log("actionType:", props.actionType);
+    // console.log("actionValues:", props.actionValues);
+    // console.log("actionValues (deep copy):", JSON.parse(JSON.stringify(props.actionValues)));
+    // console.log("getKey:", props.getKey);
+    // console.log("=======================================");
 
     if (props.isShowMode) {
       await applyMutateForShow(props);

@@ -46,7 +46,7 @@ export function useAudioAnalyzer() {
     }
     //MediaStreamSource と AnalyserNode の接続を解除
     if (mediaStreamSource && analyserNodeRef.current) {
-      console.log("アナライザーのクリーンアップ時点のmediaStreamとanalyzerNode",mediaStreamSource,analyserNodeRef.current);
+      // console.log("アナライザーのクリーンアップ時点のmediaStreamとanalyzerNode",mediaStreamSource,analyserNodeRef.current);
       mediaStreamSource.disconnect(analyserNodeRef.current);
       analyserNodeRef.current.disconnect();
       analyserNodeRef.current = null;

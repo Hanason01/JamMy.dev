@@ -26,7 +26,7 @@ export const useDeleteProjectToggle = () => {
       actionValues:{},
       getKey
     });
-    console.log("追加の楽観的更新後", cache);
+    // console.log("追加の楽観的更新後", cache);
   };
 
   return { handleDeleteProjectSWR };

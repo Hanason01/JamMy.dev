@@ -75,7 +75,7 @@ export function CommentForm({
     try {
       await handleCreateComment(data, projectId, getKey);
       reset();
-      mutate(); //コメントのSWR
+      await mutate(); //コメントのSWR
     } catch (error: any) {
       setError("content", { type: "manual", message: error.content });
       console.error("コメント送信エラー:", error);

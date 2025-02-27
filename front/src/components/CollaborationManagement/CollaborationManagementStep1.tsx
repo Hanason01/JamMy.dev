@@ -92,14 +92,14 @@ export function CollaborationManagementStep1({
             setCurrentUser(user);
             audioFilePath = sessionStorage.getItem("currentAudioFilePath") || null
             setCurrentAudioFilePath(audioFilePath);
-            console.log("セッションストレージから復元", project, user, audioFilePath);
+            // console.log("セッションストレージから復元", project, user, audioFilePath);
         }
 
         //初回アクセス時の保有チェック
         const authenticatedUser = JSON.parse(localStorage.getItem("authenticatedUser") || "null");
-        console.log("authenticatedUser,currentUser", authenticatedUser.id,user?.id)
+        // console.log("authenticatedUser,currentUser", authenticatedUser.id,user?.id)
         if (user && user.id !== String(authenticatedUser.id)) {
-          console.log("他人の投稿にアクセスしたため、/projects にリダイレクトします");
+          // console.log("他人の投稿にアクセスしたため、/projects にリダイレクトします");
           router.push("/projects");
         }
 
@@ -107,17 +107,17 @@ export function CollaborationManagementStep1({
         globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
           sampleRate: 44100
         });
-        console.log("globalAudioContext の初期化に成功", globalAudioContextRef.current);
+        // console.log("globalAudioContext の初期化に成功", globalAudioContextRef.current);
 
         // 投稿音声AudioBuffer の取得
         if (audioFilePath) {
           const audioArrayBuffer = await fetchAudioData(audioFilePath);
           const audioBufferData = await globalAudioContextRef.current.decodeAudioData(audioArrayBuffer);
           setPostAudioData(audioBufferData);
-          console.log("AudioBuffer の取得およびデコードに成功",audioBufferData);
+          // console.log("AudioBuffer の取得およびデコードに成功",audioBufferData);
         }
         else{
-          console.log("audioFilePathが存在しないため、AudioBufferの取得およびデコードは行わません", audioFilePath);
+          // console.log("audioFilePathが存在しないため、AudioBufferの取得およびデコードは行わません", audioFilePath);
         }
       } catch (error) {
         console.error("AudioContext の初期化に失敗しました", error);
@@ -209,7 +209,7 @@ export function CollaborationManagementStep1({
       setIsPlaybackReset(true);
       playbackResetTriggeredByRef.current = "AddToSynthesisList";
     }catch (e) {
-      console.log("合成リストへの追加に失敗しました");
+      // console.log("合成リストへの追加に失敗しました");
     }
   };
 

@@ -5,7 +5,7 @@ import { Collaboration} from "@sharedTypes/types";
 export const collaborationManagementIndexRequest = async (project_id: number, signal:AbortSignal): Promise<Collaboration[]> => {
   // アボートされた場合は処理を終了
   if (signal?.aborted) {
-    console.log("loadCollaborationsが中断されました");
+    // console.log("loadCollaborationsが中断されました");
     return [];
   }
   try {

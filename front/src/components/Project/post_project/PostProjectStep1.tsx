@@ -34,24 +34,24 @@ export function PostProjectStep1({onNext,
 
   //録音データの受け取りと受け渡し
   const handleRecordingComplete = (audioBuffer: AudioBuffer) =>{
-    console.log("録音が完了しました:", audioBuffer);
+    // console.log("録音が完了しました:", audioBuffer);
     setAudioBufferForProcessing(audioBuffer); //Step1のプレビュー用
     const settings: PostSettings = {
       tempo: speedSliderValue,
       duration: recordingDurationSliderValue,
     }
-    console.log("Step1が親へ渡すsettings", settings);
+    // console.log("Step1が親へ渡すsettings", settings);
     setSettingsForPost(settings); //Step2用の録音設定
     setHasRecorded(true); //編集コンポーネントへ表示切替
   };
 
-  //デバック用
-  useEffect(() =>{
-    console.log(`[${new Date().toISOString()}] PostProjectStep1がマウントされました`);
-    return () => {
-      console.log(`PostProjectStep1がアンマウントされました[${new Date().toISOString()}]`);
-    };
-  }, []);
+  // //デバック用
+  // useEffect(() =>{
+  //   // console.log(`[${new Date().toISOString()}] PostProjectStep1がマウントされました`);
+  //   return () => {
+  //     // console.log(`PostProjectStep1がアンマウントされました[${new Date().toISOString()}]`);
+  //   };
+  // }, []);
 
   //被遷移制御（STEP2の編集or録音しなおし）
   useEffect(() => {

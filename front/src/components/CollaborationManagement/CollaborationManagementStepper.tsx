@@ -31,7 +31,7 @@ export function CollaborationManagementStepper(){
           sessionStorage.setItem("currentProject", JSON.stringify(currentProject));
           sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
           sessionStorage.setItem("currentAudioFilePath", currentAudioFilePath);
-          console.log("Contextのデータをセッションストレージに保存しました");
+          // console.log("Contextのデータをセッションストレージに保存しました");
         }
     };
     initializeData();
@@ -41,7 +41,7 @@ export function CollaborationManagementStepper(){
       sessionStorage.removeItem("currentProject");
       sessionStorage.removeItem("currentUser");
       sessionStorage.removeItem("currentAudioFilePath");
-      console.log("Contextのデータをセッションストレージから削除しました");
+      // console.log("Contextのデータをセッションストレージから削除しました");
     };
   }, []);
 
@@ -63,13 +63,13 @@ export function CollaborationManagementStepper(){
     const loadCollaborations = async () => {
       // アボートされた場合は処理を終了
       if (signal?.aborted) {
-        console.log("loadCollaborationsが中断されました");
+        // console.log("loadCollaborationsが中断されました");
         return;
       }
 
       try {
         const collaborationsData = await collaborationManagementIndexRequest(currentProject.attributes.id, signal);
-        console.log("CollaborationManagemetsリクエスト終了");
+        // console.log("CollaborationManagemetsリクエスト終了");
 
         setCollaborations(collaborationsData);
       }catch(error: any) {
@@ -81,7 +81,7 @@ export function CollaborationManagementStepper(){
     loadCollaborations();
 
     return () => {
-      console.log("アンマウント");
+      // console.log("アンマウント");
       controller.abort(); // 非同期処理を中断
     }
   }, [currentProject]);
