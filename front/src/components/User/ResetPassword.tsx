@@ -66,6 +66,9 @@ export const ResetPassword = () => {
         password_confirmation: data.confirmPassword,
       },{withCredentials: true});
 
+      console.log("パスワードリセットのレスポンス", response,response.data,response.data.data);
+      console.log("さらにネストしたレスポンス", response.data.data.attributes);
+
       handleLoginSuccess(response.data.data);
       setMessage("パスワードがリセットされました。");
       setError(null);

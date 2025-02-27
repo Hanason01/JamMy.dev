@@ -92,7 +92,7 @@ class Api::V1::Auth::PasswordsController < DeviseTokenAuth::PasswordsController
   def render_update_success
     render json: {
       success: true,
-      data: UserSerializer.new(@resource).serializable_hash,
+      data: UserSerializer.new(@resource).serializable_hash[:data],
       message: I18n.t('devise_token_auth.passwords.successfully_updated')
     }
   end

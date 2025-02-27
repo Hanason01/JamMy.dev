@@ -81,7 +81,7 @@ export function AudioProcessor({
           orientation="vertical"
           value={volume}
           min={0}
-          max={2} // 200% の音量
+          max={1} // 100% の音量
           step={0.01}
           onChange={handleVolumeChange}
           aria-labelledby="volume-slider"
