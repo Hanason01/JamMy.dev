@@ -55,7 +55,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
         let urlParams = "";
         //エンコード処理
         if(!encodedFileRef.current){
-          console.log("エンコード処理に送るaudioBuffer", mergedAudioBuffer);
+          // console.log("エンコード処理に送るaudioBuffer", mergedAudioBuffer);
           if(mode === "save"){
             urlParams = "collaboration_management:update:success";
             audioFile = await audioEncoder(mergedAudioBuffer, "FLAC");
@@ -64,7 +64,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
             audioFile = await audioEncoder(mergedAudioBuffer, "MP3");
           }
           encodedFileRef.current = audioFile;
-          console.log("エンコード後のファイル",audioFile);
+          // console.log("エンコード後のファイル",audioFile);
         }
 
         //audioFileチェック
@@ -102,7 +102,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
             formData.append(key, value as string | Blob); // その他の項目を追加
           }
         });
-        console.log("リクエスト送信前のformData", formData);
+        // console.log("リクエスト送信前のformData", formData);
 
         if (currentProject){
           await completeCollaborationManagement(currentProject.id, formData);

@@ -34,10 +34,10 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
         let audioFile = encodedFileRef.current
         //エンコード処理
         if(!encodedFileRef.current){
-          console.log("エンコード処理に送るaudioBuffer", audioBuffer);
+          // console.log("エンコード処理に送るaudioBuffer", audioBuffer);
           audioFile = await audioEncoder(audioBuffer, "FLAC");
           encodedFileRef.current = audioFile;
-          console.log("エンコード後のファイル",audioFile);
+          // console.log("エンコード後のファイル",audioFile);
         }
         // フォームデータの結合
         // console.log("フォームに入れるsettings情報",settings);
@@ -72,7 +72,7 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
         Object.entries(requestData).forEach(([key, value]) => {
           formData.append(key, value as string | Blob); // 型をキャストして挿入
         });
-        console.log("リクエスト送信前のformData", formData);
+        // console.log("リクエスト送信前のformData", formData);
 
         await postProject(formData);
         window.location.href = "/projects?feedback=project:create:success";

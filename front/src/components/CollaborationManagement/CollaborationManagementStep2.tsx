@@ -100,7 +100,7 @@ export function CollaborationManagementStep2({
       console.error("音声合成中にエラーが発生しました", error);
     } finally {
       setLoading(false);
-      console.log("合成された音声",)
+      // console.log("合成された音声",)
     }
   }
 

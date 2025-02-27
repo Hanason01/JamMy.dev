@@ -43,10 +43,10 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         let audioFile = encodedFileRef.current
         //エンコード処理
         if(!encodedFileRef.current){
-          console.log("エンコード処理に送るaudioBuffer", audioBuffer);
+          // console.log("エンコード処理に送るaudioBuffer", audioBuffer);
           audioFile = await audioEncoder(audioBuffer, "FLAC");
           encodedFileRef.current = audioFile;
-          console.log("エンコード後のファイル",audioFile);
+          // console.log("エンコード後のファイル",audioFile);
         }
 
         //audioFileチェック
@@ -66,7 +66,7 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         Object.entries(requestData).forEach(([key, value]) => {
           formData.append(key, value as string | Blob); // 型をキャストして挿入
         });
-        console.log("リクエスト送信前のformData", formData);
+        // console.log("リクエスト送信前のformData", formData);
 
         if (currentProject){
           await postCollaboration(formData, currentProject.id);

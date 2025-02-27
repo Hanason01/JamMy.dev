@@ -21,7 +21,7 @@ export function AudioPlayer({
   gainNode?: GainNode | null; //オプショナル
   enablePostAudioPreview?: boolean; //オプショナル
 }){
-console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview);
+// console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview);
 
   //同時再生Context
   const {
@@ -58,9 +58,9 @@ console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview)
     playbackTriggeredByRef
   });
 
-  console.log(`[id:${id}!]isPlayingRef追跡`,isPlayingRef.current);
-  console.log(`[id:${id}!]isPlaybackTriggered追跡`, isPlaybackTriggered);
-  console.log(`[id:${id}!]playbackTriggeredByRef追跡`, playbackTriggeredByRef.current);
+  // console.log(`[id:${id}!]isPlayingRef追跡`,isPlayingRef.current);
+  // console.log(`[id:${id}!]isPlaybackTriggered追跡`, isPlaybackTriggered);
+  // console.log(`[id:${id}!]playbackTriggeredByRef追跡`, playbackTriggeredByRef.current);
 
   const [isPlayBackReady, setIsPlayBackReady] = useState<boolean>(false); //同時再生準備状態フラグ
   const isFirstRenderRef = useRef(true); //useEffect制御フラグ
@@ -68,14 +68,14 @@ console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview)
 
   //初期化処理
   useEffect(() => {
-    console.log(`[id:${id}!][${new Date().toISOString()}] AudioPlayerがマウントされました`);
+    // console.log(`[id:${id}!][${new Date().toISOString()}] AudioPlayerがマウントされました`);
     if (audioBuffer && audioContext){
-      console.log(`[id:${id}!]AudioPlayer.jsxでinit()発動`);
-      console.log(`[id:${id}!]この時点のaudioBufferとcontext`, audioBuffer, audioContext);
+      // console.log(`[id:${id}!]AudioPlayer.jsxでinit()発動`);
+      // console.log(`[id:${id}!]この時点のaudioBufferとcontext`, audioBuffer, audioContext);
       init();
 
     } else{
-      console.log(`[id:${id}!]audioBufferとaudioContextが両方存在しない為、AudioPlayer.jsxのuseEffectが失敗しました`);
+      // console.log(`[id:${id}!]audioBufferとaudioContextが両方存在しない為、AudioPlayer.jsxのuseEffectが失敗しました`);
     }
     return () => {
       cleanup();
@@ -83,7 +83,7 @@ console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview)
       playbackTriggeredByRef.current=null;
       setSharedCurrentTime(0);
       currentTimeUpdatedByRef.current=null;
-      console.log(`[id:${id}!]AudioPlayerがアンマウントされました[${new Date().toISOString()}]`);
+      // console.log(`[id:${id}!]AudioPlayerがアンマウントされました[${new Date().toISOString()}]`);
     };
   }, []);
 
@@ -101,28 +101,28 @@ console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview)
    // 録音 ー 投稿音声間の処理
     if (playbackTriggeredByRef.current=== "Recording" && id) {
       if (isPlaybackTriggered) {
-        console.log(`[id:${id}!]録音開始に伴い、音声をリセットして再生を開始します`);
+        // console.log(`[id:${id}!]録音開始に伴い、音声をリセットして再生を開始します`);
         resetPlaybackState(); // 再生位置をリセット
         setIsPlayBackReady(true);
       } else {
-        console.log(`[id:${id}!]録音停止に伴い、音声を停止します`);
+        // console.log(`[id:${id}!]録音停止に伴い、音声を停止します`);
         resetPlaybackState(); // 再生位置をリセット
       }
 
   //異なるIDのAudioPlayer間
     } else if (playbackTriggeredByRef.current && id && playbackTriggeredByRef.current !== id){
-      console.log(`[id:${id}!]別のコンポーネントから再生・停止指示を受けました`, id, playbackTriggeredByRef.current);
+      // console.log(`[id:${id}!]別のコンポーネントから再生・停止指示を受けました`, id, playbackTriggeredByRef.current);
       if (isPlaybackTriggered) {
-        console.log(`[id:${id}!]isPlaybackTriggeredがtrueになったので再生準備をします`);
+        // console.log(`[id:${id}!]isPlaybackTriggeredがtrueになったので再生準備をします`);
         setIsPlayBackReady(true);
       } else {
-        console.log(`[id:${id}!]isPlaybackTriggeredがfalseになったので再生を停止しリセットします`);
+        // console.log(`[id:${id}!]isPlaybackTriggeredがfalseになったので再生を停止しリセットします`);
         pause();
         // setIsPlayBackReady(false);
       }
   //自分自身の指示の場合
     } else {
-      console.log(`[id:${id}!]自身の出した指示によりuseEffectが発動した為、returnします`, id, playbackTriggeredByRef.current);
+      // console.log(`[id:${id}!]自身の出した指示によりuseEffectが発動した為、returnします`, id, playbackTriggeredByRef.current);
     }
   }, [isPlaybackTriggered]);
 
@@ -130,7 +130,7 @@ console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview)
   // 録音 ー 投稿音声間の再生制御
   useEffect(() => {
     if (isPlayBackReady) {
-      console.log(`[id:${id}!]再生準備が行われ、isPlayBackReady=trueになったので再生を開始します`);
+      // console.log(`[id:${id}!]再生準備が行われ、isPlayBackReady=trueになったので再生を開始します`);
       play();
     }
     setIsPlayBackReady(false);
@@ -139,7 +139,7 @@ console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview)
   // 録音 ー 投稿音声間のリセット制御
   useEffect(() => {
     if (isPlaybackReset && playbackResetTriggeredByRef.current !==id) {
-      console.log(`[id:${id}!]同時再生時のプレイヤーがリセット要請されました`);
+      // console.log(`[id:${id}!]同時再生時のプレイヤーがリセット要請されました`);
       cleanup();
       setIsPlaybackReset(false)
       playbackResetTriggeredByRef.current = null;
@@ -172,7 +172,7 @@ console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview)
       id &&
       currentTimeUpdatedByRef.current !== id
     ) {
-      console.log(`[id:${id}!]別のコンポーネントから再生位置を同期します`, sharedCurrentTime);
+      // console.log(`[id:${id}!]別のコンポーネントから再生位置を同期します`, sharedCurrentTime);
       syncPosition(sharedCurrentTime); // 再生位置を共有された位置に設定
     }
   }, [sharedCurrentTime]);
@@ -185,7 +185,7 @@ console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview)
        // 停止指示
         playbackTriggeredByRef.current = id; // 指示元を記録
         setIsPlaybackTriggered(false); // 停止を通知
-        console.log(`[id:${id}!] が停止指示を出しました`);
+        // console.log(`[id:${id}!] が停止指示を出しました`);
       }
       pause();
     } else {
@@ -193,7 +193,7 @@ console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview)
        // 再生指示
         playbackTriggeredByRef.current = id; // 指示元を記録
         setIsPlaybackTriggered(true); // 再生を通知
-        console.log(`[${id}] が再生指示を出しました`);
+        // console.log(`[${id}] が再生指示を出しました`);
       }
       play();
     }

@@ -25,7 +25,7 @@ export const GoogleCallback = () => {
 
     const fetchUserData = async () => {
       try {
-        console.log("validate_token リクエスト開始");
+        // console.log("validate_token リクエスト開始");
         const response: AxiosResponse<{ data: User }> = await axios.get( `${process.env.NEXT_PUBLIC_API_URL}/auth/validate_token`,{withCredentials: true});
 
         handleLoginSuccess(response.data.data);

@@ -64,9 +64,9 @@ export function PostProjectProcessing({
     const { globalAudioContextRef } = useCollaborationManagementContext();
 
   useEffect(() => {
-    console.log(`[${new Date().toISOString()}] PostProjectProcessingがマウントされました`);
-    console.log("PostProjectProcessingのuseEffectが開始");
-    console.log("現在のisInitializedの値:", isInitialized);
+    // console.log(`[${new Date().toISOString()}] PostProjectProcessingがマウントされました`);
+    // console.log("PostProjectProcessingのuseEffectが開始");
+    // console.log("現在のisInitializedの値:", isInitialized);
     // 初期化処理（録音時とは別の Node 構成を取る）
 
     let isMounted = true; // マウント状態を追跡
@@ -76,14 +76,14 @@ export function PostProjectProcessing({
 
       if(globalAudioContextRef.current){
         audioContextForProcessingRef.current = globalAudioContextRef.current;
-        console.log("globalAudioContextRefを確認した為、audioContextForProcessingRefへ代入",audioContextForProcessingRef.current);
+        // console.log("globalAudioContextRefを確認した為、audioContextForProcessingRefへ代入",audioContextForProcessingRef.current);
       }else if (audioContextForProcessingRef.current === null && globalAudioContextRef.current === null) {
-        console.log("AudioContext と GainNode の初期化を開始（globalAudioContextを察知しなかった）");
+        // console.log("AudioContext と GainNode の初期化を開始（globalAudioContextを察知しなかった）");
         const context = new (window.AudioContext || (window as any).webkitAudioContext)({
           sampleRate: 44100
         });
         audioContextForProcessingRef.current = context;
-        console.log("AudioContextの初期化が終了");
+        // console.log("AudioContextの初期化が終了");
       }
 
       if (!isMounted) return;
@@ -143,7 +143,7 @@ export function PostProjectProcessing({
         //初期化完了
         if (isMounted){
           setIsInitialized(true);
-          console.log("AudioContext と GainNode を初期化しました");
+          // console.log("AudioContext と GainNode を初期化しました");
         }
       }
     };
@@ -152,8 +152,8 @@ export function PostProjectProcessing({
     // クリーンアップ処理
     return () => {
       isMounted = false;
-      console.log(`PostProjectProcessingがアンマウントされました[${new Date().toISOString()}]`);
-      console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが発動");
+      // console.log(`PostProjectProcessingがアンマウントされました[${new Date().toISOString()}]`);
+      // console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが発動");
       setIsInitialized(false);
 
       // ノードのクリーンアップ
@@ -178,17 +178,17 @@ export function PostProjectProcessing({
       if (mixGainNodeRef.current) {
         mixGainNodeRef.current.disconnect();
         mixGainNodeRef.current = null;
-        console.log("MixGainNode を切断しました", mixGainNodeRef.current);
+        // console.log("MixGainNode を切断しました", mixGainNodeRef.current);
       }
 
       //globalAudioContextRefを使っていない場合はAudioContextのクリーンアップを許可する
       if (audioContextForProcessingRef.current && audioContextForProcessingRef.current !== globalAudioContextRef.current) {
-        console.log("AudioContext の状態:", audioContextForProcessingRef.current.state);
+        // console.log("AudioContext の状態:", audioContextForProcessingRef.current.state);
           audioContextForProcessingRef.current = null;
-          console.log("AudioContext を閉じました", audioContextForProcessingRef.current);
+          // console.log("AudioContext を閉じました", audioContextForProcessingRef.current);
       }
 
-      console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが完了");
+      // console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが完了");
     };
   }, [returnToStep1Mode === "edit"]);
 
@@ -198,7 +198,7 @@ export function PostProjectProcessing({
 
     //閉じるボタン処理
     const handleCloseClick = () => {
-      console.log("AudioPlayerを閉じました");
+      // console.log("AudioPlayerを閉じました");
       setIsPlaybackReset(true);
       setHasRecorded?.(false);
       setAudioBufferForProcessing?.(null);
@@ -219,9 +219,9 @@ export function PostProjectProcessing({
     setTimeout(async () => {
       try {
         if (audioBufferForProcessing) {
-          console.log("AudioBuffer の処理を開始します...");
+          // console.log("AudioBuffer の処理を開始します...");
           const processedBuffer = await processAudio(audioBufferForProcessing);
-          console.log("AudioBuffer の処理が完了しました:", processedBuffer);
+          // console.log("AudioBuffer の処理が完了しました:", processedBuffer);
 
           // 処理後の AudioBuffer を親コンポーネントに渡しプレビュー用bufferを解除
           setAudioBufferForPost?.(processedBuffer);

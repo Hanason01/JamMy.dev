@@ -69,11 +69,11 @@ export function RecordingCore({
 
   //初期化関数
   const initializeRecording = async (isMounted: () => boolean): Promise<void> => {
-    console.log("初期化関数開始");
+    // console.log("初期化関数開始");
     if (isInitialized || isInitializing || !isMounted()){
-      console.log("initializedがfalse", isInitialized);
-      console.log("initializingがfalse", isInitializing);
-      console.log("isMounted()がfalse", isMounted());
+      // console.log("initializedがfalse", isInitialized);
+      // console.log("initializingがfalse", isInitializing);
+      // console.log("isMounted()がfalse", isMounted());
       return;
     }
     setIsInitializing(true);
@@ -93,14 +93,14 @@ export function RecordingCore({
       mediaStreamSourceRef.current = mediaStreamSource;
       audioWorkletNodeRef.current = audioWorkletNode;
       clickSoundBufferRef.current = clickSoundBuffer;
-      console.log("init()完了");
-      console.log("init()の戻り値があるか", audioContext,  mediaStreamSource, audioWorkletNode,clickSoundBuffer);
+      // console.log("init()完了");
+      // console.log("init()の戻り値があるか", audioContext,  mediaStreamSource, audioWorkletNode,clickSoundBuffer);
 
       // アナライザー初期化
       if (audioContext && mediaStreamSource && isMounted()) {
-        console.log("アナライザー初期化時点のcotextとmediasource", audioContext, mediaStreamSource);
+        // console.log("アナライザー初期化時点のcotextとmediasource", audioContext, mediaStreamSource);
         initializeAnalyzer(audioContext, mediaStreamSource);
-        console.log("アナライザー初期化完了");
+        // console.log("アナライザー初期化完了");
       }
 
       // カウントイン初期化
@@ -110,7 +110,7 @@ export function RecordingCore({
 
       if(isMounted()){
         setIsInitialized(true);
-        console.log("RecordingCoreの初期化完了");
+        // console.log("RecordingCoreの初期化完了");
       }
     }catch (e) {
       console.error("録音初期化に失敗しました", e);
@@ -121,7 +121,7 @@ export function RecordingCore({
 
   //初期化リセット関数
   const resetInitialization = () => {
-    console.log("初期化リセット開始");
+    // console.log("初期化リセット開始");
     cleanupAnalyzer(mediaStreamSourceRef.current);
     cleanupRecording();
     stopMetronome();
@@ -131,12 +131,12 @@ export function RecordingCore({
     if (enablePostAudio && id) {
       playbackTriggeredByRef.current=null;
     }
-    console.log("初期化リセット完了");
+    // console.log("初期化リセット完了");
   };
 
   //レンダリング時に初期化関数実行
   useEffect(() => {
-    console.log(`[${new Date().toISOString()}] RecordingCoreがマウントされました`);
+    // console.log(`[${new Date().toISOString()}] RecordingCoreがマウントされました`);
     // console.log("RecordingCore: 初期化前のAudioContextの状態", audioContextRef.current?.state);
     // console.log("RecordingCore: 初期化前のMediaStreamSourceの状態", mediaStreamSourceRef.current);
     // console.log("RecordingCore: 初期化前のaudioWorkletNodeRefの状態", audioWorkletNodeRef.current);
@@ -153,10 +153,10 @@ export function RecordingCore({
     return () => {
       isMounted = false; // アンマウントを記録
 
-      console.log(`RecordingCoreがアンマウントされました[${new Date().toISOString()}]`);
-      console.log("RecordingCore: クリーンアップ開始");
+      // console.log(`RecordingCoreがアンマウントされました[${new Date().toISOString()}]`);
+      // console.log("RecordingCore: クリーンアップ開始");
       resetInitialization();
-      console.log("RecordingCore: クリーンアップ完了");
+      // console.log("RecordingCore: クリーンアップ完了");
     };
   }, [selectedDeviceId]);
 
@@ -173,28 +173,28 @@ export function RecordingCore({
     setIsPressed(true);
     if (settings.countIn > 0) {
       startCountIn(settings, () => {
-        console.log("startRecording呼び出しタイミング:", performance.now()); // コールバックの呼び出しタイミング
+        // console.log("startRecording呼び出しタイミング:", performance.now()); // コールバックの呼び出しタイミング
         startRecording(); // 鳴らし終えたタイミングでstartRecording発動
       });
     } else {
-      console.log("startRecording呼び出しタイミング（カウントインなし）:", performance.now());
+      // console.log("startRecording呼び出しタイミング（カウントインなし）:", performance.now());
       startRecording(); // CountIn指定なしではそのままstartRecoding発動
     }
   };
 
   // 録音中・カウントイン中で共通の録音開始フロー
   const startRecording = (): void => {
-    console.log("startRecording 内の audioContext:", audioContextRef.current);
+    // console.log("startRecording 内の audioContext:", audioContextRef.current);
     setRemainingTime(settings.duration || 0);
     setIsRecording(true);
     start();
-    console.log("start()発動");
+    // console.log("start()発動");
 
     // enablePostAudio が有効な場合にトリガーをセット
       if (enablePostAudio && id) {
       playbackTriggeredByRef.current=id;
       setIsPlaybackTriggered(true); // AudioPlayer.tsxがキャッチ
-      console.log("enablePostAudio が有効なため、再生トリガーを設定しました");
+      // console.log("enablePostAudio が有効なため、再生トリガーを設定しました");
     }
 
     //メトロノーム設定があればメトロノーム初期化と開始
@@ -209,14 +209,14 @@ export function RecordingCore({
     setLoading(true);
     setIsRecording(false);
     stop();
-    console.log("stop()発動");
+    // console.log("stop()発動");
   };
 
   //録音停止をフックに生成されるaudioBufferを親へ渡す(audioBufferは停止時一度のみ生成)
   useEffect(() => {
     if (audioBuffer) {
       onRecordingComplete(audioBuffer);
-      console.log("親へバッファーを渡す",audioBuffer);
+      // console.log("親へバッファーを渡す",audioBuffer);
     }
     if(enablePostAudio) {
       setIsPlaybackReset(true); //投稿音声をリセット

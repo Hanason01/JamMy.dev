@@ -28,7 +28,7 @@ export function CollaborationStepper(){
           sessionStorage.setItem("currentProject", JSON.stringify(currentProject));
           sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
           sessionStorage.setItem("currentAudioFilePath", currentAudioFilePath);
-          console.log("Contextのデータをセッションストレージに保存しました");
+          // console.log("Contextのデータをセッションストレージに保存しました");
         }
     };
     initializeData();
@@ -38,7 +38,7 @@ export function CollaborationStepper(){
       sessionStorage.removeItem("currentProject");
       sessionStorage.removeItem("currentUser");
       sessionStorage.removeItem("currentAudioFilePath");
-      console.log("Contextのデータをセッションストレージから削除しました");
+      // console.log("Contextのデータをセッションストレージから削除しました");
     };
   }, []);
 

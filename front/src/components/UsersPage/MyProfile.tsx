@@ -35,7 +35,7 @@ export function MyProfile() {
           { withCredentials: true }
         );
         const data = res.data.data.attributes;
-        console.log("res.data", res.data);
+        // console.log("res.data", res.data);
         setUser(data)
         setAvatarPreview(res.data?.avatar_url);
         reset({ nickname: data.nickname, bio: data.bio ?? "" });

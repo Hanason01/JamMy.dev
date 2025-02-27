@@ -48,10 +48,10 @@ export function useAudioPlayer({
       //親で作成されたGainNodeへの接続（Step1限定）
       if (gainNode){
         source.connect(gainNode);
-        console.log(`[id:${id}] GainNodeに接続しました`);
+        // console.log(`[id:${id}] GainNodeに接続しました`);
       } else { //Step2の場合
         source.connect(audioContext.destination);
-        console.log(`[id:${id}] AudioContext.destinationに接続しました`);
+        // console.log(`[id:${id}] AudioContext.destinationに接続しました`);
       }
 
       //AudioBufferSourceNodeのendイベントハンドラ（初期化）
@@ -59,13 +59,13 @@ export function useAudioPlayer({
         // pause時のstopに対しては無視
         if (ignoreOnEndedForPauseRef.current) {
           ignoreOnEndedForPauseRef.current = false;
-          console.log(`[id:${id}] onendedが無視されました（同期処理中）`);
+          // console.log(`[id:${id}] onendedが無視されました（同期処理中）`);
           return;
         }
 
-        console.log(`[id:${id}!]onended が発動しました。isPlaying:`,isPlayingRef.current);
-        console.log(`[id:${id}] 再生終了時のsourceNodeRef:`, sourceNodeRef.current);
-        console.log(`[id:${id}!]onended が発動しました。ignoreOnEndedForPauseRef:`,ignoreOnEndedForPauseRef.current);
+        // console.log(`[id:${id}!]onended が発動しました。isPlaying:`,isPlayingRef.current);
+        // console.log(`[id:${id}] 再生終了時のsourceNodeRef:`, sourceNodeRef.current);
+        // console.log(`[id:${id}!]onended が発動しました。ignoreOnEndedForPauseRef:`,ignoreOnEndedForPauseRef.current);
         if (isPlayingRef.current) {
           stopInterval();
           resetCoreLogic();
@@ -74,10 +74,10 @@ export function useAudioPlayer({
           if (enablePostAudioPreview && id) {
             setIsPlaybackTriggered(false);
             playbackTriggeredByRef.current = null;
-            console.log(`[id:${id}] 自然終了により再生指示フラグをリセットしました`);
+            // console.log(`[id:${id}] 自然終了により再生指示フラグをリセットしました`);
           }
 
-          console.log(`[id:${id}!]自然終了によりリセット処理がされました`);
+          // console.log(`[id:${id}!]自然終了によりリセット処理がされました`);
         }
       };
       return source;
@@ -90,7 +90,7 @@ export function useAudioPlayer({
     // AudioBufferSourceNode の初期化
     if (audioContext && audioBuffer) {
       setDuration(audioBuffer.duration);
-      console.log(`[id:${id}!]useAudioPlayerの初期化に成功`);
+      // console.log(`[id:${id}!]useAudioPlayerの初期化に成功`);
     } else {
       console.error(`[id:${id}!]useAudioPlayerの初期化に失敗`);
     }
@@ -104,10 +104,10 @@ export function useAudioPlayer({
       sourceNodeRef.current.stop();
       sourceNodeRef.current.disconnect();
       sourceNodeRef.current = null;
-      console.log(`[id:${id}!]再生中のAudioBufferSourceNodeを切断しました`);
+      // console.log(`[id:${id}!]再生中のAudioBufferSourceNodeを切断しました`);
     }
     resetCoreLogic();
-    console.log(`[id:${id}!]再生位置をリセットしました`);
+    // console.log(`[id:${id}!]再生位置をリセットしました`);
   };
 
   //reset処理共通化
@@ -131,17 +131,17 @@ export function useAudioPlayer({
 
   //再生
   const play = (): void => {
-    console.log(`[id:${id}!]再生直前のisPlayingRef追跡`,isPlayingRef.current);
-    console.log(`[id:${id}!]再生直前のisPlaybackTriggered追跡`, isPlaybackTriggered);
-    console.log(`[id:${id}!]再生直前のplaybackTriggeredByRef追跡`, playbackTriggeredByRef.current);
+    // console.log(`[id:${id}!]再生直前のisPlayingRef追跡`,isPlayingRef.current);
+    // console.log(`[id:${id}!]再生直前のisPlaybackTriggered追跡`, isPlaybackTriggered);
+    // console.log(`[id:${id}!]再生直前のplaybackTriggeredByRef追跡`, playbackTriggeredByRef.current);
     if (audioContext) {
-      console.log(`[id:${id}] 再生開始前のsourceNodeRef:`, sourceNodeRef.current);
-      console.log(`[id:${id}] AudioContext state:`, audioContext.state);
-      console.log(`[id:${id}] 再生開始前のGainNode接続状況:`, gainNode);
+      // console.log(`[id:${id}] 再生開始前のsourceNodeRef:`, sourceNodeRef.current);
+      // console.log(`[id:${id}] AudioContext state:`, audioContext.state);
+      // console.log(`[id:${id}] 再生開始前のGainNode接続状況:`, gainNode);
 
       if (sourceNodeRef.current) {
         sourceNodeRef.current.disconnect(); // 古いノードを切断
-        console.log(`[id:${id}] 古いsourceNodeを切断しました`);
+        // console.log(`[id:${id}] 古いsourceNodeを切断しました`);
       }
 
       const source = createSourceNode(); // 新しいノードを作成
@@ -157,7 +157,7 @@ export function useAudioPlayer({
         startTimeRef.current = audioContext.currentTime - playbackStart;
 
         source.start(0, playbackStart); // 現在の再生位置から再生（第一引数は再生までの延滞時間）
-        console.log(`[id:${id}] 再生を開始しました: playbackStart=${playbackStart}, currentTime=${audioContext.currentTime}`);
+        // console.log(`[id:${id}] 再生を開始しました: playbackStart=${playbackStart}, currentTime=${audioContext.currentTime}`);
         startTimeRef.current = audioContext.currentTime - currentTime; //contextのcurrentTimeと開始位置
 
          // 1秒ごとに再生位置を更新
@@ -166,7 +166,7 @@ export function useAudioPlayer({
           setCurrentTime(Math.min(elapsed, duration));
           // updateCurrentTime();
         }, 100); //setIntervalはこのタイマーの識別IDを返却
-        console.log(`[id:${id}!]再生を開始しました`);
+        // console.log(`[id:${id}!]再生を開始しました`);
       }else {
         console.error(`[id:${id}] 再生に必要なsourceNodeの生成に失敗しました`);
       }
@@ -188,7 +188,7 @@ export function useAudioPlayer({
       sourceNodeRef.current.disconnect(); // ノードを切断
       sourceNodeRef.current = null;
       stopInterval();
-      console.log(`[id:${id}!]再生を停止しました`);
+      // console.log(`[id:${id}!]再生を停止しました`);
     }
   };
 
@@ -211,7 +211,7 @@ export function useAudioPlayer({
         sourceNodeRef.current.disconnect();
         sourceNodeRef.current = null;
       }
-      console.log(`[id:${id}!]再生位置を ${time} 秒に設定しました`);
+      // console.log(`[id:${id}!]再生位置を ${time} 秒に設定しました`);
     }
   };
 
@@ -221,7 +221,7 @@ export function useAudioPlayer({
       // 再生位置を更新
       pausedAtRef.current = time;
       setCurrentTime(time);
-      console.log(`[id:${id}] 再生位置を同期しました: ${time} 秒`);
+      // console.log(`[id:${id}] 再生位置を同期しました: ${time} 秒`);
     }
   };
 
@@ -238,11 +238,11 @@ export function useAudioPlayer({
     if (enablePostAudioPreview && id) {
       setIsPlaybackTriggered(false);
       playbackTriggeredByRef.current = null;
-      console.log(`[id:${id}] cleanupにより再生指示フラグをリセットしました`);
+      // console.log(`[id:${id}] cleanupにより再生指示フラグをリセットしました`);
     }
-    console.log(`[id:${id}!]useAudioPlayer: クリーンアップ完了。context`,audioContext);
-    console.log(`[id:${id}!]useAudioPlayer: クリーンアップ完了。gainnode`,gainNode);
-    console.log(`[id:${id}!]useAudioPlayer: クリーンアップ完了。sourcenode`,sourceNodeRef.current);
+    // console.log(`[id:${id}!]useAudioPlayer: クリーンアップ完了。context`,audioContext);
+    // console.log(`[id:${id}!]useAudioPlayer: クリーンアップ完了。gainnode`,gainNode);
+    // console.log(`[id:${id}!]useAudioPlayer: クリーンアップ完了。sourcenode`,sourceNodeRef.current);
   };
 
   return {
