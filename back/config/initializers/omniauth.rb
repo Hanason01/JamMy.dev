@@ -1,4 +1,4 @@
-OmniAuth.config.allowed_request_methods = [:get,:post]
+OmniAuth.config.allowed_request_methods = [:post, :get]
 OmniAuth.config.silence_get_warning = true
 OmniAuth.config.full_host = lambda do |env|
   if Rails.env.production?
