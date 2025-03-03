@@ -319,5 +319,6 @@ Devise.setup do |config|
                   Rails.application.credentials.dig(:google_oauth, :client_secret),
                   {
                     scope: 'email,profile',
+                    prompt: 'select_account',
                   }
 end
