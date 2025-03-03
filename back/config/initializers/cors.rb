@@ -5,7 +5,7 @@
 
 # Read more: https://github.com/cyu/rack-cors
 
-Rails.application.config.middleware.insert_before 0, Rack::Cors do
+Rails.application.config.middleware.insert_before Warden::Manager, Rack::Cors do
   allow do
     origins "https://localhost:8000", "https://127.0.0.1:8000", "https://jam-my.com", "https://www.jam-my.com"
 
