@@ -120,9 +120,9 @@ JamMyは、録音した音を重ねて仲間とコラボできる音声合成サ
     <td align="center"><strong>マイページ機能</strong></td>
   </tr>
   <tr>
-    <td align="center"><img src="front/public/images/Registration.gif" width="250px"></td>
-    <td align="center"><img src="front/public/images/Feedback.gif" width="250px"></td>
-    <td align="center"><img src="front/public/images/Mypage.gif" width="250px"></td>
+    <td align="center"><img src="front/public/images/Registration.gif" width="330px"></td>
+    <td align="center"><img src="front/public/images/Feedback.gif" width="330px"></td>
+    <td align="center"><img src="front/public/images/Mypage.gif" width="330px"></td>
   </tr>
   <tr>
     <td valign="top">
