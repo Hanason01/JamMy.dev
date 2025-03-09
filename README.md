@@ -81,21 +81,21 @@ JamMyは、録音した音を重ねて仲間とコラボできる音声合成サ
     <td align="center"><img src="front/public/images/Collaboration_management.gif" width="250px"></td>
   </tr>
   <tr>
-    <td align="center">
+    <td align="center"　valign="top">
       <details>
         <summary><strong>詳細はこちら</strong></summary>
         音声を録音し、編集した上で投稿できます。  
         録音に際しては、あらかじめ秒数とBPM(スピード)を決めて、録音前のカウントインやメトロノームの有無、どのマイクを使用するかを指定できます。マイク入力を中央のビジュアライザーで確認する事ができます。録音後は録音した音声の確認や、音量調整ができます。
       </details>
     </td>
-    <td align="center">
+    <td align="center"　valign="top">
       <details>
         <summary><strong>詳細はこちら</strong></summary>
         投稿された音声に合わせて録音し、コラボ応募ができます。  
         録音→応募までは投稿時と同じ流れですが、録音時に投稿音声を再生したり、録音後に同時再生し確認する事ができます。
       </details>
     </td>
-    <td align="center">
+    <td align="center"　valign="top">
       <details>
         <summary><strong>詳細はこちら</strong></summary>
         応募された音声を編集・合成できます。  
@@ -125,21 +125,21 @@ JamMyは、録音した音を重ねて仲間とコラボできる音声合成サ
     <td align="center"><img src="front/public/images/Mypage.gif" width="250px"></td>
   </tr>
   <tr>
-    <td align="center">
+    <td align="center"　valign="top">
       <details>
         <summary><strong>詳細はこちら</strong></summary>
         ユーザーログイン、新規登録および、Googleアカウントでのログインができます。  
         新規登録、Google認証後は自動ログインがされ、ログイン時に「ログイン状態を保持する」にチェックを入れるとログイン状態を1日→2週間に延ばす事ができます。フォームでは入力バリデーションがリアルタイムで行われます。また、通常の新規登録ではメール認証が必要となっており、認証後に自動でログインされ、アプリをそのまま利用できます。パスワードリセットについてもメールベースで行います。
       </details>
     </td>
-    <td align="center">
+    <td align="center"　valign="top">
       <details>
         <summary><strong>詳細はこちら</strong></summary>
         投稿に対して「コメント」「いいね」「ブックマーク」「共有（リンク、およびXへの投稿）」ができます。  
         コメントについては投稿詳細ページで行い、削除もこちらで行います。
       </details>
     </td>
-    <td align="center">
+    <td align="center"　valign="top">
       <details>
         <summary><strong>詳細はこちら</strong></summary>
         マイページで投稿の確認やプロフィール編集が行えます。  
@@ -165,7 +165,7 @@ JamMyは、録音した音を重ねて仲間とコラボできる音声合成サ
     <td align="center"><img src="front/public/images/Fetch.gif" width="250px"></td>
   </tr>
   <tr>
-    <td align="center">
+    <td align="center"　valign="top">
       <details>
         <summary><strong>詳細はこちら</strong></summary>
         通知を確認できます。  
@@ -173,7 +173,7 @@ JamMyは、録音した音を重ねて仲間とコラボできる音声合成サ
         なお、スマホの場合このページにおいて画面上部で下スクロールする事で最新の通知を読み込む事ができます。
       </details>
     </td>
-    <td align="center">
+    <td align="center"　valign="top">
       <details>
         <summary><strong>詳細はこちら</strong></summary>
         投稿一覧ページでは、自分や他のユーザーの投稿を確認する事ができます。  
