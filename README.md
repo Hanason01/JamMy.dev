@@ -76,9 +76,9 @@ JamMyは、録音した音を重ねて仲間とコラボできる音声合成サ
     <td align="center"><strong>音声合成機能</strong></td>
   </tr>
   <tr>
-    <td align="center"><img src="front/public/images/Post.gif" width="250px"></td>
-    <td align="center"><img src="front/public/images/Collaboration.gif" width="250px"></td>
-    <td align="center"><img src="front/public/images/Collaboration_management.gif" width="250px"></td>
+    <td align="center"><img src="front/public/images/Post.gif" width="330px"></td>
+    <td align="center"><img src="front/public/images/Collaboration.gif" width="330px"></td>
+    <td align="center"><img src="front/public/images/Collaboration_management.gif" width="330px"></td>
   </tr>
   <tr>
     <td valign="top">
@@ -161,8 +161,8 @@ JamMyは、録音した音を重ねて仲間とコラボできる音声合成サ
     <td align="center"><strong>投稿一覧機能</strong></td>
   </tr>
   <tr>
-    <td align="center"><img src="front/public/images/Notification.gif" width="250px"></td>
-    <td align="center"><img src="front/public/images/Fetch.gif" width="250px"></td>
+    <td align="center"><img src="front/public/images/Notification.gif" width="330px" max-width="330px"></td>
+    <td align="center"><img src="front/public/images/Fetch.gif" width="330px" max-width="330px"></td>
   </tr>
   <tr>
     <td valign="top">
