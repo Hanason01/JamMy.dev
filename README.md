@@ -1,6 +1,6 @@
 # プロジェクト名: 『JamMy』
 
-## URL : [https://www.jam-my.com/](https://www.jam-my.com/)
+## URL（ゲストユーザー情報は下記に記載） : [https://www.jam-my.com/](https://www.jam-my.com/)
 
 ![サービスイメージ](front/public/images/TopLogo_Stable.jpg)
 
