@@ -65,6 +65,128 @@ JamMyは、録音した音を重ねて仲間とコラボできる音声合成サ
 
 <br><br>
 
+## 🚀 主な機能
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center"><strong>音声投稿機能</strong></td>
+    <td align="center"><strong>応募機能</strong></td>
+    <td align="center"><strong>音声合成機能</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="front/public/images/Post.gif" width="250px"></td>
+    <td align="center"><img src="front/public/images/Collaboration.gif" width="250px"></td>
+    <td align="center"><img src="front/public/images/Collaboration_management.gif" width="250px"></td>
+  </tr>
+  <tr>
+    <td align="center">
+      <details>
+        <summary><strong>詳細はこちら</strong></summary>
+        音声を録音し、編集した上で投稿できます。  
+        録音に際しては、あらかじめ秒数とBPM(スピード)を決めて、録音前のカウントインやメトロノームの有無、どのマイクを使用するかを指定できます。マイク入力を中央のビジュアライザーで確認する事ができます。録音後は録音した音声の確認や、音量調整ができます。
+      </details>
+    </td>
+    <td align="center">
+      <details>
+        <summary><strong>詳細はこちら</strong></summary>
+        投稿された音声に合わせて録音し、コラボ応募ができます。  
+        録音→応募までは投稿時と同じ流れですが、録音時に投稿音声を再生したり、録音後に同時再生し確認する事ができます。
+      </details>
+    </td>
+    <td align="center">
+      <details>
+        <summary><strong>詳細はこちら</strong></summary>
+        応募された音声を編集・合成できます。  
+        ここでは応募された音声を選択し、スロットに展開、音量調整を行います。同時に2つまで編集ができ、編集を行ったものは合成リストに追加できます。合成リストでは、合成を行う最終確認を行い、合成ボタンを押し、その後保存を押すと合成内容が保存されます。
+      </details>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+<br>
+
+## 🔧 その他の機能
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center"><strong>ユーザー登録機能</strong></td>
+    <td align="center"><strong>フィードバック機能</strong></td>
+    <td align="center"><strong>マイページ機能</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="front/public/images/Registration.gif" width="250px"></td>
+    <td align="center"><img src="front/public/images/Feedback.gif" width="250px"></td>
+    <td align="center"><img src="front/public/images/Mypage.gif" width="250px"></td>
+  </tr>
+  <tr>
+    <td align="center">
+      <details>
+        <summary><strong>詳細はこちら</strong></summary>
+        ユーザーログイン、新規登録および、Googleアカウントでのログインができます。  
+        新規登録、Google認証後は自動ログインがされ、ログイン時に「ログイン状態を保持する」にチェックを入れるとログイン状態を1日→2週間に延ばす事ができます。フォームでは入力バリデーションがリアルタイムで行われます。また、通常の新規登録ではメール認証が必要となっており、認証後に自動でログインされ、アプリをそのまま利用できます。パスワードリセットについてもメールベースで行います。
+      </details>
+    </td>
+    <td align="center">
+      <details>
+        <summary><strong>詳細はこちら</strong></summary>
+        投稿に対して「コメント」「いいね」「ブックマーク」「共有（リンク、およびXへの投稿）」ができます。  
+        コメントについては投稿詳細ページで行い、削除もこちらで行います。
+      </details>
+    </td>
+    <td align="center">
+      <details>
+        <summary><strong>詳細はこちら</strong></summary>
+        マイページで投稿の確認やプロフィール編集が行えます。  
+        自分の投稿や応募状況、ブックマーク等がタブ毎に分かれており、すぐに確認ができます。
+      </details>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+<br>
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center"><strong>通知機能</strong></td>
+    <td align="center"><strong>投稿一覧機能</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="front/public/images/Notification.gif" width="250px"></td>
+    <td align="center"><img src="front/public/images/Fetch.gif" width="250px"></td>
+  </tr>
+  <tr>
+    <td align="center">
+      <details>
+        <summary><strong>詳細はこちら</strong></summary>
+        通知を確認できます。  
+        ログイン後やアプリ起動時に通知がある場合は、ボトムナビの通知ボタン横に赤点が表示されます。通知ページに移動すると他のユーザーからのフィードバックや、応募、コラボ等の通知が確認できます。該当の通知をクリックすると、関連する投稿の詳細ページへ遷移します。  
+        なお、スマホの場合このページにおいて画面上部で下スクロールする事で最新の通知を読み込む事ができます。
+      </details>
+    </td>
+    <td align="center">
+      <details>
+        <summary><strong>詳細はこちら</strong></summary>
+        投稿一覧ページでは、自分や他のユーザーの投稿を確認する事ができます。  
+        通知ページと同様に画面上部で下スクロールする事で最新の投稿を読み込む事ができます。この一覧ページは無限スクロールで実装されており、下へスクロールすると時系列で過去の投稿を次々と読み込み、表示します。  
+        また、自分の投稿に限り、この投稿一覧および投稿詳細ページにて投稿右上のメニューより投稿の編集、削除が行えます。
+      </details>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+
 ## 🚀主な機能
 
 <br><br>
