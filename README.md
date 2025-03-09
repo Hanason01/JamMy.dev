@@ -36,13 +36,18 @@ JamMyは、録音した音を重ねて仲間とコラボできる音声合成サ
 ## 🔗サービスURL
 [https://www.jam-my.com/](https://www.jam-my.com/)
 
-🛠️ **ゲストユーザー1情報**  
+
+🛠️ **ゲストユーザー1**  
  **メールアドレス**：`jammy.guest1@gmail.com`  
  **パスワード**：`password`
 
-🛠️ **ゲストユーザー2情報**  
+🛠️ **ゲストユーザー2**  
  **メールアドレス**：`jammy.guest2@gmail.com`  
  **パスワード**：`password`
+
+<br>
+
+🌾ゲストユーザーアカウントはご自由にご利用ください
 
 <br><br>
 
