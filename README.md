@@ -324,6 +324,24 @@ JamMyは、録音した音を重ねて仲間とコラボできる音声合成サ
 ## 🗺️ER図
 ![ER図](front/public/images/ER.png)
 
+>#### ER図補足
+>
+>| テーブル名 | カラム | 備考 |
+>|------------|------------|------------|
+>| **users** | `provider`, `uid` | OAuth認証情報（Devise Token Auth） |
+>|  | `encrypted_password` | Deviseによるパスワードハッシュ化 |
+>| **projects** | `duration`,`tempo` | 録音メタ情報（秒数/BPM設定） |
+>|  | `status` | enum statusで募集中、終了を管理 |
+>|  | `visibility` | enum visibilityで公開範囲を管理 |
+>| **collaborations** | `status` | enum statusで応募中、コラボ、不承認を管理 |
+>| **audio_files** | `fileable_type`, `fileable_id` | ポリモーフィック関連（projects / collaborations） |
+>|  | `file_path` | S3上の対象リソースへのキー |
+>| **comments** | `commentable_type`, `commentable_id` | ポリモーフィック関連（projects / comments） |
+>| **likes** | `likeable_type`, `likeable_id` | ポリモーフィック関連（projects / comments） |
+>| **notifications** | `notification_type` | enum notification_typeで通知対象をポリモーフィック管理 |
+
+
+
 <br><br>
 <br><br>
 
