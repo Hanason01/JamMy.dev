@@ -14,6 +14,8 @@ interface CustomVerticalSliderProps {
   disabled?: boolean;
 }
 
+const currentSliderRef = { current: null as "vertical" | "horizontal" | null };
+
 export function CustomVerticalSlider({
   value,
   onChange,
@@ -44,15 +46,20 @@ export function CustomVerticalSlider({
   };
 
 
-  const handlePointerDown = () => {
+  const handlePointerDown : React.PointerEventHandler<HTMLDivElement> = (event) => {
     if (disabled) return;
+    event.preventDefault();
+    currentSliderRef.current = "vertical";
+    document.body.style.overflow = "hidden";
     document.addEventListener("pointermove", handlePointerMove);
     document.addEventListener("pointerup", handlePointerUp);
   };
 
   const handlePointerUp = () => {
+    document.body.style.overflow = "";
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
+    currentSliderRef.current = null;
   };
 
   return (
@@ -102,6 +109,7 @@ export function CustomVerticalSlider({
             cursor: disabled ? "not-allowed" : "pointer",
             left: "50%",
             boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+            p:1
           }}
           onPointerDown={handlePointerDown}
         />
@@ -111,7 +119,6 @@ export function CustomVerticalSlider({
         sx={{
           mt: 1,
           fontSize: "0.875rem",
-          fontWeight: "bold",
           width: "50px",
           textAlign: "center",
         }}
