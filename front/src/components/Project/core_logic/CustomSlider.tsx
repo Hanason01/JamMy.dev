@@ -13,6 +13,8 @@ interface CustomSliderProps {
   unit?: string;
 }
 
+const currentSliderRef = { current: null as "vertical" | "horizontal" | null };
+
 export function CustomSlider({
   value,
   onChange,
@@ -43,14 +45,19 @@ export function CustomSlider({
     }
   };
 
-  const handlePointerDown = () => {
+  const handlePointerDown : React.PointerEventHandler<HTMLDivElement> = (event) => {
+    event.preventDefault();
+    currentSliderRef.current = "horizontal";
+    document.body.style.overflow = "hidden";
     document.addEventListener("pointermove", handlePointerMove);
     document.addEventListener("pointerup", handlePointerUp);
   };
 
   const handlePointerUp = () => {
+    document.body.style.overflow = "";
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
+    currentSliderRef.current = null;
   };
 
   return (
@@ -72,6 +79,7 @@ export function CustomSlider({
             background: "#DDD",
             borderRadius: "4px",
             cursor: "pointer",
+            touchAction: "none",
           }}
           onPointerDown={handlePointerDown}
         >
@@ -83,6 +91,7 @@ export function CustomSlider({
               width: `${((internalValue - min) / (max - min)) * 100}%`,
               background: color,
               borderRadius: "4px",
+              touchAction: "none",
             }}
           />
 
@@ -99,6 +108,7 @@ export function CustomSlider({
               cursor: "pointer",
               top: "50%",
               boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+              p:1.5
             }}
             onPointerDown={handlePointerDown}
           />
@@ -108,8 +118,7 @@ export function CustomSlider({
         align="left"
         sx={{
           width: "70px",
-          fontSize: "1.2rem",
-          fontWeight: "bold",
+          fontSize: "0.875rem",
         }}
       >
         {internalValue} {unit}

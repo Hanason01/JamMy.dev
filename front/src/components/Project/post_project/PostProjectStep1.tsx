@@ -88,7 +88,7 @@ export function PostProjectStep1({onNext,
           <CustomSlider
             value={speedSliderValue}
             onChange={setSpeedSliderValue}
-            min={1}
+            min={40}
             max={200}
             unit="BPM"
           />
