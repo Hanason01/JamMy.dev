@@ -8,17 +8,13 @@ const zoomAnimation = keyframes`
     transform: scale(1);
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.15);
   }
   100% {
     transform: scale(1);
   }
 `;
 
-const fadeIn = keyframes`
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-`;
 
 export function BackgroundImage(){
   return (
@@ -27,7 +23,7 @@ export function BackgroundImage(){
         position: "relative",
         width: "100vw",
         minHeight: "50vh",
-        maxHeight: "80vh",
+        maxHeight: "100vh",
         overflow: "hidden",
         display: "flex",
         justifyContent: "center",
@@ -41,52 +37,19 @@ export function BackgroundImage(){
           left: "0",
           width: "100%",
           height: "100%",
-          backgroundImage: "url(/images/TopImage.jpg)",
+          backgroundImage: "url(/images/TopLogo_Stable.jpg)",
           backgroundSize: {
-            xs: "180%",
-            sm: "170%",
-            md: "150%",
+            xs: "185%",
+            sm: "145%",
+            md: "135%",
             lg: "120%",
-            xl: "110%",
+            xl: "100%",
           },
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           animation: `${zoomAnimation} 35s infinite ease-in-out`,
         }}
       />
-        <Box
-          sx={{
-            position: "absolute",
-            top: "calc(50% + (100% * 0.14))",
-            left: {
-              xs: "59%",
-              sm: "59%",
-              md: "60%",
-              lg: "64%",
-              xl: "65%",
-            },
-            width: "55%",
-            height:{
-              xs: "16%",
-              sm: "16%",
-              md: "15%",
-              lg: "13%",
-              xl: "12%",
-            },
-            transform: "translate(-50%, -50%)",
-            backgroundSize: {
-              xs: "65%",
-              sm: "65%",
-              md: "59%",
-              lg: "45%",
-              xl: "40%",
-            },
-            backgroundImage: "url(/images/TopLogo.jpg)",
-            backgroundRepeat: "no-repeat",
-            animation: `${fadeIn} 3s ease-in forwards`,
-            borderRadius: "10px",
-          }}
-        />
     </Box>
   );
 }

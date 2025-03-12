@@ -453,6 +453,7 @@ export function CollaborationManagementStep1({
                   }
                   displayEmpty
                   fullWidth
+                  sx ={{ my: 2}}
                 >
                   <MenuItem value="" disabled>
                     応募音声を選択

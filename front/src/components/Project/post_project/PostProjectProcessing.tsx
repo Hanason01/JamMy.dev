@@ -281,7 +281,7 @@ export function PostProjectProcessing({
           }} />
         </FormGroup>
         )}
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb:8, mt:2, mx: 1, ...(onRemove && { mb:0 })
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb:8, mt:2, mx: 1, ...(onRemove && { mb:1 })
         }}>
           <Box sx={{ flex: 2 }}>
             <AudioPlayer
