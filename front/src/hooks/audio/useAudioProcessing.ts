@@ -24,7 +24,7 @@ export function useAudioProcessing({
 
         // 音量調整の GainNode を追加
         const gainNode = offlineContext.createGain();
-        gainNode.gain.value = selectedVolume; // 音量調整 (子コンポーネントから取得した値)
+        gainNode.gain.value = (selectedVolume / 100) * 2; // 音量調整 (子コンポーネントから取得した値)
 
         // 接続: source → gainNode → destination
         source.connect(gainNode);
