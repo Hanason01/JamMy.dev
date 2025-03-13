@@ -13,17 +13,19 @@ export function AudioController({
   onClose,
   audioData,
   project,
-  user
+  user,
+  audioElement
 } : {
   onClose: () => void,
   audioData: ArrayBuffer | null,
   project: Project | null,
   user: User | null
+  audioElement: HTMLAudioElement | null
 }){
-  const { isPlaying, currentTime, duration, play, pause, seek } = useProjectIndexAudioPlayer(audioData);
+  const { isPlaying, currentTime, duration, play, pause, seek } = useProjectIndexAudioPlayer(audioElement);
 
   useEffect(() => {
-      play(); //初回レンダリング時のみ自動再生
+    play(); //初回レンダリング時のみ自動再生
   }, [audioData]);
 
   return(
