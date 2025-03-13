@@ -2,8 +2,10 @@
 
 import { AudioBuffer, Settings, SetState } from "@sharedTypes/types";
 import { useState, useEffect, useRef } from "react";
-import { Button, Box, IconButton, Typography, CircularProgress, Menu, MenuItem } from "@mui/material";
+import { Button, Box, IconButton, Typography, CircularProgress, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, Divider } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import { keyframes } from "@emotion/react";
 import { useAudioRecorder } from "@audio/useAudioRecorder";
 import { useAudioAnalyzer } from "@audio/useAudioAnalyzer";
@@ -33,6 +35,7 @@ export function RecordingCore({
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
   const [isPressed, setIsPressed] = useState(false);
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   //WebAudioApi関連
   const audioContextRef = useRef<AudioContext | null>(null); //メトロノームと共有
@@ -290,8 +293,29 @@ export function RecordingCore({
         <Box sx={{
           width: "100%",
           display: "flex",
+          alignItems: "center",
           justifyContent: "flex-end",
         }}>
+          <HelpOutlineIcon onClick={() => {setOpenDialog(true)}} sx={{mr:3, width:"30px", height: "30px", color: "secondary.main"}} />
+          <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+            <DialogTitle >
+              <Box display="flex" alignItems="center" justifyContent="center">
+                録音のポイント
+                <TipsAndUpdatesIcon sx={{color: "secondary.main"}} />
+              </ Box>
+            </DialogTitle>
+
+            <Divider />
+            <DialogContent>
+              <DialogContentText>
+              1. できるだけ雑音の少ない静かな環境で録音しましょう！<br />
+              2. メトロノームを聞きながら、または投稿の音声を聞きながら録音する際は、できるだけイヤホン・ヘッドホンを利用しましょう！<br />
+              <br />
+              ※お使いのイヤホンのマイク性能や接続方式（BlueTooth等）によっては、録音音声に遅延が発生することがあります。<br />
+              ※スマホからのご利用の場合（特にiOSの方）、お使いのイヤホンによっては、スピーカー出力とマイク入力を分離できない場合があります。<br />
+              </DialogContentText>
+            </DialogContent>
+          </Dialog>
           <Button
           variant="secondary"
           startIcon={<SettingsIcon/>}
