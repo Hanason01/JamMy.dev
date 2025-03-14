@@ -11,6 +11,7 @@ interface CustomSliderProps {
   step?: number;
   color?: string;
   unit?: string;
+  disabled?: boolean;
 }
 
 const currentSliderRef = { current: null as "vertical" | "horizontal" | null };
@@ -23,6 +24,7 @@ export function CustomSlider({
   step = 1,
   color = "#3F51B5",
   unit = "",
+  disabled = false,
 }: CustomSliderProps) {
   const [internalValue, setInternalValue] = useState(value);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -32,7 +34,7 @@ export function CustomSlider({
   }, [value]);
 
   const handlePointerMove = (event: PointerEvent) => {
-    if (!trackRef.current) return;
+    if (!trackRef.current || disabled) return;
 
     const rect = trackRef.current.getBoundingClientRect();
     const newValue = Math.round(
@@ -46,6 +48,7 @@ export function CustomSlider({
   };
 
   const handlePointerDown : React.PointerEventHandler<HTMLDivElement> = (event) => {
+    if (disabled) return;
     event.preventDefault();
     currentSliderRef.current = "horizontal";
     document.body.style.overflow = "hidden";
@@ -67,6 +70,8 @@ export function CustomSlider({
         alignItems: "center",
         my: 1,
         width: "100%",
+        opacity: disabled ? 0.5 : 1,
+        touchAction: "none",
       }}
     >
       <Box sx={{ flexGrow: 1, mr: 2 }}>
@@ -78,7 +83,7 @@ export function CustomSlider({
             height: "5px",
             background: "#DDD",
             borderRadius: "4px",
-            cursor: "pointer",
+            cursor: disabled ? "not-allowed" : "pointer",
             touchAction: "none",
           }}
           onPointerDown={handlePointerDown}
@@ -89,7 +94,7 @@ export function CustomSlider({
               position: "absolute",
               height: "6px",
               width: `${((internalValue - min) / (max - min)) * 100}%`,
-              background: color,
+              background: disabled ? "#AAA": color,
               borderRadius: "4px",
               touchAction: "none",
             }}
@@ -103,9 +108,9 @@ export function CustomSlider({
               transform: "translate(-50%, -50%)",
               width: "24px",
               height: "24px",
-              background: color,
+              background: disabled ? "#888": color,
               borderRadius: "50%",
-              cursor: "pointer",
+              cursor: disabled ? "not-allowed" : "pointer",
               top: "50%",
               boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
               p:1.5

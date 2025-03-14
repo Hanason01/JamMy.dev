@@ -28,6 +28,7 @@ export function PostProjectStep1({onNext,
   const [metronomeOn, setMetronomeOn] = useState<boolean>(false); //メトロノームON/OFF
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
   const [selectedVolume, setSelectedVolume] = useState<number>(50); // 音量管理
+  const [isRecording, setIsRecording] = useState<boolean>(false); //録音状態
 
   //カウントインセレクト用
   const preCounts = [0,1,2,3,4,5,6,7]
@@ -82,6 +83,7 @@ export function PostProjectStep1({onNext,
             min={1}
             max={60}
             unit="秒"
+            disabled={isRecording}
           />
         </Box>
         <Box sx={{display: "flex", alignItems: "center", my:1, width: "80%"}}>
@@ -91,6 +93,7 @@ export function PostProjectStep1({onNext,
             min={40}
             max={200}
             unit="BPM"
+            disabled={isRecording}
           />
         </Box>
         <TextField
@@ -148,6 +151,8 @@ export function PostProjectStep1({onNext,
             duration: recordingDurationSliderValue,
             metronomeOn: metronomeOn,
           }}
+          isRecording={isRecording}
+          setIsRecording={setIsRecording}
           />
         )}
       </Box>

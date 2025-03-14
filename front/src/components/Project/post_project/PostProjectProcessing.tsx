@@ -18,6 +18,7 @@ export function PostProjectProcessing({
   id,
   mode,
   simpleUI= false,
+  globalAudioContextRef,
   audioBufferForProcessing,
   setHasRecorded,
   setAudioBufferForProcessing,
@@ -33,6 +34,7 @@ export function PostProjectProcessing({
   id?: string; //オプショナル
   mode: "player-only" | "with-effects" | "management";
   simpleUI?: boolean;
+  globalAudioContextRef?: AudioContext | null; //オプショナル
   audioBufferForProcessing: AudioBuffer;
   setHasRecorded?: SetState<boolean>; //オプショナル
   setAudioBufferForProcessing?: SetState<AudioBuffer>; //オプショナル
@@ -62,7 +64,6 @@ export function PostProjectProcessing({
     setIsPlaybackTriggered, playbackTriggeredByRef,
     setIsPlaybackReset, playbackResetTriggeredByRef} = usePlayback();
 
-    const { globalAudioContextRef } = useCollaborationManagementContext();
 
   useEffect(() => {
     // console.log(`[${new Date().toISOString()}] PostProjectProcessingがマウントされました`);
@@ -75,10 +76,10 @@ export function PostProjectProcessing({
     const initializeAudioContext = async (): Promise<void> => {
       if (!isMounted) return;
 
-      if(globalAudioContextRef.current){
-        audioContextForProcessingRef.current = globalAudioContextRef.current;
+      if(globalAudioContextRef){
+        audioContextForProcessingRef.current = globalAudioContextRef;
         // console.log("globalAudioContextRefを確認した為、audioContextForProcessingRefへ代入",audioContextForProcessingRef.current);
-      }else if (audioContextForProcessingRef.current === null && globalAudioContextRef.current === null) {
+      }else if (!audioContextForProcessingRef.current && !globalAudioContextRef) {
         // console.log("AudioContext と GainNode の初期化を開始（globalAudioContextを察知しなかった）");
         const context = new (window.AudioContext || (window as any).webkitAudioContext)({
           sampleRate: 44100
@@ -183,7 +184,7 @@ export function PostProjectProcessing({
       }
 
       //globalAudioContextRefを使っていない場合はAudioContextのクリーンアップを許可する
-      if (audioContextForProcessingRef.current && audioContextForProcessingRef.current !== globalAudioContextRef.current) {
+      if (audioContextForProcessingRef.current && audioContextForProcessingRef.current !== globalAudioContextRef) {
         // console.log("AudioContext の状態:", audioContextForProcessingRef.current.state);
           audioContextForProcessingRef.current = null;
           // console.log("AudioContext を閉じました", audioContextForProcessingRef.current);

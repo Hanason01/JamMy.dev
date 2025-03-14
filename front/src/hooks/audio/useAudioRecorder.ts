@@ -133,11 +133,9 @@ export function useAudioRecorder({
               setIsPlaybackTriggered(false);
               // console.log("アンマウント、あるいは録音自動終了により、再生トリガーをリセットしました");
             }
-            setTimeout(async () => {
-             // 録音停止時にプロセッサから送られた最終データを処理
-              processCompleteData(event.data.audioData);
-              setLoading(false);
-            }, 100);
+            // 録音停止時にプロセッサから送られた最終データを処理
+            processCompleteData(event.data.audioData);
+            setLoading(false);
             // console.log("complete メッセージの処理が完了しました");
           }
         };
