@@ -79,6 +79,13 @@ export function ProjectShowWrapper(){
   };
 
 
+    //遷移時のコントローラー制御
+    useEffect(() => {
+      return() =>{
+        handleCloseClick();
+      }
+    }, []);
+
   //再生ボタン押下時処理
   const handlePlayClick = async (project: EnrichedProject) => {
     const { user, audioFilePath } = project;
