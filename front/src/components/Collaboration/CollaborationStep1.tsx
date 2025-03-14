@@ -35,7 +35,7 @@ export function CollaborationStep1({
   const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(false); //プレビュー時投稿音声同時再生
   // console.log("enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡",enablePostAudioPreview);
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
-  const [selectedVolume, setSelectedVolume] = useState<number>(1); // 音量管理
+  const [selectedVolume, setSelectedVolume] = useState<number>(50); // 音量管理
   const globalAudioContextRef = useRef<AudioContext | null>(null); //同時再生等を利用する為、統括する
   const [audioData, setAudioData] = useState<AudioBuffer>(null);
 
