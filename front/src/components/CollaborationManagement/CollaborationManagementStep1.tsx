@@ -434,7 +434,7 @@ export function CollaborationManagementStep1({
                   {slot.collaborationId && slot.audioBuffer && (
                   <PostProjectProcessing
                     id = {slot.collaborationId.toString()}
-                    mode = "with-effects"
+                    mode = "management"
                     simpleUI = {true}
                     audioBufferForProcessing={slot.audioBuffer}
                     onRemove={() => handleRemoveAudio(slot.slotId)}

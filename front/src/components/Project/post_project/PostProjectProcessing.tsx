@@ -4,6 +4,7 @@ import { AudioBuffer, SetState } from "@sharedTypes/types";
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, IconButton, CircularProgress, FormGroup, FormControlLabel, Switch, Typography} from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import BackspaceIcon from '@mui/icons-material/Backspace';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
@@ -30,7 +31,7 @@ export function PostProjectProcessing({
   setSelectedVolume
 } : {
   id?: string; //オプショナル
-  mode: "player-only" | "with-effects";
+  mode: "player-only" | "with-effects" | "management";
   simpleUI?: boolean;
   audioBufferForProcessing: AudioBuffer;
   setHasRecorded?: SetState<boolean>; //オプショナル
@@ -54,7 +55,7 @@ export function PostProjectProcessing({
   const [isInitialized, setIsInitialized] = useState<boolean>(false); //初期化フラグ
   const [loading, setLoading] = useState<boolean>(false); // ローディング状態
 
-  const { processAudio } = useAudioProcessing({ selectedVolume });
+  const { processAudio } = useAudioProcessing();
 
   //Context関連
   const {
@@ -89,7 +90,7 @@ export function PostProjectProcessing({
       if (!isMounted) return;
 
       // エフェクトモードの場合、各Node構築
-      if (mode === "with-effects"){
+      if (mode === "with-effects" || mode === "management"){
         //ノード作成
         // const leftConvolver = context.createConvolver();
         // const rightConvolver = context.createConvolver();
@@ -220,7 +221,7 @@ export function PostProjectProcessing({
       try {
         if (audioBufferForProcessing) {
           // console.log("AudioBuffer の処理を開始します...");
-          const processedBuffer = await processAudio(audioBufferForProcessing);
+          const processedBuffer = await processAudio(audioBufferForProcessing, selectedVolume);
           // console.log("AudioBuffer の処理が完了しました:", processedBuffer);
 
           // 処理後の AudioBuffer を親コンポーネントに渡しプレビュー用bufferを解除
@@ -259,7 +260,7 @@ export function PostProjectProcessing({
             </Typography>
           </Box>
           <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-            ここでは、録音した音声の編集ができます
+            ここでは、録音した音声の音量調整ができます
           </Typography>
           </>
           )
@@ -292,7 +293,7 @@ export function PostProjectProcessing({
             enablePostAudioPreview={enablePostAudioPreview}
             />
           </Box>
-          {mode === "with-effects" && audioContextForProcessingRef.current &&(
+          {(mode === "with-effects" || mode === "management") && audioContextForProcessingRef.current &&(
             <Box sx={{ flex: "0 0 auto" }}>
               <AudioProcessor
               mixGainNode={mixGainNodeRef.current}
@@ -301,19 +302,33 @@ export function PostProjectProcessing({
               />
             </Box>
           )}
-          <IconButton
-            onClick={handleCloseClick}
-            sx={{
-              alignSelf: "flex-start",
-              color: "gray",
-            }}
-            aria-label="Close"
-          >
-            <HighlightOffIcon fontSize="large"/>
-          </IconButton>
+          {mode === "management" &&(
+            <IconButton
+              onClick={handleCloseClick}
+              sx={{
+                alignSelf: "flex-start",
+                color: "gray",
+              }}
+              aria-label="Close"
+            >
+              <HighlightOffIcon fontSize="large"/>
+            </IconButton>
+          )}
         </Box>
         {!onRemove && (
-        <Box sx={{ textAlign: "center" }}>
+        <Box sx={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 2,
+        }}>
+          <Button
+            onClick={handleCloseClick}
+            variant="primary"
+            disabled={loading}
+            startIcon={<BackspaceIcon />}
+          >
+            録音し直す
+          </Button>
           <Button
           onClick={handleSubmit}
           variant="primary"

@@ -36,7 +36,7 @@ export function CollaborationStep1({
   // console.log("enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡",enablePostAudioPreview);
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
   const [selectedVolume, setSelectedVolume] = useState<number>(1); // 音量管理
-  const globalAudioContextRef = useRef<AudioContext | null>(null);
+  const globalAudioContextRef = useRef<AudioContext | null>(null); //同時再生等を利用する為、統括する
   const [audioData, setAudioData] = useState<AudioBuffer>(null);
 
   const router = useRouter();
@@ -106,11 +106,12 @@ export function CollaborationStep1({
     return () => {
       if (audioData) {
         setAudioData(null);
-        // console.log("audioDataのクリーンアップに成功");
       }
       if (globalAudioContextRef.current) {
-        globalAudioContextRef.current.close();
-        globalAudioContextRef.current = null;
+        globalAudioContextRef.current.close().then(() => {
+          globalAudioContextRef.current = null;
+        });
+
         // console.log("globalAudioContext を閉じました");
       }
       setRecordingDurationSliderValue(30);

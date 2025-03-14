@@ -76,12 +76,19 @@ export function useAudioRecorder({
         return null; // マイクがない場合は初期化を中止
       }
 
-      //(4)デフォルトマイクの音声ストリーム取得
+      //(4)デフォルトあるいは選択されたマイクの音声ストリーム取得
       if (!isMounted()) return null;
       // console.log("マイク入力を取得開始");
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: { exact: micId } },
+        audio: {
+          sampleRate: 44100,
+          channelCount: 1, //モノラル
+          echoCancellation: false, //エコーキャンセルオフ
+          noiseSuppression: false, //ノイズキャンセリングオフ
+          autoGainControl: false, //自動ゲイン調整をオフ
+          deviceId: { exact: micId } },
       });
+      //以上のオプションは録音時のマイク遅延を減らす為に前もって設定するもの
       // console.log("マイク入力の取得に成功",stream);
 
       //(5)MediaStreamSourceの作成
@@ -220,9 +227,11 @@ export function useAudioRecorder({
     // (1) AudioWorkletNode のクリーンアップ
     if (audioWorkletNodeRef.current) {
       audioWorkletNodeRef.current.port.postMessage({ type: "terminate" }); // terminateメッセージを送信
+      audioWorkletNodeRef.current.port.close();
       audioWorkletNodeRef.current.disconnect();
+      audioWorkletNodeRef.current.port.onmessage = null;
       audioWorkletNodeRef.current = null;
-      // console.log("AudioWorkletNode をクリーンアップしました",audioWorkletNodeRef.current);
+      // AudioWorkletNodeを切断し、参照を切ったとしてもChromeにおいては、メモリリークが発生するという問題「https://issues.chromium.org/issues/40823260」→現時点の最新の情報「https://issues.chromium.org/issues/40072701」が存在しており、未解決の問題。
     }
 
     // (2) MediaStreamSource のクリーンアップ
@@ -233,8 +242,12 @@ export function useAudioRecorder({
     }
 
     // (3) AudioContextのクリーンアップ
-      if (audioContextRef.current) {
-          audioContextRef.current = null;
+      if (audioContextRef.current && !globalAudioContext) {
+          audioContextRef.current.close().then(() => {
+            audioContextRef.current = null;
+          });
+          // globalAudioContextの場合はより上位のコンポーネントで抹消する為、こちらでは抹消しない。
+
           // console.log("AudioContext を閉じました",audioContextRef.current);
       }
 
