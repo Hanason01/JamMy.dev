@@ -95,6 +95,7 @@ export function CustomVerticalSlider({
             bottom: 0,
             background: disabled ? "#AAA" : "#FFC107",
             borderRadius: "4px",
+            touchAction: "none",
           }}
         />
         <Box

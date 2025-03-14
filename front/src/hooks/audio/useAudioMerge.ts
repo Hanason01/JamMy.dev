@@ -9,13 +9,13 @@ export function useAudioMerge({
 }:{
   postAudioData: AudioBuffer | null;
   synthesisList: ExtendedCollaboration[];
-  globalAudioContextRef: React.MutableRefObject<AudioContext | null>;
+  globalAudioContextRef: AudioContext | null;
   setMergedAudioBuffer:SetState<AudioBuffer | null>;
 }) {
 
 
   const mergeAudioBuffers = async (): Promise<void> => {
-    if (!globalAudioContextRef.current || !postAudioData || synthesisList.length === 0) {
+    if (!globalAudioContextRef || !postAudioData || synthesisList.length === 0) {
       console.error("globalAudioContextRefもしくはpostAudio, synthesisList合成リストがありません");
       setMergedAudioBuffer(null);
       return;
@@ -54,10 +54,10 @@ export function useAudioMerge({
       }
 
       // 新しいAudioBufferを作成
-      const outputBuffer = globalAudioContextRef.current!.createBuffer(
+      const outputBuffer = globalAudioContextRef!.createBuffer(
         maxChannels,
         bufferLength,
-        globalAudioContextRef.current!.sampleRate
+        globalAudioContextRef!.sampleRate
       );
 
       // 各 AudioBuffer をコピー

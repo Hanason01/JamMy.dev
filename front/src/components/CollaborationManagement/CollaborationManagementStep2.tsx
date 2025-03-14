@@ -20,16 +20,17 @@ import { usePlayback } from "@context/usePlayBackContext";
 export function CollaborationManagementStep2({
   onNext,
   onBack,
+  globalAudioContextRef,
 }: {
   onNext: () => void;
   onBack: () => void;
+  globalAudioContextRef: AudioContext | null;
 }){
   //Context関連
   const {currentProject,currentUser} = useProjectContext();
 
   const {
     postAudioData,
-    globalAudioContextRef,
     synthesisList, setSynthesisList,
     setMergedAudioBuffer
   } = useCollaborationManagementContext();
@@ -178,11 +179,11 @@ export function CollaborationManagementStep2({
           </Typography>
         </Box>
 
-        {postAudioData && globalAudioContextRef.current ? (
+        {postAudioData && globalAudioContextRef ? (
           <AudioPlayer
             id = {"Post"} //Post
             audioBuffer={postAudioData}
-            audioContext={globalAudioContextRef.current}
+            audioContext={globalAudioContextRef}
             enablePostAudioPreview={enablePostAudioPreview}
           />
         ) : (
@@ -318,7 +319,7 @@ export function CollaborationManagementStep2({
                     <AudioPlayer
                     id = {item.id.toString()}
                     audioBuffer={item.audioBuffer}
-                    audioContext={globalAudioContextRef.current}
+                    audioContext={globalAudioContextRef}
                     enablePostAudioPreview={enablePostAudioPreview}
                     />
                     <IconButton

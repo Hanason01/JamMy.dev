@@ -20,6 +20,8 @@ export function RecordingCore({
   onRecordingComplete,
   settings,
   enablePostAudio = false, //渡されなかった場合はfalseとする
+  isRecording,
+  setIsRecording,
 
 } : {
   id?: string;  //オプショナル
@@ -27,8 +29,9 @@ export function RecordingCore({
   onRecordingComplete: (audioBuffer: AudioBuffer) => void;
   settings: Settings;
   enablePostAudio?: boolean; //オプショナル
+  isRecording: boolean;
+  setIsRecording: SetState<boolean>;
 }){
-  const [ isRecording, setIsRecording ] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false); //録音時初期化
   const [isInitializing, setIsInitializing] = useState<boolean>(false); // 初期化中のフラグ(useEffectの制御)
   const [loading, setLoading] = useState<boolean>(false); // ローディング状態
