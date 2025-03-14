@@ -51,7 +51,7 @@ export function CollaborationManagementStep1({
   const [isEditing, setIsEditing] = useState<boolean>(false); //slotsにcollaborationが入っていれ（編集中）ばtrue
   const [openSlots, setOpenSlots] = useState<{ [key: string]: boolean }>({});
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false); // Snackbar の開閉状態管理
-  const [selectedVolume, setSelectedVolume] = useState<number>(1); // 音量管理
+  const [selectedVolume, setSelectedVolume] = useState<number>(50); // 音量管理
 
 
   //フック関係
