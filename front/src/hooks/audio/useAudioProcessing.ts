@@ -1,10 +1,7 @@
 import { AudioBuffer } from "@sharedTypes/types";
 
-export function useAudioProcessing({
-  selectedVolume,
-} : {
-  selectedVolume: number }) {
-  const processAudio = async (buffer: AudioBuffer): Promise<AudioBuffer> => {
+export function useAudioProcessing() {
+  const processAudio = async (buffer: AudioBuffer,selectedVolume: number ): Promise<AudioBuffer> => {
 
       if (!buffer) {
         return null;
