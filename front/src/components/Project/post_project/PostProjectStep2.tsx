@@ -35,7 +35,9 @@ export function PostProjectStep2({
       // console.log("audioContextRef",audioContextRef.current);
     }
     return () => {
-      audioContextRef.current = null;
+      audioContextRef.current?.close().then(() => {
+        audioContextRef.current = null;
+      });
       // console.log(`PostProjectStep2がアンマウントされました[${new Date().toISOString()}]`);
     };
   }, []);
