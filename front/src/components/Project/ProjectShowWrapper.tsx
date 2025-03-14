@@ -1,7 +1,7 @@
 "use client";
 import { Project, User, InitialProjectData, EnrichedProject } from "@sharedTypes/types";
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Box, Alert, CircularProgress, Typography } from "@mui/material";
 import { ProjectCard } from "@Project/ProjectCard";
@@ -55,6 +55,9 @@ export function ProjectShowWrapper(){
   //オーディオコントローラーに使用
   const [projectForController, setProjectForController] = useState<Project | null>(null);
   const [userForController, setUserForController] = useState<User | null>(null);
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null)
+  const [audioSessionKey, setAudioSessionKey] = useState<string | null>(null);
 
 
   //フック
@@ -80,13 +83,21 @@ export function ProjectShowWrapper(){
   const handlePlayClick = async (project: EnrichedProject) => {
     const { user, audioFilePath } = project;
     try {
+      cleanUpAudioElement();
+
       if (audioFilePath) {
         const audioData = await fetchAudioData(audioFilePath);
+        // AudioElementの初期化
+        const audioBlob = new Blob([audioData], { type: "audio/mpeg" });
+        audioUrlRef.current = URL.createObjectURL(audioBlob);
+        audioElementRef.current = new Audio(audioUrlRef.current);
+
         setAudioData(audioData);
         setAudioUrl(audioFilePath);
         setAudioControllerVisible(true);
         setProjectForController(project);
         setUserForController(user);
+        setAudioSessionKey(`${project.id}-${Date.now()}`);
       }
     }catch(e) {
       console.error("音声データが取得できませんでした");
@@ -94,13 +105,29 @@ export function ProjectShowWrapper(){
   };
 
   //AudioController閉じる処理
-  const handleCloseClick = () => {
+  const handleCloseClick = async () => {
+    cleanUpAudioElement();
     setProjectForController(null);
     setUserForController(null);
     setAudioControllerVisible(false);
     setAudioUrl(null);
     setAudioData(null);
   };
+
+    // AudioElementのクリーンアップ
+    const cleanUpAudioElement = () => {
+      if (audioElementRef.current) {
+        audioElementRef.current.pause();
+        audioElementRef.current.src = "";
+      }
+
+      if (audioUrlRef.current) {
+        URL.revokeObjectURL(audioUrlRef.current);
+        audioUrlRef.current = null;
+      }
+
+      audioElementRef.current = null;
+    };
 
 
   if (isError) {
@@ -184,10 +211,12 @@ export function ProjectShowWrapper(){
       {isAudioControllerVisible ? (
         audioUrl && audioData ?(
         <AudioController
+          key={audioSessionKey}
           onClose={handleCloseClick}
           project={projectForController}
           user={userForController}
           audioData={audioData}
+          audioElement ={audioElementRef.current}
         />
         ) : null
       ) : (
