@@ -14,7 +14,13 @@ import { useProjectContext } from "@context/useProjectContext";
 import { useCollaborationManagementContext } from "@context/useCollaborationManagementContext";
 import { Mode } from "@mui/icons-material";
 
-export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
+export function CollaborationManagementStep3({
+  onBack,
+  globalAudioContextRef,
+} : {
+  onBack: () => void;
+  globalAudioContextRef: AudioContext | null;
+}) {
   //Context関係
   const {
     currentProject, setCurrentProject,
@@ -22,7 +28,6 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
   } = useProjectContext();
 
   const {
-    globalAudioContextRef,
     mergedAudioBuffer, setMergedAudioBuffer,
     synthesisList
   } = useCollaborationManagementContext();
@@ -197,7 +202,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
           width: "100%",
           mx: "auto",
         }}>
-      {globalAudioContextRef.current && mergedAudioBuffer ? (
+      {globalAudioContextRef && mergedAudioBuffer ? (
         <>
         <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", my:2}}>
           <Avatar src={
@@ -236,7 +241,7 @@ export function CollaborationManagementStep3({onBack}:{onBack: () => void;}) {
         </Box>
         <AudioPlayer
           audioBuffer={mergedAudioBuffer}
-          audioContext={globalAudioContextRef.current}/>
+          audioContext={globalAudioContextRef}/>
         </>
         ) : (
         <Box

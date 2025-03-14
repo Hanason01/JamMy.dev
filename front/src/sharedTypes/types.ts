@@ -437,7 +437,6 @@ export interface EnrichedCommentCollection {
     setPostAudioData: SetState<AudioBuffer | null>;
     mergedAudioBuffer: AudioBuffer | null;
     setMergedAudioBuffer:SetState<AudioBuffer | null>;
-    globalAudioContextRef: React.MutableRefObject<AudioContext | null>;
     enablePostAudioPreview: boolean;
     setEnablePostAudioPreview: SetState<boolean>;
     synthesisList: ExtendedCollaboration[];

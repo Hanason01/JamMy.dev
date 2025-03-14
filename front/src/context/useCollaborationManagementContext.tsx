@@ -9,7 +9,6 @@ const initialContext: CollaborationManagementContextType = {
   setPostAudioData: () => {},
   mergedAudioBuffer: null,
   setMergedAudioBuffer: () => {},
-  globalAudioContextRef: { current: null },
   enablePostAudioPreview: false,
   setEnablePostAudioPreview: () => {},
   synthesisList: [],
@@ -23,9 +22,6 @@ export function CollaborationManagementProvider({ children }: WithChildren) {
   const [postAudioData, setPostAudioData] = useState<AudioBuffer | null>(null);
   const [mergedAudioBuffer, setMergedAudioBuffer] = useState<AudioBuffer | null>(null);
 
-  //WebAudio関係管理
-  const globalAudioContextRef = useRef<AudioContext | null>(null);
-
   //操作に関する状態管理
   const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(false);
 
@@ -36,7 +32,6 @@ export function CollaborationManagementProvider({ children }: WithChildren) {
     <CollaborationManagementContext.Provider value={{
       postAudioData, setPostAudioData,
       mergedAudioBuffer, setMergedAudioBuffer,
-      globalAudioContextRef,
       enablePostAudioPreview, setEnablePostAudioPreview,
       synthesisList, setSynthesisList
       }}>

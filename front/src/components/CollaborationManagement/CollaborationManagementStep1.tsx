@@ -18,11 +18,13 @@ import { usePlayback } from "@context/usePlayBackContext";
 export function CollaborationManagementStep1({
   onNext,
   collaborations,
-  setCollaborations
+  setCollaborations,
+  globalAudioContextRef,
 }: {
   onNext: () => void;
   collaborations: Collaboration[];
   setCollaborations: SetState<Collaboration[]>;
+  globalAudioContextRef: AudioContext | null;
 }){
   //Context関連
   const {
@@ -32,7 +34,6 @@ export function CollaborationManagementStep1({
 
   const {
     postAudioData, setPostAudioData,
-    globalAudioContextRef,
     synthesisList, setSynthesisList,
   } = useCollaborationManagementContext();
 
@@ -103,16 +104,10 @@ export function CollaborationManagementStep1({
           router.push("/projects");
         }
 
-        // globalAudioContext の初期化
-        globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
-          sampleRate: 44100
-        });
-        // console.log("globalAudioContext の初期化に成功", globalAudioContextRef.current);
-
         // 投稿音声AudioBuffer の取得
-        if (audioFilePath) {
+        if (audioFilePath && globalAudioContextRef) {
           const audioArrayBuffer = await fetchAudioData(audioFilePath);
-          const audioBufferData = await globalAudioContextRef.current.decodeAudioData(audioArrayBuffer);
+          const audioBufferData = await globalAudioContextRef.decodeAudioData(audioArrayBuffer);
           setPostAudioData(audioBufferData);
           // console.log("AudioBuffer の取得およびデコードに成功",audioBufferData);
         }
@@ -127,7 +122,7 @@ export function CollaborationManagementStep1({
   }, []);
 
 
-  // 編集中管理
+  // 編集管理
   useEffect(() => {
     const hasActiveSlot = slots.some((slot) => slot.collaborationId !== null);
     setIsEditing(hasActiveSlot);
@@ -136,12 +131,12 @@ export function CollaborationManagementStep1({
 
   //選択処理
   const handleCollaborationSelect = async (slotId: string, collaborationId: number) => {
-    if (!globalAudioContextRef.current) return;
+    if (!globalAudioContextRef) return;
     const collaboration = collaborations.find(collaboration => collaboration.id === collaborationId);
     if (!collaboration) return;
     try {
       const audioArrayBuffer = await fetchAudioData(collaboration.audioFile.file_path);
-      const audioBuffer = await globalAudioContextRef.current.decodeAudioData(audioArrayBuffer);
+      const audioBuffer = await globalAudioContextRef.decodeAudioData(audioArrayBuffer);
       setSlots(prev =>
         prev.map(slot =>
           slot.slotId === slotId ? { ...slot, collaborationId, audioBuffer} : slot
@@ -288,11 +283,11 @@ export function CollaborationManagementStep1({
               { currentProject?.attributes.title }
               </Typography>
             </Box>
-          {postAudioData && globalAudioContextRef.current ? (
+          {postAudioData && globalAudioContextRef ? (
             <AudioPlayer
               id = {"Post"} //Post
               audioBuffer={postAudioData}
-              audioContext={globalAudioContextRef.current}
+              audioContext={globalAudioContextRef}
               enablePostAudioPreview={enablePostAudioPreview}
             />
           ) : (
@@ -362,7 +357,7 @@ export function CollaborationManagementStep1({
           width: "100%",
         }}
       >
-        {globalAudioContextRef.current ? (
+        {globalAudioContextRef ? (
           slots.map((slot, index) => {
               // collaborationIdに基づいて該当するcollaborationを取得
               const collaboration = collaborations.find(

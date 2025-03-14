@@ -1,7 +1,7 @@
 "use client";
 
 import { AudioBuffer,PostSettings, Collaboration } from "@sharedTypes/types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Stepper, Step, StepLabel, Box, Typography, CircularProgress } from "@mui/material";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import { CollaborationManagementStep1 } from "@CollaborationManagement/CollaborationManagementStep1";
@@ -18,6 +18,7 @@ export function CollaborationManagementStepper(){
   const [activeStep, setActiveStep] = useState<number>(0);
   const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const globalAudioContextRef = useRef<AudioContext | null>(null);
 
   //管理対象のProject/User情報(Context)
   const { currentProject, setCurrentProject, currentUser, setCurrentUser,currentAudioFilePath, setCurrentAudioFilePath } = useProjectContext();
@@ -86,6 +87,20 @@ export function CollaborationManagementStepper(){
     }
   }, [currentProject]);
 
+  useEffect(() => {
+    // globalAudioContext の初期化
+    globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
+      sampleRate: 44100
+    });
+    return () =>{
+      if (globalAudioContextRef.current) {
+        globalAudioContextRef.current.close().then(() => {
+          globalAudioContextRef.current = null;
+        });
+      }
+    }
+  },[]);
+
   //ステップ進行制御
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -131,15 +146,18 @@ export function CollaborationManagementStepper(){
           onNext={handleNext}
           collaborations = {collaborations}
           setCollaborations = {setCollaborations}
+          globalAudioContextRef = {globalAudioContextRef.current}
           />}
           {activeStep === 1 &&
           <CollaborationManagementStep2
           onNext={handleNext}
           onBack={handleBack}
+          globalAudioContextRef = {globalAudioContextRef.current}
           />}
           {activeStep === 2 &&
           <CollaborationManagementStep3
           onBack={handleBack}
+          globalAudioContextRef = {globalAudioContextRef.current}
           />}
         </Box>
       ) : (
