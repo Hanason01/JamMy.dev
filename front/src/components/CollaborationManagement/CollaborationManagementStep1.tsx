@@ -55,7 +55,7 @@ export function CollaborationManagementStep1({
 
 
   //フック関係
-  const { processAudio } = useAudioProcessing({ selectedVolume });
+  const { processAudio } = useAudioProcessing();
 
 
 
@@ -180,7 +180,7 @@ export function CollaborationManagementStep1({
           throw new Error(`スロット ${slot.slotId} に AudioBuffer が存在しません。`);
         }
         //エフェクト適用
-        const processedBuffer = await processAudio(slot.audioBuffer);
+        const processedBuffer = await processAudio(slot.audioBuffer, selectedVolume);
 
         return {
           ...collaboration,
@@ -453,7 +453,7 @@ export function CollaborationManagementStep1({
                   }
                   displayEmpty
                   fullWidth
-                  sx ={{ my: 2}}
+                  sx ={{ my: 1}}
                 >
                   <MenuItem value="" disabled>
                     応募音声を選択
