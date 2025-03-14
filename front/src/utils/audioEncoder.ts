@@ -90,6 +90,9 @@ export const audioEncoder = async (
     const file = new File([blob], `audio.${format.toLowerCase()}`, { type: `audio/${format.toLowerCase()}` });
     // console.log("エンコード済みファイル:", file);
 
+    // ffmpegを終了
+    ffmpeg.exit();
+
     // File オブジェクトを作成して返す
     return file;
   } catch (error: any) {
