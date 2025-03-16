@@ -49,12 +49,12 @@ export const metadata = {
 };
 
 
-// 本番環境で console.log を無効化
-if (process.env.NODE_ENV === "production") {
-  console.log = () => {};
-  console.warn = () => {}; // 必要なら他のログも無効化
-  console.error = () => {}; // エラーを隠したい場合
-}
+// // 本番環境で console.log を無効化
+// if (process.env.NODE_ENV === "production") {
+//   console.log = () => {};
+//   console.warn = () => {}; // 必要なら他のログも無効化
+//   console.error = () => {}; // エラーを隠したい場合
+// }
 
 export default function RootLayout({ children }: Readonly<{
   children: React.ReactNode
