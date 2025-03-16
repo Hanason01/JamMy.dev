@@ -142,7 +142,10 @@ export function useAudioPlayer({
       ignoreOnEndedForPauseRef.current = false; //onendedイベントを阻害しないように、制御フラグをリセット
 
       if (sourceNodeRef.current) {
-        sourceNodeRef.current.disconnect(); // 古いノードを切断
+        // 停止時のノードを一旦削除
+        sourceNodeRef.current.stop();
+        sourceNodeRef.current.disconnect();
+        sourceNodeRef.current = null;
         console.log(`[id:${id}] 古いsourceNodeを切断しました`);
       }
 
@@ -187,8 +190,8 @@ export function useAudioPlayer({
 
       pausedAtRef.current = audioContext.currentTime - startTimeRef.current; // 停止時の再生位置を記録
       sourceNodeRef.current.stop(); // 再生を停止
-      sourceNodeRef.current.disconnect(); // ノードを切断
-      sourceNodeRef.current = null;
+      // sourceNodeRef.current.disconnect(); // ノードを切断
+      // sourceNodeRef.current = null;
       stopInterval();
       console.log(`[id:${id}!]再生を停止しました`);
     }
@@ -207,12 +210,12 @@ export function useAudioPlayer({
       pausedAtRef.current = time;
       setCurrentTime(time);
 
-      // 現在のsourceNodeをクリアして、次回再生時に再生成
-      if (sourceNodeRef.current) {
-        sourceNodeRef.current.stop();
-        sourceNodeRef.current.disconnect();
-        sourceNodeRef.current = null;
-      }
+      // 現在のsourceNodeを停止して、次回再生時にクリア、再生成
+      // if (sourceNodeRef.current) {
+      //   sourceNodeRef.current.stop();
+      //   sourceNodeRef.current.disconnect();
+      //   sourceNodeRef.current = null;
+      // }
       console.log(`[id:${id}!]再生位置を ${time} 秒に設定しました`);
     }
   };
