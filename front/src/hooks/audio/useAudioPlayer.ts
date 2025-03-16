@@ -33,6 +33,7 @@ export function useAudioPlayer({
 
   // console.log("currentTime追跡", currentTime);
   // console.log("isPlaying追跡", isPlaying);
+  // console.log("isPlayingRef追跡", isPlayingRef.current);
   // console.log("duration追��", duration);
   // console.log("sourceNodeRef.current追跡", sourceNodeRef.current);
   // console.log("startTimeRef.current追跡", startTimeRef.current);
@@ -131,14 +132,8 @@ export function useAudioPlayer({
 
   //再生
   const play = (): void => {
-    // console.log(`[id:${id}!]再生直前のisPlayingRef追跡`,isPlayingRef.current);
-    // console.log(`[id:${id}!]再生直前のisPlaybackTriggered追跡`, isPlaybackTriggered);
-    // console.log(`[id:${id}!]再生直前のplaybackTriggeredByRef追跡`, playbackTriggeredByRef.current);
+    // console.log("Playの呼び出し");
     if (audioContext) {
-      // console.log(`[id:${id}] 再生開始前のsourceNodeRef:`, sourceNodeRef.current);
-      // console.log(`[id:${id}] AudioContext state:`, audioContext.state);
-      // console.log(`[id:${id}] 再生開始前のGainNode接続状況:`, gainNode);
-
       ignoreOnEndedForPauseRef.current = false; //onendedイベントを阻害しないように、制御フラグをリセット
 
       if (sourceNodeRef.current) {
@@ -244,6 +239,7 @@ export function useAudioPlayer({
 
   return {
     isPlayingRef: isPlayingRef,
+    setIsPlaying,
     currentTime,
     duration,
     init,

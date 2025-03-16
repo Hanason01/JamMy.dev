@@ -5,6 +5,13 @@ export function useProjectIndexAudioPlayer(audioElement: HTMLAudioElement | null
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
 
+  const isPlayingRef = useRef<boolean>(false);
+
+  //isPlayingRefとisPlayingの同期（イベントリスナーによるStateの固定化(クロージャー)を避けるため、isPlayingRefを使用）
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  },[isPlaying]);
+
   useEffect(() => {
     if (!audioElement) return;
 
@@ -31,13 +38,13 @@ export function useProjectIndexAudioPlayer(audioElement: HTMLAudioElement | null
   }, []); //選択されたaudioDataが変わる度に再初期化
 
   const play = ():void=> {
-    audioElement?.play();
     setIsPlaying(true);
+    audioElement?.play();
   };
 
   const pause = ():void => {
-    audioElement?.pause();
     setIsPlaying(false);
+    audioElement?.pause();
   };
 
   const seek = (time: number):void => {
@@ -49,6 +56,7 @@ export function useProjectIndexAudioPlayer(audioElement: HTMLAudioElement | null
 
   return {
     isPlaying,
+    isPlayingRef,
     currentTime,
     duration,
     play,

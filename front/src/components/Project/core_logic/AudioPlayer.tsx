@@ -22,7 +22,6 @@ export function AudioPlayer({
   enablePostAudioPreview?: boolean; //オプショナル
 }){
 // console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview);
-console.log("プレイヤーが受け取ったaudioBuffer", audioBuffer);
 
   //同時再生Context
   const {
@@ -39,6 +38,7 @@ console.log("プレイヤーが受け取ったaudioBuffer", audioBuffer);
 
   const {
     isPlayingRef,
+    setIsPlaying,
     init,
     resetPlaybackState,
     play,
@@ -88,7 +88,23 @@ console.log("プレイヤーが受け取ったaudioBuffer", audioBuffer);
     };
   }, []);
 
+  //タブが非アクティブになった場合
+  useEffect(() => {
+    if(!audioContext) return;
 
+    const handleVisibilityChange = async () =>{
+      if(document.hidden && isPlayingRef.current){ //タブを離れた場合かつ再生中の場合のみ
+        await handlePlayPause(); //停止ボタン処理
+      } else if(!document.hidden){ //戻ってきた場合
+        resetPlaybackState();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return() =>{
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  },[])
 
 
   // 音声間の再生・停止指示リスナー、停止制御

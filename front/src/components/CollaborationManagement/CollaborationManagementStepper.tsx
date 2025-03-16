@@ -19,6 +19,7 @@ export function CollaborationManagementStepper(){
   const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const globalAudioContextRef = useRef<AudioContext | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
 
   //管理対象のProject/User情報(Context)
   const { currentProject, setCurrentProject, currentUser, setCurrentUser,currentAudioFilePath, setCurrentAudioFilePath } = useProjectContext();
@@ -87,15 +88,27 @@ export function CollaborationManagementStepper(){
     }
   }, [currentProject]);
 
+  //AudioContextの初期化
   useEffect(() => {
-    // globalAudioContext の初期化
-    globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
-      sampleRate: 44100
-    });
+    const initializeAudioContext = async () => {
+      globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: 44100
+      });
+      mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true }); //iOSの仕様に合わせる為、録音は利用しないが、マイクの取得を行うもの。（仕様変更を待つしか方法がない）
+    }
+    initializeAudioContext();
+
+
     return () =>{
       if (globalAudioContextRef.current) {
         globalAudioContextRef.current.close().then(() => {
           globalAudioContextRef.current = null;
+        });
+      }
+
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => {
+          track.stop();
         });
       }
     }
