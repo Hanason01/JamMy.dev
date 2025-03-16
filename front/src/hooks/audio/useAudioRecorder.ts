@@ -81,8 +81,8 @@ export function useAudioRecorder({
       // console.log("マイク入力を取得開始");
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          sampleRate: 44100,
-          channelCount: 1, //モノラル
+          // sampleRate: 44100,
+          // channelCount: 1, //モノラル
           // echoCancellation: false, //エコーキャンセルオフ
           // noiseSuppression: false, //ノイズキャンセリングオフ
           // autoGainControl: false, //自動ゲイン調整をオフ
@@ -231,15 +231,19 @@ export function useAudioRecorder({
       audioWorkletNodeRef.current = null;
       // AudioWorkletNodeを切断し、参照を切ったとしてもChromeにおいては、メモリリークが発生するという問題「https://issues.chromium.org/issues/40823260」→現時点の最新の情報「https://issues.chromium.org/issues/40072701」が存在しており、未解決の問題。
     }
+    // (2) マイクの MediaStream を解放
+    if (mediaStreamSourceRef.current && mediaStreamSourceRef.current.mediaStream) {
+      mediaStreamSourceRef.current.mediaStream.getTracks().forEach(track => track.stop());
+    }
 
-    // (2) MediaStreamSource のクリーンアップ
+    // (3) MediaStreamSource のクリーンアップ
     if (mediaStreamSourceRef.current) {
       mediaStreamSourceRef.current.disconnect();
       mediaStreamSourceRef.current = null;
       // console.log("MediaStreamSource をクリーンアップしました",mediaStreamSourceRef.current);
     }
 
-    // (3) AudioContextのクリーンアップ
+    // (4) AudioContextのクリーンアップ
       if (audioContextRef.current && !globalAudioContext) {
           audioContextRef.current.close().then(() => {
             audioContextRef.current = null;
