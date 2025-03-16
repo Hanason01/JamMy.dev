@@ -41,6 +41,8 @@ export function CollaborationManagementStep1({
     setIsPlaybackTriggered, playbackTriggeredByRef,
     setIsPlaybackReset, playbackResetTriggeredByRef} = usePlayback();
 
+    console.log("globalAudioContextの状態: ", globalAudioContextRef?.state);
+
 
   //状態変数
   const [loading, setLoading] = useState<boolean>(false);
@@ -57,7 +59,7 @@ export function CollaborationManagementStep1({
 
   //フック関係
   const { processAudio } = useAudioProcessing();
-
+  const { fetchAudioData } = useFetchAudioData();
 
 
 
@@ -73,9 +75,6 @@ export function CollaborationManagementStep1({
 
 
   const router = useRouter();
-
-  //フック
-  const { fetchAudioData } = useFetchAudioData();
 
 
   //初期化
@@ -132,6 +131,13 @@ export function CollaborationManagementStep1({
   //選択処理
   const handleCollaborationSelect = async (slotId: string, collaborationId: number) => {
     if (!globalAudioContextRef) return;
+
+    //再生中の音声を停止
+    setIsPlaybackTriggered(false);
+    playbackTriggeredByRef.current = null;
+    setIsPlaybackReset(true);
+    playbackResetTriggeredByRef.current = "select";
+
     const collaboration = collaborations.find(collaboration => collaboration.id === collaborationId);
     if (!collaboration) return;
     try {
