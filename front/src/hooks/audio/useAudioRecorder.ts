@@ -83,9 +83,9 @@ export function useAudioRecorder({
         audio: {
           sampleRate: 44100,
           channelCount: 1, //モノラル
-          echoCancellation: false, //エコーキャンセルオフ
-          noiseSuppression: false, //ノイズキャンセリングオフ
-          autoGainControl: false, //自動ゲイン調整をオフ
+          // echoCancellation: false, //エコーキャンセルオフ
+          // noiseSuppression: false, //ノイズキャンセリングオフ
+          // autoGainControl: false, //自動ゲイン調整をオフ
           deviceId: { exact: micId } },
       });
       //以上のオプションは録音時のマイク遅延を減らす為に前もって設定するもの
