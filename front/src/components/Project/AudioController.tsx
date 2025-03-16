@@ -22,11 +22,26 @@ export function AudioController({
   user: User | null
   audioElement: HTMLAudioElement | null
 }){
-  const { isPlaying, currentTime, duration, play, pause, seek } = useProjectIndexAudioPlayer(audioElement);
+  const { isPlaying, isPlayingRef, currentTime, duration, play, pause, seek } = useProjectIndexAudioPlayer(audioElement);
 
   useEffect(() => {
     play(); //初回レンダリング時のみ自動再生
   }, [audioData]);
+
+  //タブが非アクティブになった場合
+  useEffect(() => {
+    const handleVisibilityChange = () =>{
+      if(document.hidden && isPlayingRef){ //タブを離れた場合かつ再生中のみ
+        pause(); //停止ボタン処理
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return() =>{
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  },[])
 
   return(
     <Box
