@@ -139,6 +139,8 @@ export function useAudioPlayer({
       console.log(`[id:${id}] AudioContext state:`, audioContext.state);
       console.log(`[id:${id}] 再生開始前のGainNode接続状況:`, gainNode);
 
+      ignoreOnEndedForPauseRef.current = false; //onendedイベントを阻害しないように、制御フラグをリセット
+
       if (sourceNodeRef.current) {
         sourceNodeRef.current.disconnect(); // 古いノードを切断
         console.log(`[id:${id}] 古いsourceNodeを切断しました`);
