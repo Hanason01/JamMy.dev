@@ -44,8 +44,6 @@ export function useAudioRecorder({
   const init = async (isMounted: () => boolean, deviceId?: string | null) => {
     if (!isMounted()) return null; // アンマウント後は中断
     try {
-      // (0) AudioSessionAPIによる、navigatorプロパティの変更
-        settingAudioSession();
       // console.log("AudioContext の初期化を開始");
 
       //(1)AudioContextのインスタンス作成
@@ -104,8 +102,9 @@ export function useAudioRecorder({
           latency: 0.01,
           deviceId: { exact: micId } } as any,
       });
-      //以上のオプションは録音時のマイク遅延を減らす為に前もって設定するもの
-      // console.log("マイク入力の取得に成功",stream);
+      // 以上のオプションは録音時のマイク遅延を減らす為に前もって設定するもの
+      // AudioSessionAPIによる、navigatorプロパティの変更
+      settingAudioSession();
 
       //(5)MediaStreamSourceの作成
       if (!isMounted()) return null;
