@@ -1,7 +1,7 @@
   //AudioSession
   interface AudioSession{
     //タイプは以下ユニオン型で定義。一つしか選べない
-    sessionType: "ambient" | "playback" | "voiceCommunication" | "gameChat" | "soloAmbient" | "record" | "moviePlayback" | "spokenAudio" | "playAndRecord";
+    sessionType: "auto" | "playback" | "transient" | "transient-solo" | "ambient" | "play-and-record";
     state?: string; //現在のオーディオセッションの状態
     onstatechange?:()=>void;
   }
