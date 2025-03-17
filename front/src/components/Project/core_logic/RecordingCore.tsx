@@ -37,6 +37,7 @@ export function RecordingCore({
   const [loading, setLoading] = useState<boolean>(false); // ローディング状態
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+  const [initializedDeviceId, setInitializedDeviceId] = useState<string | null>(null);
   const [isPressed, setIsPressed] = useState(false);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
 
@@ -62,6 +63,7 @@ export function RecordingCore({
     mediaStreamSourceRef,
     setLoading,
     setIsRecording,
+    setInitializedDeviceId,
     cleanupAnalyzer,
     stopMetronome,
     setIsPlaybackTriggered,
@@ -142,14 +144,6 @@ export function RecordingCore({
 
   //レンダリング時に初期化関数実行
   useEffect(() => {
-    // console.log(`[${new Date().toISOString()}] RecordingCoreがマウントされました`);
-    // console.log("RecordingCore: 初期化前のAudioContextの状態", audioContextRef.current?.state);
-    // console.log("RecordingCore: 初期化前のMediaStreamSourceの状態", mediaStreamSourceRef.current);
-    // console.log("RecordingCore: 初期化前のaudioWorkletNodeRefの状態", audioWorkletNodeRef.current);
-    // console.log("RecordingCore: 初期化前のclickSoundBufferRefの状態", clickSoundBufferRef.current);
-    // console.log("RecordingCore: 初期化状態のフラグ (isInitialized):", isInitialized);
-    // console.log("RecordingCore: 初期化中のフラグ (isInitializing):", isInitializing);
-
     let isMounted = true; // マウント状態を追跡
 
     //初期化処理
@@ -158,11 +152,7 @@ export function RecordingCore({
     // クリーンアップ処理
     return () => {
       isMounted = false; // アンマウントを記録
-
-      // console.log(`RecordingCoreがアンマウントされました[${new Date().toISOString()}]`);
-      // console.log("RecordingCore: クリーンアップ開始");
       resetInitialization();
-      // console.log("RecordingCore: クリーンアップ完了");
     };
   }, [selectedDeviceId]);
 
@@ -315,7 +305,9 @@ export function RecordingCore({
               2. メトロノームを聞きながら、または投稿の音声を聞きながら録音する際は、できるだけイヤホン・ヘッドホンを利用しましょう！<br />
               <br />
               ※お使いのイヤホンのマイク性能や接続方式（BlueTooth等）によっては、録音音声に遅延が発生することがあります。<br />
-              ※スマホからのご利用の場合（特にiOSの方）、お使いのイヤホンによっては、スピーカー出力とマイク入力を分離できない場合があります。<br />
+              ※スマートフォンでは、マイク付きヘッドホン・イヤホンを利用される場合、ほとんどのケースでマイク選択により音声出力もセットでご指定のデバイスになります。分離して録音したい場合は、マイクなしのイヤホンもしくはPCでのご利用を推奨します。
+              <br />
+              <span style={{color:"#e53935"}}>※iOSユーザーの方はSafariを推奨します。</span>
               </DialogContentText>
             </DialogContent>
           </Dialog>
@@ -329,7 +321,7 @@ export function RecordingCore({
           {microphones.map((mic) => (
             <MenuItem
               key={mic.deviceId}
-              selected={mic.deviceId === selectedDeviceId}
+              selected={(mic.deviceId === selectedDeviceId) || (mic.deviceId ===initializedDeviceId)}
               onClick={() => handleMicSelect(mic.deviceId)}
             >
               {mic.label || `マイク (${mic.deviceId})`}
