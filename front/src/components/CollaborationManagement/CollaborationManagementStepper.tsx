@@ -94,16 +94,17 @@ export function CollaborationManagementStepper(){
   //AudioContextの初期化
   useEffect(() => {
     const initializeAudioContext = async () => {
+      settingAudioSession();
       globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
         sampleRate: 44100
       });
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const audioDevices = devices.filter((device) => device.kind === "audioinput");
-      const defaultMic = audioDevices.length > 0 ? audioDevices[0] : null;
-      const airPodsMic = audioDevices.find(device => /airpods/i.test(device.label));
-      const micId = airPodsMic?.deviceId || defaultMic?.deviceId;
-      mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: {deviceId: { exact: micId } }}); //iOSの仕様に合わせる為、録音は利用しないが、マイクの取得を行うもの。（仕様変更を待つしか方法がない）
-      settingAudioSession();
+      // const devices = await navigator.mediaDevices.enumerateDevices();
+      // const audioDevices = devices.filter((device) => device.kind === "audioinput");
+      // const defaultMic = audioDevices.length > 0 ? audioDevices[0] : null;
+      // const airPodsMic = audioDevices.find(device => /airpods/i.test(device.label));
+      // const micId = airPodsMic?.deviceId || defaultMic?.deviceId;
+      // mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: {deviceId: { exact: micId } }}); //iOSの仕様に合わせる為、録音は利用しないが、マイクの取得を行うもの。（仕様変更を待つしか方法がない）
+
     }
     initializeAudioContext();
 

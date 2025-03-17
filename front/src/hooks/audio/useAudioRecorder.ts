@@ -45,6 +45,8 @@ export function useAudioRecorder({
     if (!isMounted()) return null; // アンマウント後は中断
     try {
       // console.log("AudioContext の初期化を開始");
+      // (0)AudioSessionAPIによる、navigatorプロパティの変更
+      settingAudioSession();
 
       //(1)AudioContextのインスタンス作成
       if (!isMounted()) return null;
@@ -88,6 +90,8 @@ export function useAudioRecorder({
       } else {
         if (!deviceId){ //初期化時にマイク選択(Menu Item)を明示する。!deviceId→マイク選択アクションなし
           setInitializedDeviceId(micId);
+        } else{
+          setInitializedDeviceId(null);
         }
       }
 
@@ -98,13 +102,14 @@ export function useAudioRecorder({
         audio: {
           sampleRate: 44100,
           channelCount: 1, //モノラル
-          echoCancellation: false, //エコーキャンセルオフ
           latency: 0.01,
+          noiseSuppression: false, // ノイズ抑制オフ
+          echoCancellation: false, // エコーキャンセルオフ
+          autoGainControl: false, // ゲイン調整オフ
           deviceId: { exact: micId } } as any,
       });
       // 以上のオプションは録音時のマイク遅延を減らす為に前もって設定するもの
-      // AudioSessionAPIによる、navigatorプロパティの変更
-      settingAudioSession();
+
 
       //(5)MediaStreamSourceの作成
       if (!isMounted()) return null;
