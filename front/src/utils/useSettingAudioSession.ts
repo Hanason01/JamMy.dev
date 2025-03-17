@@ -4,7 +4,7 @@
     const settingAudioSession = () =>{
       //AudioSessionの設定。なければ（Safariでなければ）離脱
       if("audioSession" in navigator && navigator.audioSession){
-        navigator.audioSession.sessionType = "voiceCommunication";
+        navigator.audioSession.sessionType = "playAndRecord";
         console.log("AudioSessionのState", navigator.audioSession.sessionType);
       } else{
         console.info("This Browser does not support AudioSessionAPI");
