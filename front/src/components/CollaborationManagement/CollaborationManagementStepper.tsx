@@ -10,6 +10,7 @@ import { CollaborationManagementStep3 } from "@CollaborationManagement/Collabora
 import { useProjectContext } from "@context/useProjectContext";
 import { collaborationManagementIndexRequest } from "@services/project/collaboration_management/useCollaborationManagementIndexRequest";
 import { PlaybackProvider } from "@context/usePlayBackContext";
+import { useSettingAudioSession } from "@utils/useSettingAudioSession";
 
 
 const steps = ["応募選択/編集", "音声合成", "保存"];
@@ -24,6 +25,8 @@ export function CollaborationManagementStepper(){
   //管理対象のProject/User情報(Context)
   const { currentProject, setCurrentProject, currentUser, setCurrentUser,currentAudioFilePath, setCurrentAudioFilePath } = useProjectContext();
 
+  //フック
+  const { settingAudioSession } = useSettingAudioSession();
 
   // データ格納（リロード対策）
   useEffect(() => {
@@ -91,6 +94,7 @@ export function CollaborationManagementStepper(){
   //AudioContextの初期化
   useEffect(() => {
     const initializeAudioContext = async () => {
+      settingAudioSession();
       globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
         sampleRate: 44100
       });

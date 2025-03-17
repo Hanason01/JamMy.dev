@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {AudioBuffer, Settings, SetState } from "@sharedTypes/types";
+import { useSettingAudioSession } from "@utils/useSettingAudioSession";
 
 export function useAudioRecorder({
   globalAudioContext,
@@ -9,6 +10,7 @@ export function useAudioRecorder({
   mediaStreamSourceRef,
   setLoading,
   setIsRecording,
+  setInitializedDeviceId,
   cleanupAnalyzer,
   stopMetronome,
   setIsPlaybackTriggered,
@@ -23,6 +25,7 @@ export function useAudioRecorder({
   mediaStreamSourceRef: React.MutableRefObject<MediaStreamAudioSourceNode | null>;
   setLoading: SetState<boolean>;
   setIsRecording: SetState<boolean>;
+  setInitializedDeviceId: SetState<string | null>;
   cleanupAnalyzer: (mediaStreamSource: MediaStreamAudioSourceNode | null) => void;
   stopMetronome: () => void;
   setIsPlaybackTriggered: SetState<boolean>;
@@ -34,10 +37,15 @@ export function useAudioRecorder({
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer>(null);
   const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
 
+  //フック
+  const { settingAudioSession } = useSettingAudioSession();
+
   //初期化関数
   const init = async (isMounted: () => boolean, deviceId?: string | null) => {
     if (!isMounted()) return null; // アンマウント後は中断
     try {
+      // (0) AudioSessionAPIによる、navigatorプロパティの変更
+        settingAudioSession();
       // console.log("AudioContext の初期化を開始");
 
       //(1)AudioContextのインスタンス作成
@@ -66,14 +74,23 @@ export function useAudioRecorder({
       const devices = await navigator.mediaDevices.enumerateDevices();
       const audioDevices = devices.filter((device) => device.kind === "audioinput");
       setMicrophones(audioDevices); // マイクリストを保存
+      console.log("マイクリスト", audioDevices);
       // console.log("audioDevices", audioDevices);
 
-      const micId = deviceId ? deviceId : audioDevices.length > 0 ? audioDevices[0].deviceId : null;
+      const defaultMic = audioDevices.length > 0 ? audioDevices[0] : null;
+
+      const airPodsMic = audioDevices.find(device => /airpods/i.test(device.label)); //i = 大文字小文字を区別しない。RegExp正規表現使用。
+
+      const micId = deviceId || airPodsMic?.deviceId || defaultMic?.deviceId;
       // console.log("initが受け取ったdeviceId", deviceId);
       // console.log("これから接続すべきmicID", micId);
       if (!micId) {
         console.warn("利用可能なマイクが見つかりませんでした");
         return null; // マイクがない場合は初期化を中止
+      } else {
+        if (!deviceId){ //初期化時にマイク選択(Menu Item)を明示する。!deviceId→マイク選択アクションなし
+          setInitializedDeviceId(micId);
+        }
       }
 
       //(4)デフォルトあるいは選択されたマイクの音声ストリーム取得
@@ -84,9 +101,8 @@ export function useAudioRecorder({
           sampleRate: 44100,
           channelCount: 1, //モノラル
           echoCancellation: false, //エコーキャンセルオフ
-          noiseSuppression: false, //ノイズキャンセリングオフ
-          autoGainControl: false, //自動ゲイン調整をオフ
-          deviceId: { exact: micId } },
+          latency: 0.01,
+          deviceId: { exact: micId } } as any,
       });
       //以上のオプションは録音時のマイク遅延を減らす為に前もって設定するもの
       // console.log("マイク入力の取得に成功",stream);
@@ -156,12 +172,14 @@ export function useAudioRecorder({
       // console.log("クリック音がロードされました", clickSoundBuffer);
 
       //初期化結果を返す（初期化後状態変数登録が必要になる為、フックのreturnとは別でreturn)
+
       return { audioContext, mediaStreamSource, audioWorkletNode, clickSoundBuffer };
     } catch (error) {
     console.error("初期化エラー:", error);
     return null;
     }
   };
+
 
   //録音開始
   const start = (): void => {
@@ -234,6 +252,7 @@ export function useAudioRecorder({
     // (2) マイクの MediaStream を解放
     if (mediaStreamSourceRef.current && mediaStreamSourceRef.current.mediaStream) {
       mediaStreamSourceRef.current.mediaStream.getTracks().forEach(track => track.stop());
+      console.log("マイクの解放");
     }
 
     // (3) MediaStreamSource のクリーンアップ
