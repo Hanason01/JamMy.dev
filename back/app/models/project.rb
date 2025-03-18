@@ -17,4 +17,14 @@ class Project < ApplicationRecord
   # statusの値保証
   validates :status, inclusion: { in: statuses.keys }
   validates :visibility, inclusion: { in: visibilities.keys }
+
+  before_destroy :destroy_related_notifications
+
+  private
+
+  # dependent_destroyの実行前に通知の削除を保証する
+  def destroy_related_notifications
+    Notification.where(notifiable: self).destroy_all
+    Notification.where(notifiable: collaborations).destroy_all
+  end
 end
