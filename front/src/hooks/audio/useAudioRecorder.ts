@@ -101,8 +101,8 @@ export function useAudioRecorder({
           sampleRate: 44100,
           channelCount: 1, //モノラル
           latency: 0.01,
-          // noiseSuppression: false, // ノイズ抑制オフ
-          // echoCancellation: false, // エコーキャンセルオフ
+          noiseSuppression: false, // ノイズ抑制オフ
+          echoCancellation: false, // エコーキャンセルオフ
           autoGainControl: false, // ゲイン調整オフ
           deviceId: { exact: micId } } as any,
       });
