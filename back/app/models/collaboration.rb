@@ -11,6 +11,7 @@ class Collaboration < ApplicationRecord
   validates :status, inclusion: { in: statuses.keys }
 
   after_create :create_notification
+  before_destroy :destroy_related_notifications
 
   private
 
@@ -23,5 +24,10 @@ class Collaboration < ApplicationRecord
       notifiable: self,
       notification_type: :collaboration_request
     )
+  end
+
+  # dependent_destroyの実行前に通知の削除を保証する
+  def destroy_related_notifications
+    Notification.where(notifiable: self).destroy_all
   end
 end
