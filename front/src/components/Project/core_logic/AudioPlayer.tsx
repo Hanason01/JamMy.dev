@@ -14,14 +14,21 @@ export function AudioPlayer({
   audioContext,
   gainNode,
   enablePostAudioPreview = false,
+  playFlagFromIndex,
+  setPlayFlagFromIndex,
+  resetFlagFromIndex,
+  setResetFlagFromIndex,
 } : {
   id?: string;  //オプショナル
   audioBuffer: AudioBuffer;
   audioContext: AudioContext | null;
   gainNode?: GainNode | null; //オプショナル
   enablePostAudioPreview?: boolean; //オプショナル
+  playFlagFromIndex?: boolean; //オプショナル
+  setPlayFlagFromIndex?: SetState<boolean>; //オプショナル
+  resetFlagFromIndex?: boolean; //オプショナル
+  setResetFlagFromIndex?: SetState<boolean>; //オプショナル
 }){
-// console.log(`[id:${id}!]enablePostAudioPreviewの追跡`,enablePostAudioPreview);
 
   //同時再生Context
   const {
@@ -59,24 +66,17 @@ export function AudioPlayer({
     playbackTriggeredByRef
   });
 
-  // console.log(`[id:${id}!]isPlayingRef追跡`,isPlayingRef.current);
-  // console.log(`[id:${id}!]isPlaybackTriggered追跡`, isPlaybackTriggered);
-  // console.log(`[id:${id}!]playbackTriggeredByRef追跡`, playbackTriggeredByRef.current);
-
   const [isPlayBackReady, setIsPlayBackReady] = useState<boolean>(false); //同時再生準備状態フラグ
   const isFirstRenderRef = useRef(true); //useEffect制御フラグ
 
 
   //初期化処理
   useEffect(() => {
-    // console.log(`[id:${id}!][${new Date().toISOString()}] AudioPlayerがマウントされました`);
     if (audioBuffer && audioContext){
-      // console.log(`[id:${id}!]AudioPlayer.jsxでinit()発動`);
-      // console.log(`[id:${id}!]この時点のaudioBufferとcontext`, audioBuffer, audioContext);
       init();
 
     } else{
-      // console.log(`[id:${id}!]audioBufferとaudioContextが両方存在しない為、AudioPlayer.jsxのuseEffectが失敗しました`);
+      console.error("音声データおよびContextが正常に取得できませんでした");
     }
     return () => {
       cleanup();
@@ -84,7 +84,6 @@ export function AudioPlayer({
       playbackTriggeredByRef.current=null;
       setSharedCurrentTime(0);
       currentTimeUpdatedByRef.current=null;
-      // console.log(`[id:${id}!]AudioPlayerがアンマウントされました[${new Date().toISOString()}]`);
     };
   }, []);
 
@@ -105,6 +104,24 @@ export function AudioPlayer({
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   },[])
+
+  //Indexからの再生指示リスナー（初回再生）
+  useEffect(() =>{
+    if(!playFlagFromIndex || duration === 0) return; //初期化時のduration更新を待つ
+
+    play();
+    setPlayFlagFromIndex?.(false);
+  },[playFlagFromIndex, duration]);
+
+
+  //Indexからのリセット指示リスナー
+  useEffect(() =>{
+    if(!resetFlagFromIndex) return;
+
+    resetPlaybackState();
+    setResetFlagFromIndex?.(false);
+    setPlayFlagFromIndex?.(true);
+  },[resetFlagFromIndex]);
 
 
   // 音声間の再生・停止指示リスナー、停止制御
@@ -233,7 +250,10 @@ export function AudioPlayer({
       <Slider
         value={currentTime}
         min={0} max={duration}
-        onChange={(e:Event,value: number | number[]) => seek(typeof value === "number" ? value : value[0] || 0)}
+        onChange={
+          (e:Event,value: number | number[]) => seek(typeof value === "number" ? value : value[0] || 0)
+        }
+        onClick={(e) =>{ e.stopPropagation(); }}
       />
       <Box sx={{
         display: "flex",

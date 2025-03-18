@@ -107,13 +107,9 @@ export function useAudioRecorder({
           deviceId: { exact: micId } } as any,
       });
       // 以上のオプションは録音時のマイク遅延を減らす為に前もって設定するもの
-      // (0)AudioSessionAPIによる、navigatorプロパティの変更
+
+      // navigatorプロパティの変更（試験的運用）
       settingAudioSession();
-      if("audioSession" in navigator && navigator.audioSession){
-        console.log("関数実行後のsessionType", navigator.audioSession.sessionType);
-      } else{
-        console.info("This Browser does not support AudioSessionAPI");
-      }
 
 
       //(5)MediaStreamSourceの作成
