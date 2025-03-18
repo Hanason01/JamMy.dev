@@ -1,47 +1,52 @@
 "use client";
 
-import { Project, User } from "@sharedTypes/types";
-import { useProjectIndexAudioPlayer } from "@audio/useProjectIndexAudioPlayer";
+import { Project, User, AudioBuffer, SetState } from "@sharedTypes/types";
 import { useEffect } from "react";
-import { Box, Avatar, IconButton, Typography, Slider } from "@mui/material";
-import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
-import PauseCircleIcon from "@mui/icons-material/PauseCircle";
+import { Box, Avatar, IconButton, Typography, CircularProgress } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { AudioPlayer } from "@Project/core_logic/AudioPlayer";
 
 
 export function AudioController({
   onClose,
-  audioData,
   project,
   user,
-  audioElement
+  audioBuffer,
+  audioContext,
+  playFlagFromIndex,
+  setPlayFlagFromIndex,
+  resetFlagFromIndex,
+  setResetFlagFromIndex,
 } : {
-  onClose: () => void,
-  audioData: ArrayBuffer | null,
-  project: Project | null,
-  user: User | null
-  audioElement: HTMLAudioElement | null
+  onClose: () => void;
+  project: Project | null;
+  user: User | null;
+  audioBuffer: AudioBuffer;
+  audioContext: AudioContext | null;
+  playFlagFromIndex: boolean;
+  setPlayFlagFromIndex: SetState<boolean>;
+  resetFlagFromIndex: boolean;
+  setResetFlagFromIndex: SetState<boolean>;
 }){
-  const { isPlaying, isPlayingRef, currentTime, duration, play, pause, seek } = useProjectIndexAudioPlayer(audioElement);
 
-  useEffect(() => {
-    play(); //初回レンダリング時のみ自動再生
-  }, [audioData]);
-
-  //タブが非アクティブになった場合
-  useEffect(() => {
-    const handleVisibilityChange = () =>{
-      if(document.hidden && isPlayingRef){ //タブを離れた場合かつ再生中のみ
-        pause(); //停止ボタン処理
-      }
+  //AudioControllerのスクロールを無効化
+  useEffect(()=>{
+    const disableScroll = (e: TouchEvent) => {
+      e.preventDefault();
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    const controller = document.getElementById("audio-controller");
+
+    if (controller) {
+      controller.addEventListener("touchmove", disableScroll, { passive: false}); //iOSではpassive =trueなので無効化する
+    }
 
     return() =>{
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  },[])
+      if(controller){
+        controller.removeEventListener("touchmove", disableScroll);
+      }
+    }
+},[]);
 
   return(
     <Box
@@ -55,10 +60,10 @@ export function AudioController({
         backgroundColor: "rgba(121, 134, 203, 0.1)",
         backdropFilter: "blur(14px) saturate(100%)",
       }}
+      id= "audio-controller"
     >
       <IconButton
         onClick={() => {
-         pause(); // 再生停止
          onClose(); // 親コンポーネントでコントローラーを閉じる
           }}
         sx={{
@@ -112,32 +117,34 @@ export function AudioController({
             { project?.attributes.title }
           </Typography>
         </Box>
-
       </Box>
-      <Slider
-        value={currentTime}
-        min={0} max={duration}
-        onChange={(e,value) => {
-          if (typeof value === "number") {
-            seek(value);
-          }
-        }}
-      />
-      <Box sx={{ display: "flex", justifyContent: "space-between"}}>
-        <Typography color= "textSecondary" sx={{ width: "35px", textAlign: "right",}}>{Math.floor(currentTime)}秒</Typography>
-        <Box display= "flex" justifyContent= "center">
-          <IconButton sx={{ p: 0 }} onClick={isPlaying ? pause : play} >{isPlaying ? (
-            <PauseCircleIcon
-              sx={{ width: 60, height: 60, color: "primary.main" }}
-            />
-          ) : (
-            <PlayCircleFilledIcon
-              sx={{ width: 60, height: 60, color: "primary.main" }}
-            />
-          )}</IconButton>
+      {audioBuffer && audioContext ? (
+        <AudioPlayer
+          id = {"Index"}
+          audioBuffer={audioBuffer}
+          audioContext={audioContext}
+          playFlagFromIndex={playFlagFromIndex}
+          setPlayFlagFromIndex={setPlayFlagFromIndex}
+          resetFlagFromIndex={resetFlagFromIndex}
+          setResetFlagFromIndex={setResetFlagFromIndex}
+        />
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100px",
+          }}
+        >
+          <CircularProgress
+            size={64}
+            sx={{
+              color: "primary.main",
+            }}
+          />
         </Box>
-        <Typography color= "textSecondary" sx={{ width: "40px", textAlign: "left",}}>-{Math.max(0, Math.floor(duration - currentTime))}秒</Typography>
-      </Box>
+        )}
     </Box>
   );
 }

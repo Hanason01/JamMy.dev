@@ -1,5 +1,5 @@
 "use client";
-import { Project, User, EnrichedProject,} from "@sharedTypes/types";
+import { Project, User, EnrichedProject, AudioBuffer} from "@sharedTypes/types";
 import { useState, useEffect, useRef } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import throttle from "lodash/throttle";
@@ -34,16 +34,16 @@ export function ProjectIndexWrapper({}){
 
 
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [audioData, setAudioData] = useState<ArrayBuffer | null>(null);
+  const [audioData, setAudioData] = useState<AudioBuffer>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   //オーディオコントローラーに使用
   const [projectForController, setProjectForController] = useState<Project | null>(null);
   const [userForController, setUserForController] = useState<User | null>(null);
-  const audioElementRef = useRef<HTMLAudioElement | null>(null);
-  const audioUrlRef = useRef<string | null>(null)
   const [audioSessionKey, setAudioSessionKey] = useState<string | null>(null);
+  const globalAudioContextRef = useRef<AudioContext | null>(null);
+  const [playFlagFromIndex, setPlayFlagFromIndex] = useState<boolean>(true); //初回再生用
+  const [resetFlagFromIndex, setResetFlagFromIndex] = useState<boolean>(false);
 
 
 
@@ -78,29 +78,35 @@ export function ProjectIndexWrapper({}){
     };
   }, []);
 
-  //遷移時のコントローラー制御
-  useEffect(() => {
-    return() =>{
+
+  //AudioContextの初期化
+  useEffect(()=> {
+    globalAudioContextRef.current = new(window.AudioContext || (window as any).webkitAudioContext)({
+      sampleRate: 44100
+    });
+    return()=>{
+      if(globalAudioContextRef.current){
+        globalAudioContextRef.current.close().then(()=>{
+          globalAudioContextRef.current =null;
+        })
+      }
       handleCloseClick();
-    }
-  }, []);
+    };
+  },[]);
 
 
   //再生ボタン押下時処理
   const handlePlayClick = async (project: EnrichedProject) => {
     const { user, audioFilePath } = project;
     try {
-      cleanUpAudioElement(); //再生中の場合は再生を停止
+      setResetFlagFromIndex(true); //再生中の場合は再生を停止
+      setPlayFlagFromIndex(true); //再生中に再生ボタンを押下した場合は再生フラグを初期化する
 
-      if (audioFilePath) {
-        const audioData = await fetchAudioData(audioFilePath);
-        // AudioElementの初期化
-        const audioBlob = new Blob([audioData], { type: "audio/mpeg" });
-        audioUrlRef.current = URL.createObjectURL(audioBlob);
-        audioElementRef.current = new Audio(audioUrlRef.current);
+      if (audioFilePath && globalAudioContextRef.current) {
+        const audioArrayBuffer = await fetchAudioData(audioFilePath);
+        const audioBufferData = await globalAudioContextRef.current.decodeAudioData(audioArrayBuffer);
 
-        setAudioData(audioData);
-        setAudioUrl(audioFilePath);
+        setAudioData(audioBufferData);
         setAudioControllerVisible(true);
         setProjectForController(project);
         setUserForController(user);
@@ -113,29 +119,12 @@ export function ProjectIndexWrapper({}){
 
   //AudioControllerを閉じる処理
   const handleCloseClick = async () => {
-    cleanUpAudioElement();
+    setResetFlagFromIndex(true);
     setProjectForController(null);
     setUserForController(null);
     setAudioControllerVisible(false);
-    setAudioUrl(null);
     setAudioData(null);
   };
-
-  // AudioElementのクリーンアップ
-  const cleanUpAudioElement = () => {
-    if (audioElementRef.current) {
-      audioElementRef.current.pause();
-      audioElementRef.current.src = "";
-    }
-
-    if (audioUrlRef.current) {
-      URL.revokeObjectURL(audioUrlRef.current);
-      audioUrlRef.current = null;
-    }
-
-    audioElementRef.current = null;
-  };
-
 
   if (isError) {
     return (
@@ -201,14 +190,18 @@ export function ProjectIndexWrapper({}){
           </Grid>
         </InfiniteScroll>
       )}
-      {isAudioControllerVisible && audioUrl && audioData &&(
+      {isAudioControllerVisible && audioData && globalAudioContextRef.current &&(
         <AudioController
           key={audioSessionKey}
           onClose={handleCloseClick}
           project={projectForController}
           user={userForController}
-          audioData={audioData}
-          audioElement ={audioElementRef.current}
+          audioBuffer={audioData}
+          audioContext ={globalAudioContextRef.current}
+          playFlagFromIndex={playFlagFromIndex}
+          setPlayFlagFromIndex={setPlayFlagFromIndex}
+          resetFlagFromIndex={resetFlagFromIndex}
+          setResetFlagFromIndex={setResetFlagFromIndex}
         />
       )}
     </Box>
