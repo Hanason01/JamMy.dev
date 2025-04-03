@@ -50,7 +50,7 @@ export function ProjectCard({
   getKey: GetKeyType;
 }){
   //状態変数・変数
-  const [expanded, setExpanded] = useState<boolean>(false); //概要展開
+  const [expanded, setExpanded] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
@@ -58,7 +58,7 @@ export function ProjectCard({
 
 
   //編集・削除用途のセット（リクエスト関係は別途定義）
-  const [isEditing, setIsEditing] = useState<boolean>(false); //編集モード
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const preVisibility = [
     { label: "公開", value: "is_public" },
     { label: "限定公開", value: "is_private" },
@@ -66,8 +66,8 @@ export function ProjectCard({
   const [formError, setFormError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false); //削除用
-  const [tempData, setTempData] = useState<PostProjectFormData | null>(null); //フォームデータの一時保管
+  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+  const [tempData, setTempData] = useState<PostProjectFormData | null>(null);
 
     //バリデーション
   const { register, handleSubmit, setError, errors } = usePostProjectValidation({
@@ -191,12 +191,10 @@ export function ProjectCard({
 
   // 保存処理の中間関数
   const handleEditProxy = (data: PostProjectFormData) => {
-    //プロジェクト終了が指定された場合、確認ダイアログ発動
     if (data.isClosed) {
       setTempData(data);
       setOpenEditDialog(true);
     } else {
-    //指定されなかった場合は、そのまま編集処理へ移行
       handleEditProject(data);
     }
   };
@@ -217,19 +215,14 @@ export function ProjectCard({
       let audioFile:File | "null" = "null";
       let audioContext = null;
 
-      //プロジェクト終了が指示された場合
       if(data.isClosed && project.audioFilePath){
-        //AudioContext作成
         audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
           sampleRate: 44100
         });
-        // AudioBuffer 取得・MP3へエンコード
         const audioData = await fetchAudioData(project.audioFilePath);
         const audioBufferData = await audioContext.decodeAudioData( audioData);
         audioFile = await audioEncoder(audioBufferData, "MP3");
       }
-
-      //不正な公開範囲パラメータをブロック
       const visibilityValue = preVisibility.find((option) => option.label === data.visibility)?.value;
 
       if (!visibilityValue) {
@@ -237,26 +230,23 @@ export function ProjectCard({
         return;
       }
 
-      // リクエストデータを作成
       const requestData: EditProjectRequestData = {
         "project[title]": data.title.trim(),
         "project[description]": data.description.trim(),
         "project[visibility]": visibilityValue,
         "project[status]": data.isClosed ? "closed" : "null",
-        "project[audio_file]": audioFile, //なければ"null"
+        "project[audio_file]": audioFile,
       };
 
-      // FormData の生成
       const formData = new FormData();
       Object.entries(requestData).forEach(([key, value]) => {
         formData.append(key, value);
       });
 
-      // APIリクエストの送信
       await editProject(formData, project.id);
-      // console.log("プロジェクトが正常に更新されました");
       setIsEditing(false);
-      await handleMutate(); //関係するSWR全てに再フェッチ依頼
+
+      await handleMutate();
       setFeedbackByKey("project:edit:success");
     }catch(error: any) {
       if (error.title) {
@@ -264,7 +254,6 @@ export function ProjectCard({
       } else if (error.description) {
         setError("description", { type: "manual", message: error.description });
       } else {
-        // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
         setFormError(error.general);
       }
     }finally{
@@ -291,10 +280,10 @@ export function ProjectCard({
       router.replace(`/mypage?tab=${fromPage}&feedback=project:delete:success`);
     } else if (fromPage === "projects") {
       router.replace("/projects?feedback=project:delete:success");
-    } else if (mode === "list"){ //一覧系ページにて削除処理
+    } else if (mode === "list"){
       await handleMutate()
       setFeedbackByKey("project:delete:success");
-    } else{ //詳細ページにリンクアクセスしている場合
+    } else{
       router.replace("/projects?feedback=project:delete:success");
     }
   }
@@ -302,14 +291,12 @@ export function ProjectCard({
    // いいねボタン
   const handleLikeToggle = async () => {
     if (!requireAuth()) {
-      return; // 未ログインなら処理を中断
+      return;
     }
 
     if (project.attributes.liked_by_current_user) {
-      // すでに「いいね」されている → 解除
       await handleUnlike(project.id, project.attributes.current_like_id, mode, getKey);
     } else {
-      // まだ「いいね」されていない → 追加
       await handleLike(project.id, mode, getKey);
     }
   };
@@ -317,14 +304,12 @@ export function ProjectCard({
      // ブックマークボタン
     const handleBookmarkToggle = async () => {
       if (!requireAuth()) {
-        return; // 未ログインなら処理を中断
+        return;
       }
 
       if (project.attributes.bookmarked_by_current_user) {
-        // すでに「ブックマーク」されている → 解除
         await handleUnBookmark(project.id, project.attributes.current_bookmark_id, mode, getKey);
       } else {
-        // まだ「ブックマーク」されていない → 追加
         await handleBookmark(project.id, mode, getKey);
       }
     };
@@ -332,15 +317,13 @@ export function ProjectCard({
     //コメントボタン
     const handleCommentToggle = () => {
       if (!requireAuth()) {
-        return; // 未ログインなら処理を中断
+        return;
       }
 
       if (mode === "list") {
-        // 一覧ページなら詳細ページに遷移
         setIsCommentRoute(true);
         router.push(`/projects/${project.attributes.id}/project_show`);
       } else if (mode === "detail") {
-        // 詳細ページならそのままフォーカス
         setIsCommentRoute(true);
       }
     };
@@ -445,7 +428,7 @@ export function ProjectCard({
             <>
               <IconButton
                 onClick={(e) => {
-                  e.stopPropagation(); // バブリング防止
+                  e.stopPropagation();
                   handleMenuOpen(e);
                 }}
                 sx={{ ml: 2 }}>
@@ -455,7 +438,7 @@ export function ProjectCard({
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
-                onClick={(e) => e.stopPropagation()} // バブリング防止
+                onClick={(e) => e.stopPropagation()}
                 anchorOrigin={{
                   vertical: "bottom",
                   horizontal: "right",
@@ -468,7 +451,7 @@ export function ProjectCard({
                 {project.attributes.status !== "closed" && (
                 <MenuItem
                   onClick={(e) => {
-                    e.stopPropagation(); // バブリング防止
+                    e.stopPropagation();
                     handleMenuClose();
                     handleEdit();
                   }}
@@ -478,7 +461,7 @@ export function ProjectCard({
                 )}
                 <MenuItem
                   onClick={(e) => {
-                    e.stopPropagation(); // バブリング防止
+                    e.stopPropagation();
                     handleMenuClose();
                     handleDeleteProxy();
                   }}
@@ -501,14 +484,14 @@ export function ProjectCard({
           </DialogContent>
           <DialogActions sx={{mb:1}} >
             <Button onClick={(e) => {
-                e.stopPropagation(); // バブリング防止
+                e.stopPropagation();
                 setOpenDeleteDialog(false);
               }}
               variant="outlined">
               キャンセル
             </Button>
             <Button onClick={(e) => {
-                  e.stopPropagation(); // バブリング防止
+                  e.stopPropagation();
                   handleDialogConfirmDelete();
                 }}
                 variant="contained"
@@ -633,7 +616,7 @@ export function ProjectCard({
           <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center"}}>
             <Typography
               onClick={(e) => {
-                e.stopPropagation(); // バブリング防止
+                e.stopPropagation();
                 toggleExpanded();
               }}
               color="primary"
@@ -642,7 +625,7 @@ export function ProjectCard({
               </Typography>
             <IconButton
             onClick={(e)=> {
-              e.stopPropagation(); // バブリング防止
+              e.stopPropagation();
               toggleExpanded();
             }}
             sx={{ color: "primary.main", pl: 0 }}>
@@ -730,7 +713,7 @@ export function ProjectCard({
               fullWidth
               disabled={isEditing}
               onClick={(e) => {
-                e.stopPropagation(); // バブリング防止
+                e.stopPropagation();
                 handleCollaborationManagementRequest();
               }}
                 >応募管理</Button>
@@ -740,7 +723,7 @@ export function ProjectCard({
               fullWidth
               disabled={isEditing}
               onClick={(e) => {
-                e.stopPropagation(); // バブリング防止
+                e.stopPropagation();
                 handleCollaborationRequest();
               }}
               >応募する</Button>
@@ -763,7 +746,7 @@ export function ProjectCard({
           </Typography>
           <IconButton
           onClick={(e) => {
-            e.stopPropagation(); // バブリング防止
+            e.stopPropagation();
             onPlayClick(project);
           }}
           sx={{
@@ -806,7 +789,7 @@ export function ProjectCard({
         >
           <IconButton
           onClick={(e) => {
-            e.stopPropagation(); // バブリング防止
+            e.stopPropagation();
             handleCommentToggle();
           }}
           sx={{color: "text.secondary" }}
@@ -834,7 +817,7 @@ export function ProjectCard({
         >
           <IconButton
           onClick={(e) => {
-            e.stopPropagation(); // バブリング防止
+            e.stopPropagation();
             handleLikeToggle();
           }}
           sx={{
@@ -860,7 +843,7 @@ export function ProjectCard({
         <>
           <IconButton
           onClick={(e) => {
-            e.stopPropagation(); // バブリング防止
+            e.stopPropagation();
             handleShareMenu(e);
           }}
           sx={{color: "text.secondary"}}
@@ -900,7 +883,7 @@ export function ProjectCard({
           >
             <MenuItem
                 onClick={(e) => {
-                  e.stopPropagation(); // バブリング防止
+                  e.stopPropagation();
                   handleCopyLink();
                 }}
               >
@@ -908,7 +891,7 @@ export function ProjectCard({
             </MenuItem>
             <MenuItem
                 onClick={(e) => {
-                  e.stopPropagation(); // バブリング防止
+                  e.stopPropagation();
                   handleShareToX();
                 }}
               >
@@ -922,7 +905,7 @@ export function ProjectCard({
         {/* ブックマーク */}
         <IconButton
         onClick={(e) => {
-          e.stopPropagation(); // バブリング防止
+          e.stopPropagation();
           handleBookmarkToggle();
         }}
         sx={{

@@ -66,9 +66,6 @@ export const ResetPassword = () => {
         password_confirmation: data.confirmPassword,
       },{withCredentials: true});
 
-      // console.log("パスワードリセットのレスポンス", response,response.data,response.data.data);
-      // console.log("さらにネストしたレスポンス", response.data.data.attributes);
-
       handleLoginSuccess(response.data.data);
       setMessage("パスワードがリセットされました。");
       setError(null);
@@ -87,7 +84,6 @@ export const ResetPassword = () => {
     }
   };
 
-  // トークンが無効の場合のメッセージ
   if (!isTokenValid && error) {
     return (
       <Container maxWidth="sm" sx={{ mt: 8 }}>

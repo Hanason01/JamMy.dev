@@ -26,7 +26,7 @@ export function CommentCard({
   getKey: GetKeyType;
 }){
   // SWR関連
-  const { mutate } = useProjectComments(projectId); //コメント
+  const { mutate } = useProjectComments(projectId);
 
   // 状態管理
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
@@ -35,7 +35,6 @@ export function CommentCard({
   //フック
   const { handleUnComment } = useCommentToggle();
 
-  // コメント作成日時を相対時間で表示
   const createdAt = new Date(attributes.created_at);
   const formattedDate = formatDistanceToNow(createdAt, { addSuffix: true, locale: ja });
 
@@ -67,7 +66,7 @@ export function CommentCard({
   //削除ボタン
   const handleDeleteComment = async () =>{
     await handleUnComment(projectId, comment.attributes.id, getKey)
-    await mutate(); //コメントのSWR
+    await mutate();
   }
 
   return (

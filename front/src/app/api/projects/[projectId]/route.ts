@@ -5,7 +5,6 @@ import { createInitialProjectData } from "@utils/createInitialProjectData";
 export async function GET(req: NextRequest, context : { params: Promise<Record<string, string>>}) {
   const resolvedParams = await context.params;
   const projectId = resolvedParams.projectId;
-  // console.log("projectId: " + projectId);
 
   try {
     const response = await fetch(`${process.env.BACKEND_API_URL}/api/v1/projects/${projectId}`, {

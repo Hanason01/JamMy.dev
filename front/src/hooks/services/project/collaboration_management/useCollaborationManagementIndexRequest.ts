@@ -3,9 +3,7 @@ import { handleStatusErrors } from "@services/ErrorHandler";
 import { Collaboration} from "@sharedTypes/types";
 
 export const collaborationManagementIndexRequest = async (project_id: number, signal:AbortSignal): Promise<Collaboration[]> => {
-  // アボートされた場合は処理を終了
   if (signal?.aborted) {
-    // console.log("loadCollaborationsが中断されました");
     return [];
   }
   try {
@@ -35,7 +33,7 @@ export const collaborationManagementIndexRequest = async (project_id: number, si
     }
   } catch (error: any) {
     if (error.response) {
-      handleStatusErrors(error.response.status); // ステータスエラーハンドル
+      handleStatusErrors(error.response.status);
     } else if (error.request) {
       throw new Error("ネットワークエラーが発生しました。");
     } else {

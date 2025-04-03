@@ -5,7 +5,6 @@ import { Feedback } from "@sharedTypes/types";
 export const useBookmarkRequest = () => {
   const { setFeedbackByKey } = useFeedbackContext();
 
-  // ブックマーク追加関数
   const bookmarkProject = async (projectId: string): Promise<Feedback> => {
     try {
       const response = await axios.post(
@@ -20,7 +19,6 @@ export const useBookmarkRequest = () => {
     }
   };
 
-  // ブックマーク解除関数
   const unBookmarkProject = async (projectId: string, bookmarkId: string): Promise<Feedback> => {
     try {
       const response = await axios.delete(
@@ -34,7 +32,6 @@ export const useBookmarkRequest = () => {
     }
   };
 
-  // エラーハンドリング
   const handleBookmarkError = (error: any, defaultMessage: string) => {
     if (error.response) {
       const status = error.response.status;

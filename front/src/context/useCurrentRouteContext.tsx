@@ -33,7 +33,7 @@ export const CurrentRouteProvider = ({ children }: WithChildren) => {
   //遷移時の処理
   const setCurrentRoute = (newRoute: string) => {
     if (newRoute !== currentRoute) {
-      setPreviousRoute(currentRoute); // 遷移前のページを保持
+      setPreviousRoute(currentRoute);
     }
     setCurrentRouteState(newRoute);
   };

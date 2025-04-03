@@ -7,52 +7,44 @@ class ApplicationController < ActionController::API
 
   # before_action :set_csrf_cookie
 
-  #S3へファイル保存
   def upload_file_to_s3(file, dir)
-    # S3へアクセスするインスタンスを作成
     s3 = initialize_s3_resource
     bucket = s3.bucket('jam-my')
     file_key = "#{dir}/#{SecureRandom.uuid}_#{file.original_filename}"
 
     begin
       obj = bucket.object(file_key)
-
-      # アップロード（キャッシュ１年）
       obj.upload_file(file.path, content_type: file.content_type, cache_control: "public, max-age=31536000, immutable")
 
     rescue Aws::S3::Errors::ServiceError => e
       Rails.logger.error "S3アップロードエラー: #{e.message}"
-      raise "ファイル保存に失敗しました"
+      raise ActiveRecord::Rollback,"ファイル保存に失敗しました"
     end
 
-    # カラムに保存するキー
     file_key
   end
 
 
-  #S3からファイル削除
   def delete_file_from_s3(file_path)
     s3 = initialize_s3_resource
     bucket = s3.bucket('jam-my')
 
-    # ファイルの削除
     begin
       obj = bucket.object(file_path)
       obj.delete
+
     rescue Aws::S3::Errors::ServiceError => e
       Rails.logger.error "S3削除エラー: #{e.message}"
-      raise "既存ファイルの削除に失敗しました"
+      raise ActiveRecord::Rollback, "既存ファイルの削除に失敗しました"
     end
   end
 
-  # プロジェクトを終了状態にする
   def terminate_project(project)
     project.status = :closed
     handle_collaborations(project)
     project.save!
   end
 
-  # 関連するコラボレーションのstatus処理とファイルの削除
   def handle_collaborations(project)
     project.collaborations.each do |collaboration|
       if collaboration.status == "pending"
@@ -66,7 +58,6 @@ class ApplicationController < ActionController::API
     end
   end
 
-  # AudioFile を保存
   def save_audio_file(project, audio_file_param)
     if project.audio_file.present?
       delete_file_from_s3(project.audio_file.file_path)
@@ -80,9 +71,6 @@ class ApplicationController < ActionController::API
 
   private
 
-  # def set_csrf_cookie
-  #   cookies["CSRF-TOKEN"] = form_authenticity_token
-  # end
 
   def initialize_s3_resource
     Aws::S3::Resource.new(
@@ -92,8 +80,8 @@ class ApplicationController < ActionController::API
     )
   end
 
-  def user_likes_map #current_userが持つlikeの特定
-    @user_likes_map ||= if current_user #条件付き代入、メモ化
+  def user_likes_map
+    @user_likes_map ||= if current_user
       current_user.likes.where(likeable_type: "Project").pluck(:likeable_id, :id).to_h #{project_id => like_id, ...}
     else
       {}
@@ -113,7 +101,7 @@ class ApplicationController < ActionController::API
       projects,
       {
         include: [:user, :audio_file],
-        params: { # Serializerとの通信用データ
+        params: {
           current_user: current_user,
           user_likes_map: user_likes,
           user_bookmarks_map: user_bookmarks,

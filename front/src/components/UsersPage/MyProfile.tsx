@@ -13,12 +13,11 @@ export function MyProfile() {
   const [user, setUser] = useState<UserAttributes | null>(null);
   const [loading, setLoading] = useState(true);
   const [avatar, setAvatar] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null); //プレビュー用
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   //編集関係
   const [formError, setFormError] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
-  // const [tempData, setTempData] = useState<EditUserFormData | null>(null);
 
   //バリデーション
   const { register, handleSubmit, setValue, watch, setError, reset, errors } = useEditUserValidation();
@@ -35,7 +34,6 @@ export function MyProfile() {
           { withCredentials: true }
         );
         const data = res.data.data.attributes;
-        // console.log("res.data", res.data);
         setUser(data)
         setAvatarPreview(res.data?.avatar_url);
         reset({ nickname: data.nickname, bio: data.bio ?? "" });
@@ -48,6 +46,7 @@ export function MyProfile() {
     fetchUserProfile();
   }, []);
 
+
   // アバターの変更処理
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -57,6 +56,7 @@ export function MyProfile() {
       setValue("avatar", file);
     }
   };
+
 
   // 編集モードの切り替え
   const toggleEditMode = () => setIsEditing(true);
@@ -189,7 +189,6 @@ export function MyProfile() {
             />
           </Box>
 
-           {/* キャンセル・保存ボタン */}
           {/* キャンセル・保存ボタン */}
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt:3 }}>
               <Button variant="outlined" onClick={handleCancelEdit}>

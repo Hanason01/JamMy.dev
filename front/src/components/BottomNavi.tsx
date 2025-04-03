@@ -18,9 +18,8 @@ export function BottomNavi() {
   const { currentRoute, previousRoute, setCurrentRoute, lastDetailRoute, setLastDetailRoute } = useCurrentRouteState();
   const { hasUnread } = useNotificationContext();
 
-  // パスが変更（現在位置が変更）されたらcontextでその情報を保持。かつ
   useEffect(() => {
-    setCurrentRoute(pathname); // Contextに反映
+    setCurrentRoute(pathname);
   }, [pathname, setCurrentRoute]);
 
   const value = (() => {
@@ -40,7 +39,6 @@ export function BottomNavi() {
 
   const handleNavigationChange = (event: React.SyntheticEvent,
     newValue: number): void => {
-    // 選択された値に基づきルートを設定
     let route = "/projects";
     switch (newValue) {
       case 0:
@@ -59,24 +57,21 @@ export function BottomNavi() {
         route = "/projects";
     }
     if (route === "/projects") {
-      // 一覧ページにすでにいる場合 → 最新データ取得（2回目のボタン押下は再フェッチ依頼とみなす）
       if (currentRoute === "/projects") {
-        // window.scrollTo({ top: 0, behavior: "smooth" }); // スクロール初期化
-        // await mutate(undefined, { revalidate: true }); // 再フェッチ
+        // window.scrollTo({ top: 0, behavior: "smooth" });
+        // await mutate(undefined, { revalidate: true });
         // setSize(1); // 1ページ目にリセット
       // // 詳細→一覧以外のナビ→一覧なら詳細へ戻る（詳細→一覧は次段のelse処理となる）
       // } else if (lastDetailRoute && previousRoute !== "/projects"){
       //   router.push(lastDetailRoute);
       } else {
-        // 他のページから一覧に戻る（通常の一覧への遷移）
-        if (lastDetailRoute){ setLastDetailRoute(null); } //詳細→一覧の場合は、履歴を削除
+        if (lastDetailRoute){ setLastDetailRoute(null); }
         setCurrentRoute(route);
         router.push(route);
       }
     } else {
-      // 通常の遷移（一覧関係なし）
-      setCurrentRoute(route); // Contextの状態を更新
-      router.push(route); // ページ遷移
+      setCurrentRoute(route);
+      router.push(route);
     }
   };
 

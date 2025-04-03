@@ -31,10 +31,6 @@ export function PlaybackProvider({ children }: WithChildren) {
   const [isPlaybackReset, setIsPlaybackReset] = useState(false);
   const playbackResetTriggeredByRef = useRef<string | null>(null);
 
-  // console.log("isPlaybackTriggeredの追跡", isPlaybackTriggered);
-  // console.log("playbackTriggeredByRefの追��", playbackTriggeredByRef.current);
-  // console.log("sharedCurrentTime",sharedCurrentTime);
-  // console.log("currentTimeUpdatedByRef",currentTimeUpdatedByRef.current)
 
   return (
     <PlaybackContext.Provider value={{

@@ -22,8 +22,8 @@ const ClientCacheContext = createContext<ClientCacheContextType>(initialContext)
 
 export function ClientCacheProvider({ children }: WithChildren) {
   const scrollPosition = useRef<number>(0);
-  const [, setRenderFlag] = useState<boolean>(false);  // 状態管理用のフラグ
-  const [isCommentRoute, setIsCommentRoute] = useState<boolean>(false); //一覧→詳細のコメント遷移
+  const [, setRenderFlag] = useState<boolean>(false);
+  const [isCommentRoute, setIsCommentRoute] = useState<boolean>(false);
 
   // 強制再レンダリング関数
   const forceUpdate = () => setRenderFlag((prev) => !prev);

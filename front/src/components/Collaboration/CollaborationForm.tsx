@@ -17,7 +17,7 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
   const router = useRouter();
   const [formError, setFormError] = useState<string>("");
   const encodedFileRef = useRef<File | null>(null);
-  const [loading, setLoading] = useState<boolean>(false); // ローディング状態
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { register, handleSubmit, setError, errors } = usePostCollaborationValidation();
 
@@ -43,10 +43,8 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         let audioFile = encodedFileRef.current
         //エンコード処理
         if(!encodedFileRef.current){
-          // console.log("エンコード処理に送るaudioBuffer", audioBuffer);
           audioFile = await audioEncoder(audioBuffer, "FLAC");
           encodedFileRef.current = audioFile;
-          // console.log("エンコード後のファイル",audioFile);
         }
 
         //audioFileチェック
@@ -66,7 +64,6 @@ export function CollaborationForm({audioBuffer}: {audioBuffer:AudioBuffer}) {
         Object.entries(requestData).forEach(([key, value]) => {
           formData.append(key, value as string | Blob); // 型をキャストして挿入
         });
-        // console.log("リクエスト送信前のformData", formData);
 
         if (currentProject){
           await postCollaboration(formData, currentProject.id);

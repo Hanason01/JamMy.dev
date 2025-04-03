@@ -20,9 +20,6 @@ export function ProjectIndexWrapper({}){
 //SWR関連
   // 投稿一覧用
   const { projects, meta, hasMore, loadMore, isLoading, isError, isValidating, mutate, getKey } = useProjectList();
-  // console.log("SWRのprojectsキャッシュ", projects);
-  // const { cache } = useSWRConfig();
-  // console.log("Indexのcache", cache);
 
   const { updateAllProjects } = useRevalidateSWR();
   // プル・トゥ・リフレッシュ処理
@@ -42,9 +39,8 @@ export function ProjectIndexWrapper({}){
   const [userForController, setUserForController] = useState<User | null>(null);
   const [audioSessionKey, setAudioSessionKey] = useState<string | null>(null);
   const globalAudioContextRef = useRef<AudioContext | null>(null);
-  const [playFlagFromIndex, setPlayFlagFromIndex] = useState<boolean>(true); //初回再生用
+  const [playFlagFromIndex, setPlayFlagFromIndex] = useState<boolean>(true);
   const [resetFlagFromIndex, setResetFlagFromIndex] = useState<boolean>(false);
-
 
 
   //フック
@@ -58,7 +54,7 @@ export function ProjectIndexWrapper({}){
   useEffect(() => {
     setTimeout(() => {
       window.scrollTo(0, scrollPosition.current);
-    }, 0); // DOM描画完了後
+    }, 0);
     setLoading(false);
   }, []);
 
@@ -67,7 +63,7 @@ export function ProjectIndexWrapper({}){
   useEffect(() => {
     const handleScroll = throttle(() => {
       scrollPosition.current = window.scrollY;
-    }, 200); // スクロール毎に呼ばれるが実行は200ms間隔
+    }, 200);
 
     // スクロールイベント
     window.addEventListener("scroll", handleScroll);
@@ -99,8 +95,8 @@ export function ProjectIndexWrapper({}){
   const handlePlayClick = async (project: EnrichedProject) => {
     const { user, audioFilePath } = project;
     try {
-      setResetFlagFromIndex(true); //再生中の場合は再生を停止
-      setPlayFlagFromIndex(true); //再生中に再生ボタンを押下した場合は再生フラグを初期化する
+      setResetFlagFromIndex(true);
+      setPlayFlagFromIndex(true);
 
       if (audioFilePath && globalAudioContextRef.current) {
         const audioArrayBuffer = await fetchAudioData(audioFilePath);
@@ -110,7 +106,7 @@ export function ProjectIndexWrapper({}){
         setAudioControllerVisible(true);
         setProjectForController(project);
         setUserForController(user);
-        setAudioSessionKey(`${project.id}-${Date.now()}`); //AudioControllerを再生ボタンごとに再生成する為の一意のキーを生成
+        setAudioSessionKey(`${project.id}-${Date.now()}`);
       }
     }catch(e) {
       console.error("音声データが取得できませんでした");

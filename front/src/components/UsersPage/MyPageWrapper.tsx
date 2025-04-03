@@ -22,7 +22,7 @@ import { PullToRefresh } from "@components/PullToRefresh";
 export function MyPageWrapper() {
   // SWR関連
   const [tab, setTab] = useState<"my_projects" | "collaborating" | "collaborated" | "bookmarks">("my_projects");
-  const { projects, hasMore, loadMore, isLoading, isValidating, isError, mutate, getKey } = useMyProjects(tab); //SWRフックからのreturnは全てtabに裏付けされた個別のキーに対応する
+  const { projects, hasMore, loadMore, isLoading, isValidating, isError, mutate, getKey } = useMyProjects(tab);
   const { updateMyProjects, updateMyProjectsTab } = useRevalidateSWR();
   const handleRefresh = async () => {
     if (projects.length > 0) {
@@ -38,7 +38,7 @@ export function MyPageWrapper() {
   const [userForController, setUserForController] = useState<User | null>(null);
   const [audioSessionKey, setAudioSessionKey] = useState<string | null>(null);
   const globalAudioContextRef = useRef<AudioContext | null>(null);
-  const [playFlagFromIndex, setPlayFlagFromIndex] = useState<boolean>(true); //初回再生用
+  const [playFlagFromIndex, setPlayFlagFromIndex] = useState<boolean>(true);
   const [resetFlagFromIndex, setResetFlagFromIndex] = useState<boolean>(false);
 
 
@@ -56,26 +56,25 @@ export function MyPageWrapper() {
   // タブクリック時のフェッチ判定
   const handleTabClick = async (selectedTab: "my_projects" | "collaborating" | "collaborated" | "bookmarks") => {
     if (tab === selectedTab && projects.length > 0) {
-      await updateMyProjectsTab(selectedTab, projects[0].id); // すでに選択されているタブがクリックされた場合、フェッチ
+      await updateMyProjectsTab(selectedTab, projects[0].id);
     }
   };
 
-    // スクロール位置を復元
-    useEffect(() => {
-      setTimeout(() => {
-        window.scrollTo(0, scrollPosition.current);
-      }, 0); // DOM描画完了後
-      setLoading(false);
-    }, []);
+  // スクロール位置を復元
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo(0, scrollPosition.current);
+    }, 0);
+    setLoading(false);
+  }, []);
 
 
   //スクロール保持
   useEffect(() => {
     const handleScroll = throttle(() => {
       scrollPosition.current = window.scrollY;
-    }, 200); // スクロール毎に呼ばれるが実行は200ms間隔
+    }, 200);
 
-    // スクロールイベント
     window.addEventListener("scroll", handleScroll);
 
     return () => {
@@ -105,8 +104,8 @@ export function MyPageWrapper() {
   const handlePlayClick = async (project: EnrichedProject) => {
     const { user, audioFilePath } = project;
     try {
-      setResetFlagFromIndex(true); //再生中の場合は再生を停止
-      setPlayFlagFromIndex(true); //再生中に再生ボタンを押下した場合は再生フラグを初期化する
+      setResetFlagFromIndex(true);
+      setPlayFlagFromIndex(true);
 
       if (audioFilePath && globalAudioContextRef.current) {
         const audioArrayBuffer = await fetchAudioData(audioFilePath);
@@ -116,7 +115,7 @@ export function MyPageWrapper() {
         setAudioControllerVisible(true);
         setProjectForController(project);
         setUserForController(user);
-        setAudioSessionKey(`${project.id}-${Date.now()}`); //AudioControllerを再生ボタンごとに再生成する為の一意のキーを生成
+        setAudioSessionKey(`${project.id}-${Date.now()}`);
       }
     }catch(e) {
       console.error("音声データが取得できませんでした");

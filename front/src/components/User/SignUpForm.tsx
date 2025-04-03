@@ -53,7 +53,6 @@ export function SignUpForm({
       } else if (error.username) {
         setError("nickname", { type: "manual", message: error.nickname });
       } else {
-        // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
         setFormError(error.general);
       }
     } finally {

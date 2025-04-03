@@ -9,14 +9,12 @@ class Api::V1::NotificationsController < ApplicationController
                                 .order(created_at: :desc)
                                 .limit(50)
 
-    #このエンドポイントにアクセスした時点で既読の扱いにする
     unread_notifications = notifications.unread
     unread_notifications.update_all(read: true) if unread_notifications.exists?
 
     render json: notifications.map { |notification| format_notification(notification) }
   end
 
-  # ログイン状態での初回アプリアクセス時の通知有無の確認の為のエンドポイント
   def has_unread
     has_unread = current_user.received_notifications.unread.exists?
     render json: { has_unread: has_unread }

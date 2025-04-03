@@ -23,8 +23,8 @@ export function AudioProcessor({
 
   //Volume関係
   const { volume, updateVolume } = useVolumeControl({ mixGainNode });
-  const [isMuted, setIsMuted] = useState<boolean>(false); // ミュート管理
-  const [previousVolume, setPreviousVolume] = useState<number>(volume); // ミュート前の音量を保存
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [previousVolume, setPreviousVolume] = useState<number>(volume);
 
   // //Reverb関係
   // const { reverbLevel, updateReverbLevel } = useReverbControl({ reverbInputGainNode });

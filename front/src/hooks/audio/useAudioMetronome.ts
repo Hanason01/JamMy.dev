@@ -5,19 +5,14 @@ import { useRef } from "react";
 
 export function useAudioMetronome() {
   const isPlayingRef = useRef<boolean>(false);
-  const nextClickTimeRef = useRef<number>(0); //個々のクリック音をcontextのcurrentIme上にマッピングする座標
-  const audioContextRef = useRef<AudioContext | null>(null); // AudioContext を保持
-  const clickSoundBufferRef = useRef<AudioBuffer | null>(null); // clickSoundBuffer を保持
+  const nextClickTimeRef = useRef<number>(0);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const clickSoundBufferRef = useRef<AudioBuffer | null>(null);
 
   // 初期化関数
   const metronomeInitialize = (audioContext: AudioContext | null, clickSoundBuffer: AudioBuffer | null): void => {
-    // console.log("metronomeInitializeが受け取ったBuffer", clickSoundBuffer);
     audioContextRef.current = audioContext;
     clickSoundBufferRef.current = clickSoundBuffer;
-    // console.log("useAudioMetronomeが初期化されました", {
-    //   audioContext: audioContextRef.current,
-    //   clickSoundBuffer: clickSoundBufferRef.current,
-    // });
   };
 
   // クリック音を再生
@@ -26,12 +21,10 @@ export function useAudioMetronome() {
       if (!audioContextRef.current || !clickSoundBufferRef.current) {
         throw new Error("AudioContext または clickSoundBuffer が未初期化です");
       }
-      // console.log(`playClickが呼び出されました: time=${time}`);
       const source = audioContextRef.current.createBufferSource();
       source.buffer = clickSoundBufferRef.current;
       source.connect(audioContextRef.current.destination);
-      source.start(time); //timeはcontext.currentTime上の再生座標
-      // console.log(`クリック音を再生しました: time=${time}`);
+      source.start(time);
     } catch (error) {
       console.error("クリック音再生エラー", error);
     }
@@ -43,46 +36,30 @@ export function useAudioMetronome() {
       console.error("AudioContext またはクリック音データが未初期化です");
       return;
     }
-    // console.log("startMetronomeが呼び出されました");
-    // console.log("受け取ったtempo:", tempo);
-    // console.log("現在のaudioContext:", audioContextRef.current);
-    // console.log("現在のclickSoundBuffer:", clickSoundBufferRef.current);
 
-    isPlayingRef.current = true; //開始フラグ
-    nextClickTimeRef.current = audioContextRef.current.currentTime; // AudioContext の現在時間を基準にする
-    const interval = 60 / tempo; // BPM に基づく間隔
+    isPlayingRef.current = true;
+    nextClickTimeRef.current = audioContextRef.current.currentTime;
+    const interval = 60 / tempo;
     const scheduleClicks = (): void => {
-      // console.log("scheduleClicksが呼び出されました");
-      // console.log("現在のaudioContextのcurrentTime:", audioContextRef.current.currentTime);
-      // console.log("nextClickTimeRef.current:", nextClickTimeRef.current);
       while (
         isPlayingRef.current &&
         nextClickTimeRef.current < audioContextRef.current!.currentTime + 0.1
       ) {
-        // console.log("クリック音をスケジュール:", nextClickTimeRef.current);
         playClick(nextClickTimeRef.current);
         nextClickTimeRef.current += interval;
       }
 
       if (isPlayingRef.current) {
-        // console.log("次のスケジュール呼び出しをセット");
-        setTimeout(scheduleClicks, 25); // 定期的にクリックをスケジュール
+        setTimeout(scheduleClicks, 25);
       }
     };
 
-    // console.log(`メトロノーム開始: tempo=${tempo}, interval=${interval}`);
     scheduleClicks();
   };
 
   // メトロノーム停止
   const stopMetronome = () => {
-    // console.log("stopMetronomeが呼び出されました");
-    // console.log("メトロノーム停止前の状態:", {
-    // isPlaying: isPlayingRef.current,
-    // nextClickTime: nextClickTimeRef.current,
-    // });
     isPlayingRef.current = false;
-    // console.log("メトロノームが停止しました");
   };
 
   return { metronomeInitialize, startMetronome, stopMetronome };

@@ -10,14 +10,12 @@ export const useCompleteCollaborationManagementRequest = () => {
       const formattedErrors: { [key: string]: string } = {};
 
       if (error.response) {
-        // ステータスコードエラーハンドリング
         try {
           handleStatusErrors(error.response.status);
         } catch (statusError: any) {
           formattedErrors.general = statusError.message;
         }
       } else {
-        // ネットワークエラーやその他のエラー
         formattedErrors.general = "ネットワークエラーが発生しました。再度お試しください。";
       }
       throw formattedErrors;

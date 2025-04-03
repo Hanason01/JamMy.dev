@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
-// S3 クライアントの初期化
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -13,7 +12,7 @@ const s3 = new S3Client({
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || "jam-my";
 
 export async function GET(req: NextRequest) {
-  const imageKey = req.nextUrl.searchParams.get("key"); // クエリパラメータから画像キーを取得
+  const imageKey = req.nextUrl.searchParams.get("key");
 
   if (!imageKey) {
     return new NextResponse(JSON.stringify({ error: "不正なリクエストです" }), { status: 400 });
@@ -21,7 +20,7 @@ export async function GET(req: NextRequest) {
 
   const decodedKey = decodeURIComponent(imageKey || "");
 
-  // Google画像の場合
+  // OAuthユーザー対応
   if (decodedKey.startsWith("https://")) {
     try {
       const response = await fetch(decodedKey, { headers: { "User-Agent": "Mozilla/5.0" } });
@@ -45,12 +44,10 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  //S3画像の場合
   try {
-    // S3 から画像データをストリームで取得
     const params = { Bucket: BUCKET_NAME, Key: decodedKey };
     const command = new GetObjectCommand(params);
-    const { Body, ContentType } = await s3.send(command); // S3 へコマンド送信
+    const { Body, ContentType } = await s3.send(command);
 
     if (!Body) {
       throw new Error("画像データが見つかりません");
@@ -67,7 +64,6 @@ export async function GET(req: NextRequest) {
       throw new Error("Unsupported stream type");
     }
 
-    // ストリームをレスポンスとして返す
     return new NextResponse(stream, {
       status: 200,
       headers: {

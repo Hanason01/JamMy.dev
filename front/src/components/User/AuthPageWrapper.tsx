@@ -11,7 +11,6 @@ export function AuthPageWrapper() {
   const [openAuthModal, setOpenAuthModal] = useState<boolean>(true);
 
   useEffect(() => {
-    // クライアントサイドでのみ実行
     if (typeof window !== "undefined") {
       const storedRedirectTo =
         searchParams.get("redirectTo") ||

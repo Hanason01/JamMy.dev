@@ -43,7 +43,7 @@ const theme: ThemeOptions = createTheme({
     MuiButton: {
       variants: [
         {
-          props: { variant: "primary" },  // カスタムバリアントの名前
+          props: { variant: "primary" },
           style: {
             backgroundColor: "#3F51B5",
             color: "#FFFFFF",
@@ -55,7 +55,7 @@ const theme: ThemeOptions = createTheme({
           },
         },
         {
-          props: { variant: "secondary" },  // 別のカスタムバリアント
+          props: { variant: "secondary" },
           style: {
             backgroundColor: "#FAFAFA",
             color: "#3F51B5",
@@ -71,7 +71,7 @@ const theme: ThemeOptions = createTheme({
     MuiSlider: {
       variants: [
         {
-          props: { color: "secondary" }, // `color="secondary"`
+          props: { color: "secondary" },
           style: {
             color: "#FFC107",
             "& .MuiSlider-thumb": {

@@ -19,15 +19,15 @@ export function AudioPlayer({
   resetFlagFromIndex,
   setResetFlagFromIndex,
 } : {
-  id?: string;  //オプショナル
+  id?: string;
   audioBuffer: AudioBuffer;
   audioContext: AudioContext | null;
-  gainNode?: GainNode | null; //オプショナル
-  enablePostAudioPreview?: boolean; //オプショナル
-  playFlagFromIndex?: boolean; //オプショナル
-  setPlayFlagFromIndex?: SetState<boolean>; //オプショナル
-  resetFlagFromIndex?: boolean; //オプショナル
-  setResetFlagFromIndex?: SetState<boolean>; //オプショナル
+  gainNode?: GainNode | null;
+  enablePostAudioPreview?: boolean;
+  playFlagFromIndex?: boolean;
+  setPlayFlagFromIndex?: SetState<boolean>;
+  resetFlagFromIndex?: boolean;
+  setResetFlagFromIndex?: SetState<boolean>;
 }){
 
   //同時再生Context
@@ -66,8 +66,8 @@ export function AudioPlayer({
     playbackTriggeredByRef
   });
 
-  const [isPlayBackReady, setIsPlayBackReady] = useState<boolean>(false); //同時再生準備状態フラグ
-  const isFirstRenderRef = useRef(true); //useEffect制御フラグ
+  const [isPlayBackReady, setIsPlayBackReady] = useState<boolean>(false);
+  const isFirstRenderRef = useRef(true);
 
 
   //初期化処理
@@ -92,9 +92,9 @@ export function AudioPlayer({
     if(!audioContext) return;
 
     const handleVisibilityChange = async () =>{
-      if(document.hidden && isPlayingRef.current){ //タブを離れた場合かつ再生中の場合のみ
-        await handlePlayPause(); //停止ボタン処理
-      } else if(!document.hidden){ //戻ってきた場合
+      if(document.hidden && isPlayingRef.current){
+        await handlePlayPause();
+      } else if(!document.hidden){
         resetPlaybackState();
       }
     };
@@ -107,7 +107,7 @@ export function AudioPlayer({
 
   //Indexからの再生指示リスナー（初回再生）
   useEffect(() =>{
-    if(!playFlagFromIndex || duration === 0) return; //初期化時のduration更新を待つ
+    if(!playFlagFromIndex || duration === 0) return;
 
     play();
     setPlayFlagFromIndex?.(false);
@@ -126,7 +126,6 @@ export function AudioPlayer({
 
   // 音声間の再生・停止指示リスナー、停止制御
   useEffect(() => {
-    // 初回レンダリングの場合はスキップ
     if (isFirstRenderRef.current) {
       isFirstRenderRef.current = false;
       return;
@@ -135,28 +134,23 @@ export function AudioPlayer({
    // 録音 ー 投稿音声間の処理
     if (playbackTriggeredByRef.current=== "Recording" && id) {
       if (isPlaybackTriggered) {
-        // console.log(`[id:${id}!]録音開始に伴い、音声をリセットして再生を開始します`);
-        resetPlaybackState(); // 再生位置をリセット
+        resetPlaybackState();
         setIsPlayBackReady(true);
       } else {
-        // console.log(`[id:${id}!]録音停止に伴い、音声を停止します`);
-        resetPlaybackState(); // 再生位置をリセット
+        resetPlaybackState();
       }
 
   //異なるIDのAudioPlayer間
     } else if (playbackTriggeredByRef.current && id && playbackTriggeredByRef.current !== id){
-      // console.log(`[id:${id}!]別のコンポーネントから再生・停止指示を受けました`, id, playbackTriggeredByRef.current);
       if (isPlaybackTriggered) {
-        // console.log(`[id:${id}!]isPlaybackTriggeredがtrueになったので再生準備をします`);
         setIsPlayBackReady(true);
       } else {
-        // console.log(`[id:${id}!]isPlaybackTriggeredがfalseになったので再生を停止しリセットします`);
         pause();
         setIsPlayBackReady(false);
       }
   //自分自身の指示の場合
     } else {
-      // console.log(`[id:${id}!]自身の出した指示によりuseEffectが発動した為、returnします`, id, playbackTriggeredByRef.current);
+      return;
     }
   }, [isPlaybackTriggered]);
 
@@ -164,16 +158,15 @@ export function AudioPlayer({
   // 録音 ー 投稿音声間の再生制御
   useEffect(() => {
     if (isPlayBackReady) {
-      // console.log(`[id:${id}!]再生準備が行われ、isPlayBackReady=trueになったので再生を開始します`);
       play();
     }
     setIsPlayBackReady(false);
   }, [isPlayBackReady]);
 
+
   // 録音 ー 投稿音声間のリセット制御
   useEffect(() => {
     if (isPlaybackReset && playbackResetTriggeredByRef.current !==id) {
-      // console.log(`[id:${id}!]同時再生時のプレイヤーがリセット要請されました`);
       cleanup();
       setIsPlaybackReset(false)
       playbackResetTriggeredByRef.current = null;
@@ -183,9 +176,8 @@ export function AudioPlayer({
 
   // AudioPlayer→異なるIDのAudioPlayerへの再生位置送信
   useEffect(() => {
-    // 初回レンダー時は同期処理をスキップ
     if (isFirstRenderRef.current) {
-      isFirstRenderRef.current = false; // フラグを更新
+      isFirstRenderRef.current = false;
       return;
     }
 
@@ -198,6 +190,7 @@ export function AudioPlayer({
     }
   }, [currentTime]);
 
+
   // 異なるIDのAudioPlayerからの再生位置受信
   useEffect(() => {
     if (
@@ -206,15 +199,13 @@ export function AudioPlayer({
       id &&
       currentTimeUpdatedByRef.current !== id
     ) {
-      // console.log(`[id:${id}!]別のコンポーネントから再生位置を同期します`, sharedCurrentTime);
-      syncPosition(sharedCurrentTime); // 再生位置を共有された位置に設定
+      syncPosition(sharedCurrentTime);
     }
   }, [sharedCurrentTime]);
 
 
     // ボタンのクリックで再生・停止を指示する
   const handlePlayPause = async () => {
-    // 応募管理の場合、contextがsuspendであればresumeさせる
     if (audioContext && audioContext.state !== "running") {
       await audioContext.resume();
     }
@@ -222,17 +213,15 @@ export function AudioPlayer({
     if (isPlayingRef.current) {
       if(enablePostAudioPreview && id){
        // 停止指示
-        playbackTriggeredByRef.current = id; // 指示元を記録
-        setIsPlaybackTriggered(false); // 停止を通知
-        // console.log(`[id:${id}!] が停止指示を出しました`);
+        playbackTriggeredByRef.current = id;
+        setIsPlaybackTriggered(false);
       }
       pause();
     } else {
       if(enablePostAudioPreview && id){
        // 再生指示
-        playbackTriggeredByRef.current = id; // 指示元を記録
-        setIsPlaybackTriggered(true); // 再生を通知
-        // console.log(`[${id}] が再生指示を出しました`);
+        playbackTriggeredByRef.current = id;
+        setIsPlaybackTriggered(true);
       }
       play();
     }

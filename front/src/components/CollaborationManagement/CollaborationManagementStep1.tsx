@@ -46,15 +46,15 @@ export function CollaborationManagementStep1({
 
   //状態変数
   const [loading, setLoading] = useState<boolean>(false);
-  const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(true); //録音時投稿音声同時再生
+  const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(true);
   const [slots, setSlots] = useState<{ slotId: string; collaborationId: number | null; audioBuffer: AudioBuffer | null }[]>([
     { slotId: "slot1", collaborationId: null, audioBuffer: null },
     { slotId: "slot2", collaborationId: null, audioBuffer: null },
   ]);
-  const [isEditing, setIsEditing] = useState<boolean>(false); //slotsにcollaborationが入っていれ（編集中）ばtrue
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [openSlots, setOpenSlots] = useState<{ [key: string]: boolean }>({});
-  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false); // Snackbar の開閉状態管理
-  const [selectedVolume, setSelectedVolume] = useState<number>(50); // 音量管理
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [selectedVolume, setSelectedVolume] = useState<number>(50);
 
 
   //フック関係
@@ -84,7 +84,6 @@ export function CollaborationManagementStep1({
         let project = currentProject;
         let user = currentUser;
         let audioFilePath = currentAudioFilePath;
-        // リロードの場合セッションストレージから復元、状態変数へ保持
         if (!currentProject || !currentUser || !currentAudioFilePath) {
             project = JSON.parse(sessionStorage.getItem("currentProject") || "null")
             setCurrentProject(project);
@@ -92,14 +91,11 @@ export function CollaborationManagementStep1({
             setCurrentUser(user);
             audioFilePath = sessionStorage.getItem("currentAudioFilePath") || null
             setCurrentAudioFilePath(audioFilePath);
-            // console.log("セッションストレージから復元", project, user, audioFilePath);
         }
 
         //初回アクセス時の保有チェック
         const authenticatedUser = JSON.parse(localStorage.getItem("authenticatedUser") || "null");
-        // console.log("authenticatedUser,currentUser", authenticatedUser.id,user?.id)
         if (user && user.id !== String(authenticatedUser.id)) {
-          // console.log("他人の投稿にアクセスしたため、/projects にリダイレクトします");
           router.push("/projects");
         }
 
@@ -108,10 +104,9 @@ export function CollaborationManagementStep1({
           const audioArrayBuffer = await fetchAudioData(audioFilePath);
           const audioBufferData = await globalAudioContextRef.decodeAudioData(audioArrayBuffer);
           setPostAudioData(audioBufferData);
-          // console.log("AudioBuffer の取得およびデコードに成功",audioBufferData);
         }
         else{
-          // console.log("audioFilePathが存在しないため、AudioBufferの取得およびデコードは行わません", audioFilePath);
+          console.error("音声データを取得できませんでした");
         }
       } catch (error) {
         console.error("AudioContext の初期化に失敗しました", error);
@@ -132,7 +127,6 @@ export function CollaborationManagementStep1({
   const handleCollaborationSelect = async (slotId: string, collaborationId: number) => {
     if (!globalAudioContextRef) return;
 
-    //再生中の音声を停止
     setIsPlaybackTriggered(false);
     playbackTriggeredByRef.current = null;
     setIsPlaybackReset(true);
@@ -166,21 +160,20 @@ export function CollaborationManagementStep1({
   // 合成リストに追加
   const handleAddToSynthesisList = async () => {
     try{
-    // スロットに入っている collaborationId を持つアイテムを合成リストに追加
     const itemsToAdd: ExtendedCollaboration[] = await Promise.all(
       slots
       .filter((slot) => slot.collaborationId !== null)
       .map(async(slot) => {
         const collaboration = collaborations.find((c) => c.id === slot.collaborationId);
-        //collaborationガード
+
         if (!collaboration) {
           throw new Error(`CollaborationID ${slot.collaborationId}。IDない状態でSlotsに追加された応募音声（不正なデータ）があります。`);
         }
-        //audioBufferガード
+
         if (!slot.audioBuffer) {
           throw new Error(`スロット ${slot.slotId} に AudioBuffer が存在しません。`);
         }
-        //エフェクト適用
+
         const processedBuffer = await processAudio(slot.audioBuffer, selectedVolume);
 
         return {
@@ -190,10 +183,8 @@ export function CollaborationManagementStep1({
       })
     );
 
-      // synthesisList に追加
       setSynthesisList((prevList) => [...prevList, ...itemsToAdd]);
 
-      // slots をリセット
       setSlots((prevSlots) =>
         prevSlots.map((slot) => ({
           ...slot,
@@ -204,13 +195,12 @@ export function CollaborationManagementStep1({
 
       setOpenSnackbar(true);
 
-      //各PlayBackContextの初期化
       setIsPlaybackTriggered(false);
       playbackTriggeredByRef.current = null;
       setIsPlaybackReset(true);
       playbackResetTriggeredByRef.current = "AddToSynthesisList";
     }catch (e) {
-      // console.log("合成リストへの追加に失敗しました");
+      console.error("合成リストへの追加に失敗しました");
     }
   };
 
@@ -245,12 +235,12 @@ export function CollaborationManagementStep1({
       <Box sx={{
         justifyContent: "flex-start",
         "& .MuiTypography-root": {
-            fontSize: "1rem", // 全体のフォントサイズ
-            color: "text.primary", // テーマの文字色
+            fontSize: "1rem",
+            color: "text.primary",
           },
           "& .MuiInputBase-root": {
-            fontSize: "1rem", // 入力フィールドの文字サイズ
-            color: "text.primary", // 入力フィールドの文字色
+            fontSize: "1rem",
+            color: "text.primary",
           },
       }}>
           <Box>
@@ -324,7 +314,7 @@ export function CollaborationManagementStep1({
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          width: "100%", // 親要素の幅を100%に
+          width: "100%",
         }}
       >
         <FormGroup sx={{
@@ -365,10 +355,9 @@ export function CollaborationManagementStep1({
       >
         {globalAudioContextRef ? (
           slots.map((slot, index) => {
-              // collaborationIdに基づいて該当するcollaborationを取得
-              const collaboration = collaborations.find(
-                (collaboration) => collaboration.id === slot.collaborationId
-              );
+            const collaboration = collaborations.find(
+              (collaboration) => collaboration.id === slot.collaborationId
+            );
 
             return(
             <Box key={slot.slotId} sx={{ mt: 2 }}>
@@ -525,10 +514,7 @@ export function CollaborationManagementStep1({
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         sx={{
           "& .MuiSnackbarContent-root": {
-            backgroundColor: "grey", // 背景色
-            // color: "#ffffff", // テキスト色
-            // fontWeight: "bold", // 太字
-            // fontSize: "1rem", // フォントサイズ
+            backgroundColor: "grey",
             marginBottom: "56px",
           },
         }}

@@ -5,9 +5,8 @@ export function useReverbControl({
 }: {
   reverbInputGainNode: GainNode | null;
 }) {
-  const [reverbLevel, setReverbLevel] = useState<number>(0); // デフォルトリバーブレベル
+  const [reverbLevel, setReverbLevel] = useState<number>(0);
 
-  // リバーブレベルを更新
   const updateReverbLevel = (newLevel: number) => {
     if (reverbInputGainNode) {
       reverbInputGainNode.gain.value = newLevel;

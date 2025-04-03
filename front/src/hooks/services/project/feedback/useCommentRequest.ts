@@ -5,7 +5,6 @@ import { PostCommentFormData, Feedback } from "@sharedTypes/types";
 export const useCommentRequest = () => {
   const { setFeedbackByKey } = useFeedbackContext();
 
-  // コメント投稿
   const postCommentProject = async (data: PostCommentFormData, projectId: string): Promise<Feedback> => {
     try {
       const response = await axios.post(
@@ -25,7 +24,6 @@ export const useCommentRequest = () => {
     }
   };
 
-  // コメント削除
   const deleteCommentProject = async (projectId: string, commentId: string): Promise<Feedback> => {
     try {
       const response = await axios.delete(
@@ -39,7 +37,6 @@ export const useCommentRequest = () => {
     }
   };
 
-  // エラーハンドリング
   const handleCommentError = (error: any, defaultMessage: string) => {
     if (error.response) {
       const status = error.response.status;

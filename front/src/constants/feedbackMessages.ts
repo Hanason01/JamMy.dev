@@ -39,12 +39,6 @@ const feedbackMessages: FeedbackMessages = {
     },
   },
 
-  // auth: {
-  //   error: {
-  //     message: "認証エラーが発生しました。再度お試しください。",
-  //     severity: "error",
-  //   }
-  // },
 
   //Project
   project: {

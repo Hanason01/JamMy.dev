@@ -5,7 +5,6 @@ import { Feedback } from "@sharedTypes/types";
 export const useLikeRequest = () => {
   const { setFeedbackByKey } = useFeedbackContext();
 
-  // いいね追加関数
   const likeProject = async (projectId: string): Promise<Feedback> => {
     try {
       const response = await axios.post(
@@ -20,7 +19,6 @@ export const useLikeRequest = () => {
     }
   };
 
-  // いいね解除関数
   const unlikeProject = async (projectId: string, likeId: string): Promise<Feedback> => {
     try {
       const response = await axios.delete(
@@ -34,7 +32,6 @@ export const useLikeRequest = () => {
     }
   };
 
-  // エラーハンドリング
   const handleLikeError = (error: any, defaultMessage: string) => {
     if (error.response) {
       const status = error.response.status;

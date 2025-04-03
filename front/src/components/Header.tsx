@@ -32,7 +32,6 @@ export function Header() {
     handleClose();
   };
 
-  //利用規約・プライバシポリシー遷移
   const handleTerm = () => {
     handleClose();
     router.push("/terms");
@@ -43,7 +42,6 @@ export function Header() {
     router.push("/privacy_policy");
   }
 
-  //ログアウト処理
   const { logout } = useLogoutRequest();
   const handleLogout = async () => {
     try {

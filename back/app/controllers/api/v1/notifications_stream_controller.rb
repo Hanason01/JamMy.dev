@@ -5,15 +5,10 @@ class Api::V1::NotificationsStreamController < ApplicationController
   skip_after_action :update_auth_header
 
   def stream
-    Rails.logger.info "🚀 stream アクション開始"
-
-    Rails.logger.info "✅ 認証ユーザー: #{current_user.id}"
 
     response.headers['Content-Type'] = 'text/event-stream'
     response.headers['Cache-Control'] = 'no-cache'
     response.headers['X-Accel-Buffering'] = 'no'
-
-    Rails.logger.info "🛠 SSE ヘッダー設定: #{response.headers.inspect}"
 
     sse = SSE.new(response.stream)
 

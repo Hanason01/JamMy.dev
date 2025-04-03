@@ -42,11 +42,11 @@ export function CollaborationManagementStep2({
 
   //状態変数
   const [loading, setLoading] = useState<boolean>(false);
-  const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(true); //録音時投稿音声同時再生
+  const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(true);
   const [openComments, setOpenComments] = useState<{ [key: number]: boolean }>({});
-  const [openDialog, setOpenDialog] = useState(false); //削除確認
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null); // 削除確認ダイアログに利用
-  const [selectedItemName, setSelectedItemName] = useState<string | null>(null); // 削除確認ダイアログに利用
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [selectedItemName, setSelectedItemName] = useState<string | null>(null);
 
 
   //フック関係
@@ -101,7 +101,6 @@ export function CollaborationManagementStep2({
       console.error("音声合成中にエラーが発生しました", error);
     } finally {
       setLoading(false);
-      // console.log("合成された音声",)
     }
   }
 
@@ -144,13 +143,14 @@ export function CollaborationManagementStep2({
       >
       <Box>
         <Box sx={{ display: "flex", alignItems: "center", width: "100%", position: "relative", my:2}}>
-          <Avatar src={
-                    currentUser?.attributes.avatar_url
-                      ? `/api/proxy-image?key=${encodeURIComponent(currentUser.attributes.avatar_url)}`
-                      : "/default-icon.png"
-                  }
-                  alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
-                  sx={{ width: 35, height: 35 }} />
+          <Avatar
+            src={
+              currentUser?.attributes.avatar_url
+                ? `/api/proxy-image?key=${encodeURIComponent(currentUser.attributes.avatar_url)}`
+                : "/default-icon.png"
+            }
+            alt={currentUser?.attributes.nickname || currentUser?.attributes.username || undefined }
+            sx={{ width: 35, height: 35 }} />
           <Typography
           variant="body2"
           component="span"
@@ -214,7 +214,7 @@ export function CollaborationManagementStep2({
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          width: "100%", // 親要素の幅を100%に
+          width: "100%",
         }}
       >
         <FormGroup sx={{

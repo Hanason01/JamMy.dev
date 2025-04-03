@@ -18,7 +18,6 @@ export function useMyProjects(filter: "my_projects" | "collaborating" | "collabo
     }
   );
 
-    // 初回のみフェッチする
     useEffect(() => {
       if (!data) {
         mutate();

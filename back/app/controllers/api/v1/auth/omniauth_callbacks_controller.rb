@@ -22,7 +22,7 @@ class Api::V1::Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCall
       set_token_in_cookie(@resource, @token)
     end
 
-    # デフォルト挙動ではクエリパラメータにUserデータが入る為、URL制限を超える可能性→遷移先のフロントでUser情報のみリクエスト
+    # デフォルト挙動ではクエリパラメータにUserオブジェクトが入る為、URL制限を超える可能性→遷移先のフロントでUserオブジェクトのみリクエストするのでこの段階ではUserオブジェクトを返さない
     render_data_or_redirect('deliverCredentials', @auth_params.as_json)
   end
 
@@ -32,14 +32,11 @@ class Api::V1::Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCall
   def assign_provider_attrs(user, auth_hash)
     attrs = auth_hash['info'].to_hash
 
-    # カラム名の追加（カスタマイズ部分）
     attrs["nickname"] = attrs["name"]
     attrs["avatar_url"] = attrs["image"]
-    # カスタマイズ部分
 
     attrs = attrs.slice(*user.attribute_names)
 
-    # 既存ユーザーの場合は上書きしない
     if user.persisted?
       attrs.except!("nickname", "avatar_url")
     end
@@ -47,7 +44,6 @@ class Api::V1::Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCall
   end
 
   def render_data_or_redirect(message, data, user_data = {})
-    # 許可するホストやURLのホワイトリストを定義
     allowed_hosts = ["www.jam-my.com", "jam-my.com", "localhost", "127.0.0.1"]
     allowed_paths = ["/auth/google_callback"]
 
@@ -55,9 +51,7 @@ class Api::V1::Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCall
       render_data(message, user_data.merge(data))
 
     elsif auth_origin_url
-      # URLをパースしてホストとパスを取得
       uri = URI.parse(auth_origin_url)
-      # ホワイトリスト検証: ホストとパスが一致する場合のみリダイレクトを許可
       if allowed_hosts.include?(uri.host) && allowed_paths.any? { |path| uri.path.start_with?(path) }
         redirect_to DeviseTokenAuth::Url.generate(auth_origin_url, data.merge(blank: true).merge(redirect_options)), allow_other_host: true
       else

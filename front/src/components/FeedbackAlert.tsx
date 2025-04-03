@@ -10,15 +10,12 @@ export const FeedbackAlert: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    //context経由であれば既に下記returnに代入済の為、離脱
     if (feedback.open) return;
 
-    // URLから feedbackのparams を取得
     const feedbackKey = searchParams.get("feedback");
     if (feedbackKey) {
       setFeedbackByKey(feedbackKey);
 
-      // クエリを削除してURLをリセット（再表示防止）
       const params = new URLSearchParams(searchParams.toString());
       params.delete("feedback");
 
@@ -39,7 +36,7 @@ export const FeedbackAlert: React.FC = () => {
       onClose={clearFeedback}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
       sx={{
-        top: "56px", // ヘッダーの高さ分
+        top: "56px",
         width: "100%",
         height: "56px",
         left: 0,

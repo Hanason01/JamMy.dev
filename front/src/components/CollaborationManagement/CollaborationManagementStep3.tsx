@@ -36,8 +36,8 @@ export function CollaborationManagementStep3({
   const router = useRouter();
   const [formError, setFormError] = useState<string>("");
   const encodedFileRef = useRef<File | null>(null);
-  const [loading, setLoading] = useState<boolean>(false); // ローディング状態
-  const [openTerminateDialog, setOpenTerminateDialog] = useState<boolean>(false); //終了確認ダイアログ
+  const [loading, setLoading] = useState<boolean>(false);
+  const [openTerminateDialog, setOpenTerminateDialog] = useState<boolean>(false);
 
 
 
@@ -60,7 +60,6 @@ export function CollaborationManagementStep3({
         let urlParams = "";
         //エンコード処理
         if(!encodedFileRef.current){
-          // console.log("エンコード処理に送るaudioBuffer", mergedAudioBuffer);
           if(mode === "save"){
             urlParams = "collaboration_management:update:success";
             audioFile = await audioEncoder(mergedAudioBuffer, "FLAC");
@@ -69,45 +68,36 @@ export function CollaborationManagementStep3({
             audioFile = await audioEncoder(mergedAudioBuffer, "MP3");
           }
           encodedFileRef.current = audioFile;
-          // console.log("エンコード後のファイル",audioFile);
         }
 
-        //audioFileチェック
         if (!audioFile) {
           throw new Error("エンコードされたオーディオファイルがありません");
         }
 
-        // currentProject の存在確認
         if (!currentProject || !currentProject.id) {
           console.error("currentProject が null または ID が存在しません");
           return;
         }
 
-        // collaborationIds を synthesisList から抽出
         const collaborationIds = synthesisList.map((item) => item.id);
 
-        // リクエストデータ作成
         const requestData: CollaborationManagementRequestData = {
-          //commentが未定義もしくはundefined（未入力）の場合は空文字を代入
           "project[mode]": mode,
           "project[audio_file]": audioFile,
           "project[project_id]":currentProject.id,
           "project[collaboration_ids][]":collaborationIds,
         };
 
-        // FormData の生成
         const formData = new FormData();
         Object.entries(requestData).forEach(([key, value]) => {
           if (key === "project[collaboration_ids][]") {
-            // 配列の場合、各要素を個別に追加
             (value as number[]).forEach((id) => {
               formData.append("project[collaboration_ids][]", id.toString());
             });
           } else {
-            formData.append(key, value as string | Blob); // その他の項目を追加
+            formData.append(key, value as string | Blob);
           }
         });
-        // console.log("リクエスト送信前のformData", formData);
 
         if (currentProject){
           await completeCollaborationManagement(currentProject.id, formData);

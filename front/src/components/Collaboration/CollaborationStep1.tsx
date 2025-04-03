@@ -27,17 +27,16 @@ export function CollaborationStep1({
   const { currentProject, currentUser, currentAudioFilePath } = useProjectContext();
 
   //状態変数
-  const [recordingDurationSliderValue, setRecordingDurationSliderValue] = useState<number>(30); //秒数
-  const [speedSliderValue, setSpeedSliderValue] = useState<number>(120); //速度
-  const [countIn, setCountIn] = useState<number>(0); //カウントイン
-  const [metronomeOn, setMetronomeOn] = useState<boolean>(false); //メトロノームON/OFF
-  const [enablePostAudio, setEnablePostAudio] = useState<boolean>(true); //録音時投稿音声同時再生
-  const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(false); //プレビュー時投稿音声同時再生
-  // console.log("enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡enablePostAudioPreview追跡",enablePostAudioPreview);
+  const [recordingDurationSliderValue, setRecordingDurationSliderValue] = useState<number>(30);
+  const [speedSliderValue, setSpeedSliderValue] = useState<number>(120);
+  const [countIn, setCountIn] = useState<number>(0);
+  const [metronomeOn, setMetronomeOn] = useState<boolean>(false);
+  const [enablePostAudio, setEnablePostAudio] = useState<boolean>(true);
+  const [enablePostAudioPreview, setEnablePostAudioPreview] = useState<boolean>(false);
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
-  const [selectedVolume, setSelectedVolume] = useState<number>(50); // 音量管理
-  const [isRecording, setIsRecording] = useState<boolean>(false); //録音状態
-  const globalAudioContextRef = useRef<AudioContext | null>(null); //同時再生等を利用する為、統括する
+  const [selectedVolume, setSelectedVolume] = useState<number>(50);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const globalAudioContextRef = useRef<AudioContext | null>(null);
   const [audioData, setAudioData] = useState<AudioBuffer>(null);
 
   const router = useRouter();
@@ -68,9 +67,7 @@ export function CollaborationStep1({
 
         //初回アクセス時の保有チェック
         const authenticatedUser = JSON.parse(localStorage.getItem("authenticatedUser") || "null");
-        // console.log("authenticatedUser,curretUser", authenticatedUser.id,user?.id)
         if (user && user.id === String(authenticatedUser.id)) {
-          // console.log("自分の投稿にアクセスしたため、/projects にリダイレクトします");
           router.push("/projects");
         }
 
@@ -78,24 +75,21 @@ export function CollaborationStep1({
         if (project){
           setRecordingDurationSliderValue(project.attributes.duration);
           setSpeedSliderValue(project.attributes.tempo);
-          // console.log("速度とテンポの初期化が終了しました");
         }
 
         // globalAudioContext の初期化
         globalAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
           sampleRate: 44100
         });
-        // console.log("globalAudioContext の初期化に成功", globalAudioContextRef.current);
 
         // AudioBuffer の取得
         if (audioFilePath) {
           const audioArrayBuffer = await fetchAudioData(audioFilePath);
           const audioBufferData = await globalAudioContextRef.current.decodeAudioData(audioArrayBuffer);
           setAudioData(audioBufferData);
-          // console.log("AudioBuffer の取得およびデコードに成功",audioData);
         }
         else{
-          // console.log("audioFilePathが存在しないため、AudioBufferの取得およびデコードは行わません", audioFilePath);
+          console.error("音声を正常に取得できませんでした");
         }
       } catch (error) {
         console.error("AudioContext の初期化に失敗しました", error);
@@ -103,7 +97,6 @@ export function CollaborationStep1({
     };
     initializeAudioContext();
 
-    // クリーンアップ処理
     return () => {
       if (audioData) {
         setAudioData(null);
@@ -112,12 +105,9 @@ export function CollaborationStep1({
         globalAudioContextRef.current.close().then(() => {
           globalAudioContextRef.current = null;
         });
-
-        // console.log("globalAudioContext を閉じました");
       }
       setRecordingDurationSliderValue(30);
       setSpeedSliderValue(120);
-      // console.log("STEP1のクリーンアップが終了しました");
     };
   }, []);
 
@@ -133,10 +123,9 @@ export function CollaborationStep1({
 
   //録音データの受け取りと受け渡し
   const handleRecordingComplete = (audioBuffer: AudioBuffer) =>{
-    // console.log("録音が完了しました:", audioBuffer);
-    setAudioBufferForProcessing(audioBuffer); //Step1のプレビュー用
-    setHasRecorded(true); //編集コンポーネントへ表示切替
-    setEnablePostAudioPreview(true); //プレビューで同時音声をONにする
+    setAudioBufferForProcessing(audioBuffer);
+    setHasRecorded(true);
+    setEnablePostAudioPreview(true);
   };
 
   return(
@@ -151,12 +140,12 @@ export function CollaborationStep1({
       <Box sx={{
         justifyContent: "flex-start",
         "& .MuiTypography-root": {
-            fontSize: "1rem", // 全体のフォントサイズ
-            color: "text.primary", // テーマの文字色
+            fontSize: "1rem",
+            color: "text.primary",
           },
           "& .MuiInputBase-root": {
-            fontSize: "1rem", // 入力フィールドの文字サイズ
-            color: "text.primary", // 入力フィールドの文字色
+            fontSize: "1rem",
+            color: "text.primary",
           },
       }}>
         <Box sx={{display: "flex", flexDirection: "column", alignItems: "flex-start", my:1, width: "100%"}}>
@@ -273,7 +262,6 @@ export function CollaborationStep1({
             <PostProjectProcessing
             id = {playerIds[1]} //Collaboration
             mode = "with-effects"
-            // globalAudioContext={globalAudioContextRef.current}
             audioBufferForProcessing={audioBufferForProcessing} setHasRecorded={setHasRecorded}
             setAudioBufferForProcessing={setAudioBufferForProcessing}
             setAudioBufferForPost={setAudioBufferForPost}

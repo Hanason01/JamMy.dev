@@ -17,7 +17,7 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
     { label: "公開", value: "is_public" },
     { label: "限定公開", value: "is_private" },
   ];
-  const [loading, setLoading] = useState<boolean>(false); // ローディング状態
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { register, handleSubmit, setError, errors } = usePostProjectValidation();
 
@@ -27,29 +27,19 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
     audioBuffer: AudioBuffer,
     settings: PostSettings
   ) => {
-    // console.log("sendDataToAPI発動、3つの引数", data, audioBuffer,settings);
     setLoading(true);
     setTimeout(async () => {
       try {
         let audioFile = encodedFileRef.current
-        //エンコード処理
         if(!encodedFileRef.current){
-          // console.log("エンコード処理に送るaudioBuffer", audioBuffer);
           audioFile = await audioEncoder(audioBuffer, "FLAC");
           encodedFileRef.current = audioFile;
-          // console.log("エンコード後のファイル",audioFile);
         }
-        // フォームデータの結合
-        // console.log("フォームに入れるsettings情報",settings);
-        // console.log("フォームに入れるdata情報",data);
-        // console.log("フォームに入れるaudioFile",audioFile);
 
-        //audioFileチェック
         if (!audioFile) {
           throw new Error("エンコードされたオーディオファイルがありません");
         }
 
-        //不正な公開範囲パラメータをブロック
         const visibilityValue = preVisibility.find((option) => option.label === data.visibility)?.value;
 
         if (!visibilityValue) {
@@ -57,7 +47,6 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
           return;
         }
 
-        // リクエストデータ作成
         const requestData: PostProjectRequestData = {
           "project[title]": data.title,
           "project[description]": data.description,
@@ -67,12 +56,10 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
           "project[audio_file]": audioFile,
         };
 
-        // FormData の生成
         const formData = new FormData();
         Object.entries(requestData).forEach(([key, value]) => {
-          formData.append(key, value as string | Blob); // 型をキャストして挿入
+          formData.append(key, value as string | Blob);
         });
-        // console.log("リクエスト送信前のformData", formData);
 
         await postProject(formData);
         window.location.href = "/projects?feedback=project:create:success";
@@ -82,7 +69,6 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
         } else if (error.description) {
           setError("description", { type: "manual", message: error.description });
         } else {
-          // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
           setFormError(error.general);
         }
       } finally {
@@ -91,7 +77,6 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
     }, 100);
   };
 
-  // const handleCategoryChange = (event) => setCategory(event.target.value);
 
   return (
     <Box
@@ -138,15 +123,6 @@ export function PostProjectForm({audioBuffer, settings}: {audioBuffer:AudioBuffe
         error={!!errors.description}
         helperText={errors.description?.message}
         />
-        {/* <TextField
-        label="ハッシュタグ"
-        variant="standard"
-        placeholder="#ハッシュタグA、ハッシュタグB"
-        fullWidth
-        {...register("hashtag")}
-        error={!!errors.hashtag}
-        helperText={errors.hashtag?.message}
-        /> */}
         {/* <TextField
           variant="standard"
           select
