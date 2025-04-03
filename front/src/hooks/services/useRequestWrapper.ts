@@ -4,7 +4,6 @@ import { useAuthContext } from "@context/useAuthContext";
 export const useRequest = () => {
   const {handleAuthError, hasAuthenticated} = useAuthContext();
 
-  // 汎用リクエスト関数
   const request = async<T = any> (
     url: string,
     method = "GET",
@@ -17,18 +16,19 @@ export const useRequest = () => {
         method,
         data,
         withCredentials: true,
-        ...config, // その他の追加設定
+        ...config,
       });
-      // レスポンスが成功し、認証に問題がない場合
+
       if (response.status === 200) {
         hasAuthenticated();
       }
+
       return response;
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
-        handleAuthError(); // 認証エラー処理
+        handleAuthError();
       }
-      throw error; // エラーを再スロー
+      throw error;
     }
   };
 

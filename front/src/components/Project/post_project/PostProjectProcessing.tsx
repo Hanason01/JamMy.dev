@@ -31,19 +31,19 @@ export function PostProjectProcessing({
   selectedVolume,
   setSelectedVolume
 } : {
-  id?: string; //オプショナル
+  id?: string;
   mode: "player-only" | "with-effects" | "management";
   simpleUI?: boolean;
-  globalAudioContextRef?: AudioContext | null; //オプショナル
+  globalAudioContextRef?: AudioContext | null;
   audioBufferForProcessing: AudioBuffer;
-  setHasRecorded?: SetState<boolean>; //オプショナル
-  setAudioBufferForProcessing?: SetState<AudioBuffer>; //オプショナル
-  setAudioBufferForPost?: SetState<AudioBuffer>; //オプショナル
-  onNext?: () => void; //オプショナル
+  setHasRecorded?: SetState<boolean>;
+  setAudioBufferForProcessing?: SetState<AudioBuffer>;
+  setAudioBufferForPost?: SetState<AudioBuffer>;
+  onNext?: () => void;
   returnToStep1Mode?: "edit" | "record";
-  enablePostAudioPreview?: boolean; //オプショナル
-  setEnablePostAudioPreview?: SetState<boolean>; //オプショナル
-  onRemove?: (id: string) => void; //オプショナル
+  enablePostAudioPreview?: boolean;
+  setEnablePostAudioPreview?: SetState<boolean>;
+  onRemove?: (id: string) => void;
   selectedVolume: number;
   setSelectedVolume: SetState<number>;
   }){
@@ -53,9 +53,9 @@ export function PostProjectProcessing({
   //   left: ConvolverNode | null;
   //   right: ConvolverNode | null;
   // }>({ left: null, right: null });//リバーブ成分生成node
-  const mixGainNodeRef = useRef<GainNode | null>(null); //音量調整node
-  const [isInitialized, setIsInitialized] = useState<boolean>(false); //初期化フラグ
-  const [loading, setLoading] = useState<boolean>(false); // ローディング状態
+  const mixGainNodeRef = useRef<GainNode | null>(null);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { processAudio } = useAudioProcessing();
 
@@ -65,27 +65,20 @@ export function PostProjectProcessing({
     setIsPlaybackReset, playbackResetTriggeredByRef} = usePlayback();
 
 
+  //初期化
   useEffect(() => {
-    // console.log(`[${new Date().toISOString()}] PostProjectProcessingがマウントされました`);
-    // console.log("PostProjectProcessingのuseEffectが開始");
-    // console.log("現在のisInitializedの値:", isInitialized);
-    // 初期化処理（録音時とは別の Node 構成を取る）
-
-    let isMounted = true; // マウント状態を追跡
+    let isMounted = true;
 
     const initializeAudioContext = async (): Promise<void> => {
       if (!isMounted) return;
 
       if(globalAudioContextRef){
         audioContextForProcessingRef.current = globalAudioContextRef;
-        // console.log("globalAudioContextRefを確認した為、audioContextForProcessingRefへ代入",audioContextForProcessingRef.current);
       }else if (!audioContextForProcessingRef.current && !globalAudioContextRef) {
-        // console.log("AudioContext と GainNode の初期化を開始（globalAudioContextを察知しなかった）");
         const context = new (window.AudioContext || (window as any).webkitAudioContext)({
           sampleRate: 44100
         });
         audioContextForProcessingRef.current = context;
-        // console.log("AudioContextの初期化が終了");
       }
 
       if (!isMounted) return;
@@ -145,7 +138,6 @@ export function PostProjectProcessing({
         //初期化完了
         if (isMounted){
           setIsInitialized(true);
-          // console.log("AudioContext と GainNode を初期化しました");
         }
       }
     };
@@ -154,8 +146,7 @@ export function PostProjectProcessing({
     // クリーンアップ処理
     return () => {
       isMounted = false;
-      // console.log(`PostProjectProcessingがアンマウントされました[${new Date().toISOString()}]`);
-      // console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが発動");
+
       setIsInitialized(false);
 
       // ノードのクリーンアップ
@@ -180,27 +171,18 @@ export function PostProjectProcessing({
       if (mixGainNodeRef.current) {
         mixGainNodeRef.current.disconnect();
         mixGainNodeRef.current = null;
-        // console.log("MixGainNode を切断しました", mixGainNodeRef.current);
       }
 
-      //globalAudioContextRefを使っていない場合はAudioContextのクリーンアップを許可する
       if (audioContextForProcessingRef.current && audioContextForProcessingRef.current !== globalAudioContextRef) {
-        // console.log("AudioContext の状態:", audioContextForProcessingRef.current.state);
           audioContextForProcessingRef.current = null;
-          // console.log("AudioContext を閉じました", audioContextForProcessingRef.current);
       }
-
-      // console.log("PostProjectProcessing.jsxのuseEffectのクリーンナップが完了");
     };
   }, [returnToStep1Mode === "edit"]);
 
-  // console.log("PostProjectProcessing の現在の isInitialized（useEffectの外側に配置）:", isInitialized);
-  // console.log("この段階でContextがあるか", audioContextForProcessingRef.current);
 
 
     //閉じるボタン処理
     const handleCloseClick = () => {
-      // console.log("AudioPlayerを閉じました");
       setIsPlaybackReset(true);
       setHasRecorded?.(false);
       setAudioBufferForProcessing?.(null);
@@ -217,22 +199,18 @@ export function PostProjectProcessing({
 
   // 投稿ボタンを押したときの処理
   const handleSubmit = async () => {
-    setLoading(true); // ローディング状態を開始
+    setLoading(true);
     setTimeout(async () => {
       try {
         if (audioBufferForProcessing) {
-          // console.log("AudioBuffer の処理を開始します...");
           const processedBuffer = await processAudio(audioBufferForProcessing, selectedVolume);
-          // console.log("AudioBuffer の処理が完了しました:", processedBuffer);
-
-          // 処理後の AudioBuffer を親コンポーネントに渡しプレビュー用bufferを解除
           setAudioBufferForPost?.(processedBuffer);
         }
-        onNext?.(); // 次のステップに進む
+        onNext?.();
       } catch (error) {
         console.error("AudioBuffer の処理中にエラーが発生しました:", error);
       } finally {
-        setLoading(false); // ローディング状態を終了
+        setLoading(false);
       }
     }, 100);
   };

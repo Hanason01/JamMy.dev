@@ -5,9 +5,8 @@ export function useVolumeControl({
 }: {
   mixGainNode: GainNode | null;
 }) {
-  const [volume, setVolume] = useState<number>(50); // デフォルト音量（50%）
+  const [volume, setVolume] = useState<number>(50); //（50%）
 
-  // 音量を更新
   const updateVolume = (newVolume: number) => {
     const clampedVolume = Math.max(0, Math.min(100, newVolume));
     if (mixGainNode) {

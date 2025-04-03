@@ -10,12 +10,9 @@ export const useBookmarkToggle = () => {
   const {applyMutate} = useApplyMutate();
 
 
-  // ブックマーク追加関数
   const handleBookmark = async (projectId: string, mode:"list" | "detail", getKey: GetKeyType) => {
     const isShowMode = mode === "detail"? true : false;
     const isBookmarkMode = true;
-
-    // 更新処理
     const createApiRequest = isBookmarkMode ? () => bookmarkProject(projectId) : undefined;
     const destroyApiRequest = undefined;
 
@@ -28,12 +25,10 @@ export const useBookmarkToggle = () => {
       actionValues:{by_current_user: true, id: Math.random()},
       getKey
     });
-    // console.log("追加の楽観的更新後", cache);
   };
 
 
 
-  // ブックマーク解除関数
   const handleUnBookmark = async (projectId: string, bookmarkId: number | null, mode: "list" | "detail", getKey: GetKeyType) => {
     if(!bookmarkId){
       console.error("不正なブックマークIDを検知しました");
@@ -54,7 +49,6 @@ export const useBookmarkToggle = () => {
       actionValues:{by_current_user: false, id: null},
       getKey
     });
-    // console.log("解除の楽観的更新後", cache);
   };
 
 

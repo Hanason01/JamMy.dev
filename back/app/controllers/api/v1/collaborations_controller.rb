@@ -3,7 +3,6 @@ class Api::V1::CollaborationsController < ApplicationController
 
   def create
     ActiveRecord::Base.transaction do
-      #プロジェクト作成
       collaboration = current_user.collaborations.build(collaboration_params.except(:audio_file))
       collaboration.project_id = params[:project_id]
       unless collaboration.save
@@ -14,7 +13,6 @@ class Api::V1::CollaborationsController < ApplicationController
         raise ActiveRecord::Rollback, "音声ファイルが必要です"
       end
 
-        #ファイル保存
       audio_file = collaboration.build_audio_file(
         file_path: upload_file_to_s3(params[:collaboration][:audio_file], "audio_files")
       )
@@ -22,11 +20,9 @@ class Api::V1::CollaborationsController < ApplicationController
         raise ActiveRecord::Rollback, audio_file.errors.full_messages.join(", ")
       end
 
-      #全て成功時のレスポンス
       render json: { message: "Collaboration and audio file created successfully" }, status: :created
     end
   rescue ActiveRecord::Rollback => e
-    #ロールバック時のレスポンス
     render json: { error: e.message }, status: :unprocessable_entity
   end
 

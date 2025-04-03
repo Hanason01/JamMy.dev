@@ -3,11 +3,11 @@ class Api::V1::Projects::CommentsController < ApplicationController
 
   def index
     begin
-    comments = @project.comments.where(ancestry: nil) #projectに対するコメント
+    comments = @project.comments.where(ancestry: nil)
                         .includes(:user)
                         .order(created_at: :desc)
                         .page(params[:page])
-                        .per(10)  # 設定オーバーライド
+                        .per(10)
 
     if comments.any?
       serialized = serialized_comments(comments)

@@ -16,7 +16,6 @@ export const GoogleCallback = () => {
     const error = searchParams.get("error");
 
     if (error) {
-      // クエリパラメータに "error" が含まれている場合の処理
       console.error("Google認証エラー:", error);
       alert("Google認証に失敗しました。再度お試しください。");
       router.push("/auth");
@@ -25,12 +24,10 @@ export const GoogleCallback = () => {
 
     const fetchUserData = async () => {
       try {
-        // console.log("validate_token リクエスト開始");
         const response: AxiosResponse<{ data: User }> = await axios.get( `${process.env.NEXT_PUBLIC_API_URL}/auth/validate_token`,{withCredentials: true});
 
         handleLoginSuccess(response.data.data);
         router.push("/projects?feedback=signin:success")
-        // window.location.href = "/projects?feedback=signin:success";
       } catch (error: any) {
         console.error("認証エラーが発生しました:", error);
         alert("認証データの読み取りに失敗しました。再度お試しください。");

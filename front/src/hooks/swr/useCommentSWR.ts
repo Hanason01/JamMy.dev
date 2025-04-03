@@ -3,7 +3,6 @@ import useSWRInfinite from "swr/infinite";
 import { fetchProjectComments } from "@swr/fetcher";
 import { getCommentsKey } from "@swr/getKeys";
 
-// コメント用のSWRフック（無限スクロール対応）
 export function useProjectComments(projectId: string) {
   const getKey = getCommentsKey(projectId);
 
@@ -30,12 +29,3 @@ export function useProjectComments(projectId: string) {
     getKey
   };
 }
-
-// 出力例:
-// data = [
-//   { comments: [...page1のコメント], meta: { total_pages: 3 } },
-//   { comments: [...page2のコメント], meta: { total_pages: 3 } },
-//   { comments: [...page3のコメント], meta: { total_pages: 3 } },
-// ];
-
-// comments = [...page1のコメント, ...page2のコメント, ...page3のコメント];

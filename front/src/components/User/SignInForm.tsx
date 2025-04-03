@@ -45,7 +45,6 @@ export function SignInForm({
       } else if (error.password) {
         setError("password", { type: "manual", message: error.password });
       } else {
-        // 他の特定フィールドでのエラーがない場合、フォーム全体に対するエラーメッセージを設定
         setFormError(error.general);
       }
     } finally {
@@ -56,7 +55,6 @@ export function SignInForm({
   const handlePasswordReset = () => {
     closeAuthModal();
   };
-
 
 
   return (

@@ -6,7 +6,6 @@ class Api::V1::Users::ProjectsController < ApplicationController
       return render json: { error: "不正なパラメーターです" }, status: :bad_request
 
     end
-    Rails.logger.debug "渡されてきたフィルターやで！！！！！！！！！！: #{params[:filter].inspect}"
     projects =
       case params[:filter]
       when "my_projects"

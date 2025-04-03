@@ -42,39 +42,28 @@ export function ProjectShowWrapper(){
   } = useProjectComments(projectId);
   const { updateProjectDetail } = useRevalidateSWR();
 
-  // const { cache } = useSWRConfig();
-  // console.log("Showのcache", cache);
-
-
-
   const [isAudioControllerVisible, setAudioControllerVisible] = useState<boolean>(false);
   const [audioData, setAudioData] = useState<AudioBuffer>(null);
-  // console.log("projects追跡",projects);
 
   //オーディオコントローラーに使用
   const [projectForController, setProjectForController] = useState<Project | null>(null);
   const [userForController, setUserForController] = useState<User | null>(null);
   const [audioSessionKey, setAudioSessionKey] = useState<string | null>(null);
   const globalAudioContextRef = useRef<AudioContext | null>(null);
-  const [playFlagFromIndex, setPlayFlagFromIndex] = useState<boolean>(true); //初回再生用
+  const [playFlagFromIndex, setPlayFlagFromIndex] = useState<boolean>(true);
   const [resetFlagFromIndex, setResetFlagFromIndex] = useState<boolean>(false);
 
 
   //フック
   const { fetchAudioData } = useFetchAudioData();
 
-  //context
-
-
   // コメントへの返信処理
   const handleReply = (commentId: string) => {
-    // console.log(`返信先Id: ${commentId}`);
     // 返信ロジック実装予定
   };
 
   // コメントの削除処理
   const handleDelete = (commentId: string) => {
-    // console.log(`削除するId: ${commentId}`);
     // 削除ロジック実装予定
   };
 
@@ -99,8 +88,8 @@ export function ProjectShowWrapper(){
   const handlePlayClick = async (project: EnrichedProject) => {
     const { user, audioFilePath } = project;
     try {
-      setResetFlagFromIndex(true); //再生中の場合は再生を停止
-      setPlayFlagFromIndex(true); //再生中に再生ボタンを押下した場合は再生フラグを初期化する
+      setResetFlagFromIndex(true);
+      setPlayFlagFromIndex(true);
 
       if (audioFilePath && globalAudioContextRef.current) {
         const audioArrayBuffer = await fetchAudioData(audioFilePath);
@@ -110,7 +99,7 @@ export function ProjectShowWrapper(){
         setAudioControllerVisible(true);
         setProjectForController(project);
         setUserForController(user);
-        setAudioSessionKey(`${project.id}-${Date.now()}`); //AudioControllerを再生ボタンごとに再生成する為の一意のキーを生成
+        setAudioSessionKey(`${project.id}-${Date.now()}`);
       }
     }catch(e) {
       console.error("音声データが取得できませんでした");
@@ -201,8 +190,6 @@ export function ProjectShowWrapper(){
         }
         </InfiniteScroll>
       )}
-
-
 
 
       {isAudioControllerVisible ? (

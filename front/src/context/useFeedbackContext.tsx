@@ -35,7 +35,6 @@ export function FeedbackProvider({ children }: WithChildren) {
     const keys = key.split(":");
     let feedbackData: any = feedbackMessages;
 
-    // 階層を辿ってフィードバックメッセージを取得
     for (const k of keys) {
       feedbackData = feedbackData?.[k as keyof typeof feedbackMessages];
       if (!feedbackData) {
@@ -44,7 +43,6 @@ export function FeedbackProvider({ children }: WithChildren) {
       }
     }
 
-    // フィードバックメッセージが存在する場合に設定
     if (feedbackData?.message && feedbackData?.severity) {
       setFeedbackState({
         open: true,

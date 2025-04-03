@@ -10,16 +10,15 @@ export const AuthConfirmed = () => {
   const searchParams = useSearchParams();
   const { handleLoginSuccess } = useAuthContext();
 
-  const [isLoading, setIsLoading] = useState(true); // ローディング状態
-  const [isSuccess, setIsSuccess] = useState(false); // 成功状態
-  const [userEmail, setUserEmail] = useState<string | null>(null); //再送先メールアドレス
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const confirmAccount = async () => {
       const confirmationToken = searchParams.get("confirmation_token");
 
-      // トークンがない場合はエラー画面へリダイレクト
       if (!confirmationToken) {
         alert("認証トークンが見つかりません。");
         setIsLoading(false);
@@ -27,7 +26,6 @@ export const AuthConfirmed = () => {
       }
 
       try {
-        //メール認証リクエスト
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/auth/confirmation`,
           {
@@ -36,7 +34,6 @@ export const AuthConfirmed = () => {
           }
         );
 
-        // 認証成功時
         if (response.data.success) {
           handleLoginSuccess(response.data.user);
           setIsSuccess(true);
@@ -53,7 +50,6 @@ export const AuthConfirmed = () => {
         setIsLoading(false);
       }
     };
-
     confirmAccount();
   }, []);
 

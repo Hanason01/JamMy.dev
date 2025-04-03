@@ -64,7 +64,7 @@ export function AudioController({
     >
       <IconButton
         onClick={() => {
-         onClose(); // 親コンポーネントでコントローラーを閉じる
+          onClose();
           }}
         sx={{
           position: "absolute",

@@ -12,8 +12,8 @@ const steps = ["録音", "投稿"];
 export function PostProjectStepper(){
   const [activeStep, setActiveStep] = useState<number>(0);
   const [returnToStep1Mode, setReturnToStep1Mode,] = useState<"edit" | "record">("record");
-  const [audioBufferForProcessing, setAudioBufferForProcessing] = useState<AudioBuffer>(null); //編集前音声の保持
-  const [audioBufferForPost, setAudioBufferForPost] = useState<AudioBuffer>(null); //編集後音声の保持
+  const [audioBufferForProcessing, setAudioBufferForProcessing] = useState<AudioBuffer>(null);
+  const [audioBufferForPost, setAudioBufferForPost] = useState<AudioBuffer>(null);
   const [settingsForPost, setSettingsForPost] = useState<PostSettings>({
     tempo: 120,
     duration: 30,
@@ -26,11 +26,9 @@ export function PostProjectStepper(){
 
   const handleBack = (mode: "edit" | "record") => {
     if (mode === "edit") {
-      // 編集画面に戻す
       setActiveStep(0);
       setReturnToStep1Mode("edit");
     } else {
-      // 録音画面に戻す
       setActiveStep(0);
       setReturnToStep1Mode("record");
     }

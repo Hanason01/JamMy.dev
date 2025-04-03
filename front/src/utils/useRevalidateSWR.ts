@@ -102,10 +102,8 @@ export const useRevalidateSWR = () => {
   const updateOtherUserProjects = async (projectId: string) => {
     const allKeys = Array.from(cache.keys()) as string[];
 
-    // キー取得
     const userProjectKeys = allKeys.filter((key) => key.includes("/api/users/") && key.includes("other_users"));
 
-    // 対象のprojectを持つユーザーIDを特定
     const userIds = userProjectKeys.map((key) => {
       const match = key.match(/\/api\/users\/(\d+)\/other_users/);
       return match ? match[1] : null;

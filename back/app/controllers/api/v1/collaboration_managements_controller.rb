@@ -19,32 +19,25 @@ class Api::V1::CollaborationManagementsController < ApplicationController
         raise ActiveRecord::Rollback, "音声ファイルが必要です"
       end
 
-      #プロジェクト作成
       project = Project.find(params[:project][:project_id])
 
-      # プロジェクト終了時
       if terminate_mode?(params[:project])
         terminate_project(project)
       end
 
 
-      # -------------------以下、プロジェクト保存時-------------------
       update_collaborations(params[:project][:collaboration_ids], project) if params[:project][:collaboration_ids].present?
 
-      # ProjectのAudioFile の削除・保存（S3処理含む）
       save_audio_file(project, params[:project][:audio_file])
 
-      #全て成功時のレスポンス
       render json: { message: "Project and audio file updated successfully" }, status: :ok
     end
   rescue ActiveRecord::Rollback => e
-    #ロールバック時のレスポンス
     render json: { error: e.message }, status: :unprocessable_entity
   end
 
   private
 
-  # コラボレーションのステータス更新
   def update_collaborations(collaboration_ids, project)
     collaborations = Collaboration.where(id: collaboration_ids, project_id: project.id)
 
@@ -53,7 +46,6 @@ class Api::V1::CollaborationManagementsController < ApplicationController
         raise ActiveRecord::Rollback, "Collaboration ID #{collaboration.id} のステータス更新に失敗しました: #{collaboration.errors.full_messages.join(', ')}"
       end
 
-      # 通知
       Notification.create!(
       recipient: collaboration.user,
       sender: project.user,
@@ -63,7 +55,6 @@ class Api::V1::CollaborationManagementsController < ApplicationController
     end
   end
 
-  # モードが terminate か判定
   def terminate_mode?(project_params)
     project_params[:mode].present? && project_params[:mode] == "terminate"
   end

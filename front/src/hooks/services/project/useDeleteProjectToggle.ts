@@ -9,11 +9,8 @@ export const useDeleteProjectToggle = () => {
   const {applyMutate} = useApplyMutate();
 
 
-  // 投稿削除関数
   const handleDeleteProjectSWR = async (projectId: string, mode:"list" | "detail", getKey: GetKeyType) => {
     const isShowMode = mode === "detail";
-
-    // 更新処理
     const createApiRequest = undefined;
     const destroyApiRequest = () => deleteProject(projectId);
 
@@ -26,7 +23,6 @@ export const useDeleteProjectToggle = () => {
       actionValues:{},
       getKey
     });
-    // console.log("追加の楽観的更新後", cache);
   };
 
   return { handleDeleteProjectSWR };

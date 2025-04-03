@@ -49,11 +49,10 @@ export const metadata = {
 };
 
 
-// 本番環境で console.log を無効化
 if (process.env.NODE_ENV === "production") {
   console.log = () => {};
-  console.warn = () => {}; // 必要なら他のログも無効化
-  console.error = () => {}; // エラーを隠したい場合
+  console.warn = () => {};
+  console.error = () => {};
 }
 
 export default function RootLayout({ children }: Readonly<{
@@ -80,8 +79,8 @@ export default function RootLayout({ children }: Readonly<{
       <body>
         <SWRConfig
             value={{
-              dedupingInterval: 5000, // 5秒間は同じリクエストを送らない
-              shouldRetryOnError: false, // エラー時の自動リトライを無効化
+              dedupingInterval: 5000,
+              shouldRetryOnError: false,
             }}
             >
           <FeedbackProvider>

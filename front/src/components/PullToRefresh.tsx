@@ -25,22 +25,22 @@ export const PullToRefresh = ({ onRefresh }: PullToRefreshProps) => {
 
       const distance = event.touches[0].clientY - startY;
       if (distance > 0) {
-        event.preventDefault(); // ネイティブリフレッシュ防止
-        setPullProgress(Math.min(distance, 50)); // 最大50pxまで制限
+        event.preventDefault();
+        setPullProgress(Math.min(distance, 50));
       }
     };
 
     const handleTouchEnd = async () => {
-      if (pullProgress >= 50 && !isRefreshing) { // 50px 以上引っ張ったらリフレッシュ発動
+      if (pullProgress >= 50 && !isRefreshing) {
         setIsRefreshing(true);
         setPullProgress(50);
 
-        await onRefresh(); // データ再取得
+        await onRefresh();
 
         setIsRefreshing(false);
         setPullProgress(0);
       } else {
-        setPullProgress(0); // 未達ならリセット
+        setPullProgress(0);
       }
       setStartY(null);
     };

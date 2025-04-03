@@ -1,6 +1,5 @@
 import { InitialComment, EnrichedComment } from "@sharedTypes/types";
 
-// 事前処理関数（isOwnerセット）
 export const applyIsOwnerToComments = (comments: InitialComment[]): EnrichedComment[] => {
   if (typeof window === "undefined") {
     return comments.map(comment => ({ ...comment, isOwner: false }));

@@ -18,37 +18,33 @@ export function CollaborationStep2({
   audioBufferForPost: AudioBuffer;
   setAudioBufferForPost: SetState<AudioBuffer>;
 }){
-  // console.log("audioBufferForPostの値（Step1の録音データ）",audioBufferForPost);
   const audioContextRef = useRef<AudioContext | null>(null); //Step2とその子コンポーネント限定
-  const [isAudioContextReady, setIsAudioContextReady] = useState<boolean>(false); // 初期化完了フラグ。AudioPlayerの表示の為意図的に再レンダリング行うため
+  const [isAudioContextReady, setIsAudioContextReady] = useState<boolean>(false);
 
-  //初期化処理（AudioPlayerへ渡す用のaudioContextを作成）
+  //初期化処理
   useEffect(() => {
-    // console.log(`[${new Date().toISOString()}] CollaborationStep2がマウントされました`);
     if (audioBufferForPost && !audioContextRef.current){
       audioContextRef.current= new (window.AudioContext || (window as any).webkitAudioContext)({
         sampleRate: 44100
       })
       setIsAudioContextReady(true);
-      // console.log("audioContextRef",audioContextRef.current);
     }
     return () => {
       audioContextRef.current?.close().then(() => {
         audioContextRef.current = null;
       });
-      // console.log(`CollaborationStep2がアンマウントされました[${new Date().toISOString()}]`);
     };
   }, []);
 
   //録音し直すボタンハンドル
   const handleReRecording = (): void => {
-    setAudioBufferForPost(null); // 再録時に録音データをリセット
+    setAudioBufferForPost(null);
     onBack("record");
   };
 
   //編集し直すボタンハンドル
   const handleReProcessing = (): void => {
-    setAudioBufferForPost(null); // 編集時に録音データをリセット
+    setAudioBufferForPost(null);
     onBack("edit");
   };
 

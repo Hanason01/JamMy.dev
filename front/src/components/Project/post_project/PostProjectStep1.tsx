@@ -22,29 +22,26 @@ export function PostProjectStep1({onNext,
   setAudioBufferForProcessing: SetState<AudioBuffer>;
   setSettingsForPost: SetState<PostSettings>;
 }){
-  const [recordingDurationSliderValue, setRecordingDurationSliderValue] = useState<number>(30); //秒数
-  const [speedSliderValue, setSpeedSliderValue] = useState<number>(120); //速度
-  const [countIn, setCountIn] = useState<number>(0); //カウントイン
-  const [metronomeOn, setMetronomeOn] = useState<boolean>(false); //メトロノームON/OFF
+  const [recordingDurationSliderValue, setRecordingDurationSliderValue] = useState<number>(30);
+  const [speedSliderValue, setSpeedSliderValue] = useState<number>(120);
+  const [countIn, setCountIn] = useState<number>(0);
+  const [metronomeOn, setMetronomeOn] = useState<boolean>(false);
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
-  const [selectedVolume, setSelectedVolume] = useState<number>(50); // 音量管理
-  const [isRecording, setIsRecording] = useState<boolean>(false); //録音状態
+  const [selectedVolume, setSelectedVolume] = useState<number>(50);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
 
-  //カウントインセレクト用
   const preCounts = [0,1,2,3,4,5,6,7]
 
 
   //録音データの受け取りと受け渡し
   const handleRecordingComplete = (audioBuffer: AudioBuffer) =>{
-    // console.log("録音が完了しました:", audioBuffer);
-    setAudioBufferForProcessing(audioBuffer); //Step1のプレビュー用
+    setAudioBufferForProcessing(audioBuffer);
     const settings: PostSettings = {
       tempo: speedSliderValue,
       duration: recordingDurationSliderValue,
     }
-    // console.log("Step1が親へ渡すsettings", settings);
-    setSettingsForPost(settings); //Step2用の録音設定
-    setHasRecorded(true); //編集コンポーネントへ表示切替
+    setSettingsForPost(settings);
+    setHasRecorded(true);
   };
 
 
@@ -57,6 +54,7 @@ export function PostProjectStep1({onNext,
     }
   }, [returnToStep1Mode]);
 
+
   return(
     <Box sx={{
       display: "flex",
@@ -68,12 +66,12 @@ export function PostProjectStep1({onNext,
       }}>
       <Box sx={{justifyContent: "flex-start",
         "& .MuiTypography-root": {
-            fontSize: "1rem", // 全体のフォントサイズ
-            color: "text.primary", // テーマの文字色
+            fontSize: "1rem",
+            color: "text.primary",
           },
           "& .MuiInputBase-root": {
-            fontSize: "1rem", // 入力フィールドの文字サイズ
-            color: "text.primary", // 入力フィールドの文字色
+            fontSize: "1rem",
+            color: "text.primary",
           },
       }}>
         <Box sx={{display: "flex", alignItems: "center", my:1, width: "80%"}}>

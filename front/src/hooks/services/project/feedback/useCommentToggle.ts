@@ -10,12 +10,9 @@ export const useCommentToggle = () => {
   const {applyMutate} = useApplyMutate();
 
 
-  // コメント作成関数
   const handleCreateComment = async (data: PostCommentFormData, projectId: string, getKey: GetKeyType) => {
     const isShowMode = true;
     const isCreateMode = true;
-
-    // 更新処理
     const createApiRequest = isCreateMode ? () => postCommentProject(data, projectId) : undefined;
     const destroyApiRequest =  undefined;
 
@@ -28,12 +25,10 @@ export const useCommentToggle = () => {
       actionValues:{increment: 1},
       getKey
     });
-    // console.log("追加の楽観的更新後", cache);
   };
 
 
 
-  // コメント削除関数
   const handleUnComment = async (projectId: string, commentId: number, getKey: GetKeyType) => {
     if(!commentId ){
       console.error("不正ないいねIDを検知しました");
@@ -54,9 +49,6 @@ export const useCommentToggle = () => {
       actionValues:{increment: -1},
       getKey
     });
-    // console.log("解除の楽観的更新後", cache);
   };
-
-
   return { handleCreateComment, handleUnComment };
 };

@@ -19,7 +19,7 @@ export function CommentForm({
   getKey: GetKeyType;
   }) {
   // SWR関連
-  const { mutate } = useProjectComments(projectId); //コメント
+  const { mutate } = useProjectComments(projectId);
 
   // フック
   const { handleCreateComment } = useCommentToggle();
@@ -27,7 +27,7 @@ export function CommentForm({
 
   // 状態管理
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null); //コメントフォームfocusチェック
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // context
   const { isCommentRoute, setIsCommentRoute } = useClientCacheContext();
@@ -38,7 +38,7 @@ export function CommentForm({
     if (isCommentRoute) {
       const input = document.getElementById("comment-input");
       input?.focus();
-      setIsCommentRoute (false); // フォーカス後にリセット
+      setIsCommentRoute (false);
     }
 
     return () => {
@@ -48,10 +48,10 @@ export function CommentForm({
 
   //コメント入力focus時にログイン判定
   useEffect(() => {
-    const inputElement = inputRef.current; //TextfieldのDOM取得
+    const inputElement = inputRef.current;
 
     if (inputElement) {
-      inputElement.addEventListener("focus", handleFocus); //focusと同時にログイン判定
+      inputElement.addEventListener("focus", handleFocus);
     }
 
     return () => {
@@ -65,7 +65,7 @@ export function CommentForm({
   const handleFocus = () => {
     if (!requireAuth()) {
       openAuthModal();
-      inputRef.current?.blur(); //モーダルを開いたらfocusを解除
+      inputRef.current?.blur();
     }
   };
 
@@ -75,7 +75,7 @@ export function CommentForm({
     try {
       await handleCreateComment(data, projectId, getKey);
       reset();
-      await mutate(); //コメントのSWR
+      await mutate();
     } catch (error: any) {
       setError("content", { type: "manual", message: error.content });
       console.error("コメント送信エラー:", error);

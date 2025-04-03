@@ -25,7 +25,6 @@ export const AuthProvider = ({ children }: WithChildren) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [authenticatedUser, setAuthenticatedUser] = useState< UserAttributes | null>(null);
-  // console.log("AuthProviderでisAuthenticatedを追跡",isAuthenticated);
 
   //初期化
   useEffect(() => {
@@ -34,7 +33,6 @@ export const AuthProvider = ({ children }: WithChildren) => {
       setAuthenticatedUser(JSON.parse(storedUser) as UserAttributes);
       setIsAuthenticated(true);
     }
-    // console.log("Authenticatedの初期化をcontextで行う");
   }, []);
 
   //ログイン成功時の関数
@@ -47,7 +45,6 @@ export const AuthProvider = ({ children }: WithChildren) => {
 
    // ログアウト処理
   const handleLogout = ():void => {
-   // ローカルストレージをクリア
     localStorage.removeItem("authenticatedUser");
     setIsAuthenticated(false);
     setAuthenticatedUser(null);

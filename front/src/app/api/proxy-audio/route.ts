@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
-// S3 クライアントの設定
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {

@@ -25,21 +25,18 @@ export const useFindPageKeyByProjectId = () => {
       return undefined;
     }
 
-    // キーを基準に巡回
     for (const key of cache.keys()) {
       const normalizedKey = key.replace(/^\$inf\$\//, "/"); //マスターキーは除外
 
-      // ページネーションのキーかどうか確認
       if (typeof key === "string" && keyPattern.test(normalizedKey)) {
         const pageData = cache.get(key) as { data?: { projects?: EnrichedProject[] } };
 
-        if (pageData && Array.isArray(pageData.data?.projects)) {  //pageDataはprojects直上のdataを指す
-          // projects内に該当するprojectIdがあるか確認し、インデックスを取得
+        if (pageData && Array.isArray(pageData.data?.projects)) {
           const index = pageData.data.projects.findIndex((project) => project.id === projectId);
 
           if (index !== -1) {
             const project = pageData.data.projects[index];
-            return { mutateKey: key, projectIndex: index, project }; // 見つかったページキーとインデックスを返す
+            return { mutateKey: key, projectIndex: index, project };
           }
         }
       }
