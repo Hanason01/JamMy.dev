@@ -1,4 +1,4 @@
-# プロジェクト名: 『JamMy』
+# プロジェクト名: 『JamMy』🌾当該プロジェクトは閉鎖中です
 
 ## URL（ゲストユーザー情報は下記に記載） : [https://www.jam-my.com/](https://www.jam-my.com/)
 
